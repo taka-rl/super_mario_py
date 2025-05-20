@@ -52,13 +52,37 @@ class Map():
                 if map_num > 0:
                     win.blit(self.__imgs[map_num], (x * 20, y * 20))
 
+    def chk_collision(self, rect):
+        '''
+        Check for collision between a given rectangular area (rect) and the tiles
+        in the game map. The function checks the four tiles surrounding the top-left
+        corner of the given rectangle. If any of these tiles contain an obstacle 
+        (represented by non-zero values in the map) and the given rectangle collides
+        with the corresponding tile's area, the function returns True to indicate 
+        a collision. Otherwise, it returns False.
+        '''
+        
+        # Convert the top-left position of the rectangle to the corresponding tile indices
+        xidx = rect.x // 20
+        yidx = rect.y // 20
+        
+        # Check the 2x2 grid of tiles surrounding the rectangle's top-left corner
+        for y in range(2):
+            for x in range(2):
+                # If the tile contains an obstacle (non-zero value) and the rectangle 
+                # collides with the tile's area, return True (collision detected)
+                if self.__data[yidx + y][xidx + x] and rect.colliderect(
+                    pygame.Rect((xidx + x) * 20, (yidx + y) * 20, 20, 20)):
+                    return True
+        return False
+
 
 class Mario(pygame.sprite.Sprite):
     '''Mario class'''
     
     WALK_ANIME_IDX = [0, 0, 1, 1, 2, 2]
     
-    def __init__(self):
+    def __init__(self, map):
         pygame.sprite.Sprite.__init__(self)
         
         # Flag for Mario direction
@@ -89,6 +113,9 @@ class Mario(pygame.sprite.Sprite):
         
         self.image = self.__imgs[0]
         self.rect = pygame.Rect(150, 180, 20, 20)
+
+        # Get a map
+        self.__map = map
     
     @property
     def vy(self):
@@ -115,7 +142,6 @@ class Mario(pygame.sprite.Sprite):
             self.__deading()
             return
         
-        
         # Get key status
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
@@ -128,15 +154,29 @@ class Mario(pygame.sprite.Sprite):
             self.__jump()
                     
         # Move for Y axle
-        if not self.__on_ground:
-            self.rect.y += self.__vy
-            self.__vy += 1
+        # if not self.__on_ground:
+        self.rect.y += self.__vy
+        self.__vy += 1
+        
+        # Judge hitbox
+        if self.__map.chk_collision(self.rect):
+            
+            # If Mario is moving upward, it lets him go downward
+            # vy is bigger than 0 -> 1 to go upward
+            self.rect.y = (self.rect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
+            
+            # Check if Mario is on ground 
+            if self.__vy > 0:
+                self.__on_ground = True
+                self.__vy = 0
+            else:
+                self._vy = 1
         
         # temporary heigh is set 180 for on_ground
-        if self.rect.y >= 180:
-            self.rect.y = 180
-            self.__on_ground = True
-            self.__vy = 0
+        # if self.rect.y >= 180:
+        #     self.rect.y = 180
+        #     self.__on_ground = True
+        #     self.__vy = 0
         
         # Change the image direction 
         self.image = pygame.transform.flip(self.__imgs[self.WALK_ANIME_IDX[self.__walkidx % 6]], self.__isleft, False)
@@ -249,17 +289,17 @@ def init():
      # Define Sprite group
     group = pygame.sprite.RenderUpdates()
     
+    # Map class
+    map = Map()
+    
     # Mario class
-    mario = Mario()
+    mario = Mario(map)
     
     # Goomba class
     goombas = [
         Goomba(270, 180, mario),
         Goomba(300, 180, mario)
     ]
-    
-    # Map class
-    map = Map()
     
     # Add mario into the group
     group.add(mario)
