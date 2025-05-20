@@ -82,6 +82,17 @@ class Mario(pygame.sprite.Sprite):
             self.__on_ground = False
         
 
+class Goomba(pygame.sprite.Sprite):
+    def __init__(self, x, y, mario):
+        pygame.sprite.Sprite.__init__(self)
+        
+        # Load goomba images        
+        self.__imgs = [
+            pygame.image.load('./img/goomba.jpg'),
+        ]
+
+        self.image = self.__imgs[0]
+        self.rect = pygame.Rect(x, y, 20, 20)
 
 def main():
     '''main function'''
@@ -101,10 +112,18 @@ def main():
     # Mario class
     mario = Mario()
     
+    # Goomba class
+    goombas = [
+        Goomba(270, 180, mario),
+        Goomba(300, 180, mario)
+    ]
+    
     # Add mario into the group
     group.add(mario)
     
-
+    # Add goomba into the group
+    group.add(goombas)
+    
     # Event loop
     running = True
     while running:
