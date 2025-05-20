@@ -39,12 +39,16 @@ class Mario(pygame.sprite.Sprite):
 
         # Status
         self.__status = Status.NORMAL
+
+        # Anime counter
+        self.__animecounter = 0
         
         # Load mario images
         self.__imgs = [
             pygame.image.load('./img/mario_1.jpg'),
             pygame.image.load('./img/mario_2.jpg'),
             pygame.image.load('./img/mario_3.jpg'),
+            pygame.image.load('./img/mario_death.jpg'),
         ]
         
         self.image = self.__imgs[0]
@@ -67,6 +71,15 @@ class Mario(pygame.sprite.Sprite):
         self.__status = value
     
     def update(self):
+        if self.__status == Status.DEAD:
+            pass
+            
+        if self.__status == Status.DEADING:
+            self.image = self.__imgs[3]
+            self.__deading()
+            return
+        
+        
         # Get key status
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
@@ -106,6 +119,20 @@ class Mario(pygame.sprite.Sprite):
         if self.__on_ground:
             self.__vy = -10
             self.__on_ground = False
+    
+    def __deading(self):
+        if self.__animecounter == 0:
+            self.__vy = -10
+        
+        if self.__animecounter > 10:
+            self.__vy += 1
+            self.rect.y += self.__vy
+        
+        if self.rect.y > H + 20:
+            self.__status = Status.DEAD
+            return
+         
+        self.__animecounter += 1
         
 
 class Goomba(pygame.sprite.Sprite):
@@ -142,6 +169,10 @@ class Goomba(pygame.sprite.Sprite):
         return self.__status
     
     def update(self):
+        # Not update if Mario is dead
+        if self.__mario.status == Status.DEADING:
+            return
+        
         if self.__status == Status.DEADING:
             self.image = self.__imgs[1]
             self.__collapsecount += 1
@@ -174,22 +205,12 @@ class Goomba(pygame.sprite.Sprite):
                 
                 # Mario jump action
                 self.__mario.vy = -5
-        
+            else:
+                self.__mario.status = Status.DEADING
         
 
-def main():
-    '''main function'''
-    
-    # Initialize pygame
-    pygame.init()
-    
-    # Build a display
-    win = pygame.display.set_mode((W, H))
-    
-    # Create clock rate
-    clock = pygame.time.Clock()
-    
-    # Define Sprite group
+def init():
+     # Define Sprite group
     group = pygame.sprite.RenderUpdates()
     
     # Mario class
@@ -207,6 +228,24 @@ def main():
     # Add goomba into the group
     group.add(goombas)
     
+    return group, mario, goombas
+
+
+def main():
+    '''main function'''
+    
+    # Initialize pygame
+    pygame.init()
+    
+    # Build a display
+    win = pygame.display.set_mode((W, H))
+    
+    # Create clock rate
+    clock = pygame.time.Clock()
+    
+    # Initialize sprite
+    group, mario, goombas = init()
+    
     # Event loop
     running = True
     while running:
@@ -219,6 +258,12 @@ def main():
         
         # Update the group
         group.update()
+        
+        # If Mario is dead
+        if mario.status == Status.DEAD:
+            time.sleep(2)
+            group, mario, goombas = init()
+            continue 
         
         # Remove DEAD status
         for goomba in goombas:
