@@ -29,10 +29,10 @@ class Map():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -224,7 +224,7 @@ class Mario(pygame.sprite.Sprite):
 class Goomba(pygame.sprite.Sprite):
     WALK_SPEED = 6
     
-    def __init__(self, x, y, mario):
+    def __init__(self, x, y, mario, map):
         pygame.sprite.Sprite.__init__(self)
         
         # Load goomba images        
@@ -236,9 +236,15 @@ class Goomba(pygame.sprite.Sprite):
         self.image = self.__imgs[0]
         self.rect = pygame.Rect(x, y, 20, 20)
         
+        # Get a map
+        self.__map = map
+        
         # X axle move distance
         self.__dir = -2
         self.__walkidx = 0
+        
+        # Y axle move
+        self.__vy = 0
         
         # Get mario 
         self.__mario = mario
@@ -269,12 +275,31 @@ class Goomba(pygame.sprite.Sprite):
         if self.__status == Status.DEAD:
             pass
         
-        # Move
+        # X axle move
         self.rect.x += self.__dir
         
-        # Change the direction
-        if self.rect.x <= 0 or self.rect.x >= W - self.rect.width:
+        # X axle collision check
+        if self.__map.chk_collision(self.rect):
+            self.rect.x = (self.rect.x // 20 + (1 if self.__dir < 0 else 0)) * 20
             self.__dir *= -1
+        
+        # Change the direction
+        # if self.rect.x <= 0 or self.rect.x >= W - self.rect.width:
+        #     self.__dir *= -1
+            
+        # Y axle move
+        self.__vy += 1
+        self.rect.y += self.__vy
+        
+        # X axle collision check
+        if self.__map.chk_collision(self.rect):
+            self.rect.y = (self.rect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
+        
+            if self.__vy > 0:
+                self.__vy = 0
+            else:
+                # jump
+                self.__vy = 1
             
         self.__walkidx += 1
         if self.__walkidx == self.WALK_SPEED:
@@ -307,8 +332,9 @@ def init():
     
     # Goomba class
     goombas = [
-        Goomba(270, 180, mario),
-        Goomba(300, 180, mario)
+        Goomba(250, 180, mario, map),
+        Goomba(270, 180, mario, map),
+        Goomba(310, 180, mario, map)
     ]
     
     # Add mario into the group
