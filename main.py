@@ -15,6 +15,9 @@ class Mario(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
+        # Flag for Mario direction
+        self.__isleft = False
+        
         # Load mario images
         self.__imgs = [
             pygame.image.load('./img/mario_1.jpg'),
@@ -22,6 +25,28 @@ class Mario(pygame.sprite.Sprite):
         
         self.image = self.__imgs[0]
         self.rect = pygame.Rect(150, 180, 20, 20)
+    
+    
+    def update(self):
+        # Get key status
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT]:
+            self.__right()
+            
+        if keys[pygame.K_LEFT]:
+            self.__left()
+        
+        # Change the image direction 
+        self.image = pygame.transform.flip(self.__imgs[0], self.__isleft, False)
+        
+    
+    def __right(self):
+        self.rect.x += 5
+        self.__isleft = False
+    
+    def __left(self):
+        self.rect.x -=5
+        self.__isleft = True
         
 
 
