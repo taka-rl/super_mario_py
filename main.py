@@ -291,7 +291,7 @@ class Goomba(pygame.sprite.Sprite):
         self.__vy += 1
         self.rect.y += self.__vy
         
-        # X axle collision check
+        # Y axle collision check
         if self.__map.chk_collision(self.rect):
             self.rect.y = (self.rect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
         
