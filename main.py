@@ -1,4 +1,12 @@
 import pygame
+from enum import Enum, auto
+import time
+
+
+class Status(Enum):
+    NORMAL = auto()
+    DEADING = auto()
+    DEAD = auto()
 
 
 # Display size
@@ -28,6 +36,9 @@ class Mario(pygame.sprite.Sprite):
         
         # Judge if Mario is on ground
         self.__on_ground = False
+
+        # Status
+        self.__status = Status.NORMAL
         
         # Load mario images
         self.__imgs = [
@@ -39,6 +50,21 @@ class Mario(pygame.sprite.Sprite):
         self.image = self.__imgs[0]
         self.rect = pygame.Rect(150, 180, 20, 20)
     
+    @property
+    def vy(self):
+        return self.__vy
+    
+    @vy.setter
+    def vy(self, value):
+        self.__vy = value
+        
+    @property
+    def status(self):
+        return self.__status
+    
+    @status.setter
+    def status(self, value):
+        self.__status = value
     
     def update(self):
         # Get key status
@@ -85,12 +111,13 @@ class Mario(pygame.sprite.Sprite):
 class Goomba(pygame.sprite.Sprite):
     WALK_SPEED = 6
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, mario):
         pygame.sprite.Sprite.__init__(self)
         
         # Load goomba images        
         self.__imgs = [
             pygame.image.load('./img/goomba.jpg'),
+            pygame.image.load('./img/goomba_death.jpg'),
         ]
 
         self.image = self.__imgs[0]
@@ -99,8 +126,32 @@ class Goomba(pygame.sprite.Sprite):
         # X axle move distance
         self.__dir = -2
         self.__walkidx = 0
+        
+        # Get mario 
+        self.__mario = mario
+
+        # Status
+        self.__status = Status.NORMAL
+
+        # Counter for collapse
+        self.__collapsecount = 0
+
+    @property
+    def status(self):
+        '''Get the status'''
+        return self.__status
     
     def update(self):
+        if self.__status == Status.DEADING:
+            self.image = self.__imgs[1]
+            self.__collapsecount += 1
+            if self.__collapsecount == 30:
+                self.__status = Status.DEAD
+            return
+        
+        if self.__status == Status.DEAD:
+            pass
+        
         # Move
         self.rect.x += self.__dir
         
@@ -114,6 +165,15 @@ class Goomba(pygame.sprite.Sprite):
         
         self.image = pygame.transform.flip(self.__imgs[0], self.__walkidx < self.WALK_SPEED // 2, False)
         
+        # Collision check
+        if self.rect.colliderect(self.__mario.rect):
+            # If Mario hits Goomba
+            if self.__mario.vy > 0:
+                # Squash
+                self.__status = Status.DEADING
+                
+                # Mario jump action
+                self.__mario.vy = -5
         
         
 
@@ -137,8 +197,8 @@ def main():
     
     # Goomba class
     goombas = [
-        Goomba(270, 180),
-        Goomba(300, 180)
+        Goomba(270, 180, mario),
+        Goomba(300, 180, mario)
     ]
     
     # Add mario into the group
@@ -159,6 +219,11 @@ def main():
         
         # Update the group
         group.update()
+        
+        # Remove DEAD status
+        for goomba in goombas:
+            if goomba.status == Status.DEAD:
+                group.remove(goomba)
         
         # Draw the group
         group.draw(win)
