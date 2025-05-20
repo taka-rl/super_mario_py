@@ -93,6 +93,20 @@ class Goomba(pygame.sprite.Sprite):
 
         self.image = self.__imgs[0]
         self.rect = pygame.Rect(x, y, 20, 20)
+        
+        # X axle move distance
+        self.__dir = -2
+    
+    def update(self):
+        # Move
+        self.rect.x += self.__dir
+        
+        # Change the direction
+        if self.rect.x <= 0 or self.rect.x >= W - self.rect.width:
+            self.__dir *= -1
+        
+        
+        
 
 def main():
     '''main function'''
