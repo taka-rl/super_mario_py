@@ -22,6 +22,12 @@ class Mario(pygame.sprite.Sprite):
         
         # idx for walking animation
         self.__walkidx = 0
+
+        # Y axle move distance
+        self.__vy = 0
+        
+        # Judge if Mario is on ground
+        self.__on_ground = False
         
         # Load mario images
         self.__imgs = [
@@ -43,6 +49,20 @@ class Mario(pygame.sprite.Sprite):
         if keys[pygame.K_LEFT]:
             self.__left()
         
+        if keys[pygame.K_SPACE]:
+            self.__jump()
+                    
+        # Move for Y axle
+        if not self.__on_ground:
+            self.rect.y += self.__vy
+            self.__vy += 1
+        
+        # temporary heigh is set 180 for on_ground
+        if self.rect.y >= 180:
+            self.rect.y = 180
+            self.__on_ground = True
+            self.__vy = 0
+        
         # Change the image direction 
         self.image = pygame.transform.flip(self.__imgs[self.WALK_ANIME_IDX[self.__walkidx % 6]], self.__isleft, False)
         
@@ -55,6 +75,11 @@ class Mario(pygame.sprite.Sprite):
         self.rect.x -=5
         self.__walkidx += 1
         self.__isleft = True
+        
+    def __jump(self):
+        if self.__on_ground:
+            self.__vy = -10
+            self.__on_ground = False
         
 
 
