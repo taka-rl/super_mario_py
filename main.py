@@ -83,7 +83,9 @@ class Mario(pygame.sprite.Sprite):
         
 
 class Goomba(pygame.sprite.Sprite):
-    def __init__(self, x, y, mario):
+    WALK_SPEED = 6
+    
+    def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
         
         # Load goomba images        
@@ -96,6 +98,7 @@ class Goomba(pygame.sprite.Sprite):
         
         # X axle move distance
         self.__dir = -2
+        self.__walkidx = 0
     
     def update(self):
         # Move
@@ -104,6 +107,12 @@ class Goomba(pygame.sprite.Sprite):
         # Change the direction
         if self.rect.x <= 0 or self.rect.x >= W - self.rect.width:
             self.__dir *= -1
+            
+        self.__walkidx += 1
+        if self.__walkidx == self.WALK_SPEED:
+            self.__walkidx = 0
+        
+        self.image = pygame.transform.flip(self.__imgs[0], self.__walkidx < self.WALK_SPEED // 2, False)
         
         
         
@@ -128,8 +137,8 @@ def main():
     
     # Goomba class
     goombas = [
-        Goomba(270, 180, mario),
-        Goomba(300, 180, mario)
+        Goomba(270, 180),
+        Goomba(300, 180)
     ]
     
     # Add mario into the group
