@@ -17,6 +17,42 @@ TILE_X = 16
 TILE_Y = 14
 
 
+class Map():
+    def __init__(self):        
+        # Define map 
+        self.__data = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],            
+        ]
+
+        self.__imgs = {
+            1: pygame.image.load('./img/ground.jpg'),
+            2: pygame.image.load('./img/block.jpg'),
+        }    
+    
+    def draw(self, win):
+        '''Draw a map'''
+        for y in range(TILE_Y):
+            for x in range(TILE_X + 1):
+                map_num = self.__data[y][x]
+                if map_num > 0:
+                    win.blit(self.__imgs[map_num], (x * 20, y * 20))
+
+
 class Mario(pygame.sprite.Sprite):
     '''Mario class'''
     
@@ -222,13 +258,16 @@ def init():
         Goomba(300, 180, mario)
     ]
     
+    # Map class
+    map = Map()
+    
     # Add mario into the group
     group.add(mario)
     
     # Add goomba into the group
     group.add(goombas)
     
-    return group, mario, goombas
+    return group, mario, goombas, map
 
 
 def main():
@@ -244,7 +283,7 @@ def main():
     clock = pygame.time.Clock()
     
     # Initialize sprite
-    group, mario, goombas = init()
+    group, mario, goombas, map = init()
     
     # Event loop
     running = True
@@ -262,13 +301,16 @@ def main():
         # If Mario is dead
         if mario.status == Status.DEAD:
             time.sleep(2)
-            group, mario, goombas = init()
+            group, mario, goombas, map = init()
             continue 
         
         # Remove DEAD status
         for goomba in goombas:
             if goomba.status == Status.DEAD:
                 group.remove(goomba)
+        
+        # Draw map
+        map.draw(win)
         
         # Draw the group
         group.draw(win)
