@@ -12,15 +12,22 @@ TILE_Y = 14
 class Mario(pygame.sprite.Sprite):
     '''Mario class'''
     
+    WALK_ANIME_IDX = [0, 0, 1, 1, 2, 2]
+    
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
         # Flag for Mario direction
         self.__isleft = False
         
+        # idx for walking animation
+        self.__walkidx = 0
+        
         # Load mario images
         self.__imgs = [
             pygame.image.load('./img/mario_1.jpg'),
+            pygame.image.load('./img/mario_2.jpg'),
+            pygame.image.load('./img/mario_3.jpg'),
         ]
         
         self.image = self.__imgs[0]
@@ -37,15 +44,16 @@ class Mario(pygame.sprite.Sprite):
             self.__left()
         
         # Change the image direction 
-        self.image = pygame.transform.flip(self.__imgs[0], self.__isleft, False)
+        self.image = pygame.transform.flip(self.__imgs[self.WALK_ANIME_IDX[self.__walkidx % 6]], self.__isleft, False)
         
-    
     def __right(self):
         self.rect.x += 5
+        self.__walkidx += 1
         self.__isleft = False
     
     def __left(self):
         self.rect.x -=5
+        self.__walkidx += 1
         self.__isleft = True
         
 
