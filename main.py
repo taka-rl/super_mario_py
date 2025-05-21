@@ -19,7 +19,7 @@ TILE_X, TILE_Y = 16, 14
 class Map():
     NOMOVE_X = 120
     
-    def __init__(self):        
+    def __init__(self):      
         # Define map 
         self.__data = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -43,10 +43,39 @@ class Map():
         self.__imgs: dict = {
             1: pygame.image.load('./img/ground.jpg'),
             2: pygame.image.load('./img/block.jpg'),
-        }    
+        }
+        
+        # Map shifts relative to Mario's position
+        self.__drawmargin: int = 0
     
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
-        '''Draw a map'''
+        """
+        Draws the visible area of the game map on the screen based on Mario's current position.
+    
+        The function determines which tiles are visible in the viewport by calculating the appropriate
+        starting position and adjusting for Mario's horizontal movement. Only the visible tiles are drawn 
+        to improve performance by avoiding unnecessary rendering of off-screen tiles.
+            
+        The startx variable is calculated based on Mario’s current x-position (rect.x), 
+        ensuring that the map moves in sync with Mario. If Mario is far enough along the x-axis, 
+        the map will start scrolling to the left to keep Mario in view.
+
+        The margin is used to adjust for the sub-tile movement 
+        when the x position of Mario isn't exactly divisible by the tile size (20 pixels). 
+        This margin value shifts the map so that Mario’s position remains correct in the game world.
+
+        So, the purpose of __drawmargin is to handle the adjustment needed 
+        when the map shifts relative to Mario’s position.
+
+        Args:
+            win (pygame.display): Map window
+            rect (pygame.rect): 
+                The rectangle representing Mario's current position. 
+                This is used to calculate the portion of the map that should be displayed.
+        
+        Returns:
+            None
+        """
         margin = 0
         
         # Mario start position
@@ -56,6 +85,9 @@ class Map():
             startx = rect.x // 20 - self.NOMOVE_X // 20
             margin = rect.x % 20
         
+        # Horizontal offset in Mario's position
+        self.__drawmargin = -startx * 20 -margin
+        
         for y in range(TILE_Y):
             for x in range(startx, startx + TILE_X + 1):
                 map_num = self.__data[y][x]
@@ -63,15 +95,20 @@ class Map():
                     win.blit(self.__imgs[map_num], ((x - startx) * 20 - margin, y * 20))
 
     def chk_collision(self, rect: pygame.rect) -> bool:
-        '''
+        """
         Check for collision between a given rectangular area (rect) and the tiles
         in the game map. The function checks the four tiles surrounding the top-left
         corner of the given rectangle. If any of these tiles contain an obstacle 
         (represented by non-zero values in the map) and the given rectangle collides
-        with the corresponding tile's area, the function returns True to indicate 
-        a collision. Otherwise, it returns False.
-        '''
+        with the corresponding tile's area. 
         
+        Args:
+            rect (pygame.rect): Targeted rect to be checked collision
+
+        Returns:
+            bool: Return True to indicate a collision, otherwise it returns False
+        """
+    
         # Convert the top-left position of the rectangle to the corresponding tile indices
         xidx, yidx = rect.x // 20, rect.y // 20
         
@@ -85,16 +122,33 @@ class Map():
                     return True
         return False
 
-    def get_drawx(self, rect: pygame.rect):
+    def get_drawx(self, rect: pygame.rect) -> int:
+        """X coordinate to draw Mario on the map"""
         if rect.x < self.NOMOVE_X:
             x = rect.x
         else:
             x = self.NOMOVE_X
         return x
 
+    def get_drawxenemy(self, rect: pygame.rect) -> int:
+        """
+        Calculate the correct X coordinate to draw enemy on the screen based on the map's scrolling position.
+        This function accounts for the scrolling margin and adjusts the enemy's horizontal position accordingly.
+        The position is calculated relative to the current map view, ensuring that enemies are drawn correctly 
+        in the viewport and move with the map.
+
+        Args:
+            rect (pygame.rect): The rectangle representing the enemy's current position on the map.
+
+        Returns:
+            int: The calculated x-coordinate where the enemy should be drawn on the screen.
+        
+        """
+        return rect.x + self.__drawmargin
+
 
 class Mario(pygame.sprite.Sprite):
-    '''Mario class'''
+    """Mario class"""
     
     WALK_ANIME_IDX = [0, 0, 1, 1, 2, 2]
     
@@ -262,7 +316,12 @@ class Goomba(pygame.sprite.Sprite):
         ]
 
         self.image = self.__imgs[0]
-        self.rect = pygame.Rect(x, y, 20, 20)
+        
+        # The coordinate for map and the location of Mario are different.
+        # Goomba location coordinate        
+        self.__rawrect = pygame.Rect(x, y, 20, 20)
+        # Goomba coordinate for Map
+        self.rect = self.__rawrect
         
         # Get a map
         self.__map: Map = map
@@ -285,7 +344,7 @@ class Goomba(pygame.sprite.Sprite):
 
     @property
     def status(self):
-        '''Get the status'''
+        """Get the status"""
         return self.__status
     
     def update(self):
@@ -295,6 +354,8 @@ class Goomba(pygame.sprite.Sprite):
         
         if self.__status == Status.DEADING:
             self.image = self.__imgs[1]
+            # Update rect for Splite
+            self.rect = pygame.Rect(self.__map.get_drawxenemy(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             self.__collapsecount += 1
             if self.__collapsecount == 30:
                 self.__status = Status.DEAD
@@ -304,24 +365,24 @@ class Goomba(pygame.sprite.Sprite):
             pass
         
         # X axle move
-        self.rect.x += self.__dir
+        self.__rawrect.x += self.__dir
         
         # X axle collision check
-        if self.__map.chk_collision(self.rect):
-            self.rect.x = (self.rect.x // 20 + (1 if self.__dir < 0 else 0)) * 20
+        if self.__map.chk_collision(self.__rawrect):
+            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__dir < 0 else 0)) * 20
             self.__dir *= -1
         
         # Change the direction
-        # if self.rect.x <= 0 or self.rect.x >= W - self.rect.width:
+        # if self.__rawrect.x <= 0 or self.__rawrect.x >= W - self.__rawrect.width:
         #     self.__dir *= -1
             
         # Y axle move
         self.__vy += 1
-        self.rect.y += self.__vy
+        self.__rawrect.y += self.__vy
         
         # Y axle collision check
-        if self.__map.chk_collision(self.rect):
-            self.rect.y = (self.rect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
+        if self.__map.chk_collision(self.__rawrect):
+            self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
         
             if self.__vy > 0:
                 self.__vy = 0
@@ -336,7 +397,7 @@ class Goomba(pygame.sprite.Sprite):
         self.image = pygame.transform.flip(self.__imgs[0], self.__walkidx < self.WALK_SPEED // 2, False)
         
         # Collision check
-        if self.rect.colliderect(self.__mario.rect):
+        if self.__rawrect.colliderect(self.__mario.rawrect):
             # If Mario hits Goomba
             if self.__mario.vy > 0:
                 # Squash
@@ -346,6 +407,10 @@ class Goomba(pygame.sprite.Sprite):
                 self.__mario.vy = -5
             else:
                 self.__mario.status = Status.DEADING
+    
+        # Update rect for Splite
+        self.rect = pygame.Rect(self.__map.get_drawxenemy(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+
         
 
 def init():
@@ -360,9 +425,9 @@ def init():
     
     # Goomba class
     goombas = [
-        # Goomba(250, 180, mario, map),
-        # Goomba(270, 180, mario, map),
-        # Goomba(310, 180, mario, map)
+        Goomba(250, 180, mario, map),
+        Goomba(270, 180, mario, map),
+        Goomba(310, 180, mario, map)
     ]
     
     # Add mario into the group
@@ -375,7 +440,7 @@ def init():
 
 
 def main():
-    '''main function'''
+    """main function"""
     
     # Initialize pygame
     pygame.init()
