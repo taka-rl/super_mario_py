@@ -13,8 +13,7 @@ class Status(Enum):
 W, H = 320, 270
 
 # Number of tiles
-TILE_X = 16
-TILE_Y = 14
+TILE_X, TILE_Y = 16, 14
 
 
 class Map():
@@ -39,12 +38,12 @@ class Map():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],            
         ]
 
-        self.__imgs = {
+        self.__imgs: dict = {
             1: pygame.image.load('./img/ground.jpg'),
             2: pygame.image.load('./img/block.jpg'),
         }    
     
-    def draw(self, win):
+    def draw(self, win: pygame.display) -> None:
         '''Draw a map'''
         for y in range(TILE_Y):
             for x in range(TILE_X + 1):
@@ -52,7 +51,7 @@ class Map():
                 if map_num > 0:
                     win.blit(self.__imgs[map_num], (x * 20, y * 20))
 
-    def chk_collision(self, rect):
+    def chk_collision(self, rect: pygame.rect) -> bool:
         '''
         Check for collision between a given rectangular area (rect) and the tiles
         in the game map. The function checks the four tiles surrounding the top-left
@@ -63,8 +62,7 @@ class Map():
         '''
         
         # Convert the top-left position of the rectangle to the corresponding tile indices
-        xidx = rect.x // 20
-        yidx = rect.y // 20
+        xidx, yidx = rect.x // 20, rect.y // 20
         
         # Check the 2x2 grid of tiles surrounding the rectangle's top-left corner
         for y in range(2):
@@ -86,25 +84,25 @@ class Mario(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         # Flag for Mario direction
-        self.__isleft = False
+        self.__isleft: bool = False
         
         # idx for walking animation
-        self.__walkidx = 0
+        self.__walkidx: int = 0
 
         # Y axle move distance
-        self.__vy = 0
+        self.__vy: int = 0
         
         # Judge if Mario is on ground
-        self.__on_ground = False
+        self.__on_ground: bool = False
 
         # Status
         self.__status = Status.NORMAL
 
         # Anime counter
-        self.__animecounter = 0
+        self.__animecounter: int = 0
         
         # Load mario images
-        self.__imgs = [
+        self.__imgs: list = [
             pygame.image.load('./img/mario_1.jpg'),
             pygame.image.load('./img/mario_2.jpg'),
             pygame.image.load('./img/mario_3.jpg'),
@@ -115,7 +113,7 @@ class Mario(pygame.sprite.Sprite):
         self.rect = pygame.Rect(150, 180, 20, 20)
 
         # Get a map
-        self.__map = map
+        self.__map: Map = map
     
     @property
     def vy(self):
@@ -228,7 +226,7 @@ class Goomba(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         # Load goomba images        
-        self.__imgs = [
+        self.__imgs: list = [
             pygame.image.load('./img/goomba.jpg'),
             pygame.image.load('./img/goomba_death.jpg'),
         ]
@@ -237,23 +235,23 @@ class Goomba(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, 20, 20)
         
         # Get a map
-        self.__map = map
+        self.__map: Map = map
         
         # X axle move distance
-        self.__dir = -2
-        self.__walkidx = 0
+        self.__dir: int = -2
+        self.__walkidx: int = 0
         
         # Y axle move
-        self.__vy = 0
+        self.__vy: int = 0
         
         # Get mario 
-        self.__mario = mario
+        self.__mario: Mario = mario
 
         # Status
         self.__status = Status.NORMAL
 
         # Counter for collapse
-        self.__collapsecount = 0
+        self.__collapsecount: int = 0
 
     @property
     def status(self):
