@@ -17,6 +17,8 @@ TILE_X, TILE_Y = 16, 14
 
 
 class Map():
+    NOMOVE_X = 120
+    
     def __init__(self):        
         # Define map 
         self.__data = [
@@ -43,13 +45,22 @@ class Map():
             2: pygame.image.load('./img/block.jpg'),
         }    
     
-    def draw(self, win: pygame.display) -> None:
+    def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         '''Draw a map'''
+        margin = 0
+        
+        # Mario start position
+        if rect.x <= self.NOMOVE_X:
+            startx = 0
+        else:
+            startx = rect.x // 20 - self.NOMOVE_X // 20
+            margin = rect.x % 20
+        
         for y in range(TILE_Y):
-            for x in range(TILE_X + 1):
+            for x in range(startx, startx + TILE_X + 1):
                 map_num = self.__data[y][x]
                 if map_num > 0:
-                    win.blit(self.__imgs[map_num], (x * 20, y * 20))
+                    win.blit(self.__imgs[map_num], ((x - startx) * 20 - margin, y * 20))
 
     def chk_collision(self, rect: pygame.rect) -> bool:
         '''
@@ -73,6 +84,13 @@ class Map():
                     pygame.Rect((xidx + x) * 20, (yidx + y) * 20, 20, 20)):
                     return True
         return False
+
+    def get_drawx(self, rect: pygame.rect):
+        if rect.x < self.NOMOVE_X:
+            x = rect.x
+        else:
+            x = self.NOMOVE_X
+        return x
 
 
 class Mario(pygame.sprite.Sprite):
@@ -110,8 +128,13 @@ class Mario(pygame.sprite.Sprite):
         ]
         
         self.image = self.__imgs[0]
-        self.rect = pygame.Rect(150, 180, 20, 20)
-
+        
+        # The coordinate for map and the location of Mario are different.
+        # Mario location coordinate        
+        self.__rawrect = pygame.Rect(150, 180, 20, 20)
+        # Mario coordinate for Map
+        self.rect = self.__rawrect
+        
         # Get a map
         self.__map: Map = map
     
@@ -130,6 +153,10 @@ class Mario(pygame.sprite.Sprite):
     @status.setter
     def status(self, value):
         self.__status = value
+    
+    @property
+    def rawrect(self):
+        return self.__rawrect
     
     def update(self):
         if self.__status == Status.DEAD:
@@ -153,15 +180,15 @@ class Mario(pygame.sprite.Sprite):
                     
         # Move for Y axle
         # if not self.__on_ground:
-        self.rect.y += self.__vy
+        self.__rawrect.y += self.__vy
         self.__vy += 1
         
         # Judge hitbox
-        if self.__map.chk_collision(self.rect):
+        if self.__map.chk_collision(self.__rawrect):
             
             # If Mario is moving upward, it lets him go downward
             # vy is bigger than 0 -> 1 to go upward
-            self.rect.y = (self.rect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
+            self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
             
             # Check if Mario is on ground 
             if self.__vy > 0:
@@ -171,32 +198,35 @@ class Mario(pygame.sprite.Sprite):
                 self._vy = 1
         
         # temporary heigh is set 180 for on_ground
-        # if self.rect.y >= 180:
-        #     self.rect.y = 180
+        # if self.__rawrect.y >= 180:
+        #     self.__rawrect.y = 180
         #     self.__on_ground = True
         #     self.__vy = 0
         
         # Change the image direction 
         self.image = pygame.transform.flip(self.__imgs[self.WALK_ANIME_IDX[self.__walkidx % 6]], self.__isleft, False)
         
+        # Update rect for Splite
+        self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+        
     def __right(self):
-        self.rect.x += 5
+        self.__rawrect.x += 5
         self.__walkidx += 1
         self.__isleft = False
         
         # Collision check
-        if self.__map.chk_collision(self.rect):
-            self.rect.x = (self.rect.x // 20 + (1 if self.__isleft else 0)) * 20
+        if self.__map.chk_collision(self.__rawrect):
+            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20
         
     
     def __left(self):
-        self.rect.x -=5
+        self.__rawrect.x -=5
         self.__walkidx += 1
         self.__isleft = True
         
         # Collision check
-        if self.__map.chk_collision(self.rect):
-            self.rect.x = (self.rect.x // 20 + (1 if self.__isleft else 0)) * 20
+        if self.__map.chk_collision(self.__rawrect):
+            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20
         
         
     def __jump(self):
@@ -210,9 +240,9 @@ class Mario(pygame.sprite.Sprite):
         
         if self.__animecounter > 10:
             self.__vy += 1
-            self.rect.y += self.__vy
+            self.__rawrect.y += self.__vy
         
-        if self.rect.y > H + 20:
+        if self.__rawrect.y > H + 20:
             self.__status = Status.DEAD
             return
          
@@ -330,9 +360,9 @@ def init():
     
     # Goomba class
     goombas = [
-        Goomba(250, 180, mario, map),
-        Goomba(270, 180, mario, map),
-        Goomba(310, 180, mario, map)
+        # Goomba(250, 180, mario, map),
+        # Goomba(270, 180, mario, map),
+        # Goomba(310, 180, mario, map)
     ]
     
     # Add mario into the group
@@ -384,7 +414,7 @@ def main():
                 group.remove(goomba)
         
         # Draw map
-        map.draw(win)
+        map.draw(win, mario.rawrect)
         
         # Draw the group
         group.draw(win)
