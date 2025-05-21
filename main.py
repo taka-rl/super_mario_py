@@ -268,9 +268,15 @@ class Mario(pygame.sprite.Sprite):
         #     self.__on_ground = True
         #     self.__vy = 0
         
+        # Choose the stop mario image
+        if self.__vx == 0:
+            imageidx = 0
+        else:
+            imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6]
+            
         # Change the image direction 
-        self.image = pygame.transform.flip(self.__imgs[self.WALK_ANIME_IDX[self.__walkidx % 6]], self.__isleft, False)
-        
+        self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)        
+    
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
         
