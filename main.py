@@ -151,6 +151,9 @@ class Mario(pygame.sprite.Sprite):
     """Mario class"""
     
     WALK_ANIME_IDX = [0, 0, 1, 1, 2, 2]
+    MAX_SPEED_X: int = 5
+    ACC_SPEED_X: float = 0.25
+    
     
     def __init__(self, map):
         pygame.sprite.Sprite.__init__(self)
@@ -163,6 +166,9 @@ class Mario(pygame.sprite.Sprite):
 
         # Y axle move distance
         self.__vy: int = 0
+        
+        # X axle move distance 
+        self.__vx: float = 0
         
         # Judge if Mario is on ground
         self.__on_ground: bool = False
@@ -232,6 +238,9 @@ class Mario(pygame.sprite.Sprite):
         
         if keys[pygame.K_SPACE]:
             self.__jump()
+        
+        if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT] and self.__vx != 0:
+            self.__stop()
                     
         # Move for Y axle
         # if not self.__on_ground:
@@ -264,30 +273,47 @@ class Mario(pygame.sprite.Sprite):
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
         
-    def __right(self):
-        self.__rawrect.x += 5
+    def move(self):
         self.__walkidx += 1
-        self.__isleft = False
         
         # Collision check
         if self.__map.chk_collision(self.__rawrect):
-            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20
-        
+            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20     
     
+    def __right(self):
+        self.__vx = (self.__vx + self.ACC_SPEED_X) if self.__vx < self.MAX_SPEED_X else self.MAX_SPEED_X
+        
+        # Cancel law of inertia when changing the direction.
+        if self.__isleft:
+            self.__vx = 0
+        
+        self.__rawrect.x += self.__vx
+        self.__isleft = False
+        self.move()
+
     def __left(self):
-        self.__rawrect.x -=5
-        self.__walkidx += 1
+        self.__vx = (self.__vx - self.ACC_SPEED_X) if self.__vx > -1 * self.MAX_SPEED_X else -1 * self.MAX_SPEED_X
+        
+        # Cancel law of inertia when changing the direction.
+        if not self.__isleft:
+            self.__vx = 0
+        
+        self.__rawrect.x += self.__vx
         self.__isleft = True
-        
-        # Collision check
-        if self.__map.chk_collision(self.__rawrect):
-            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20
-        
+        self.move()
         
     def __jump(self):
         if self.__on_ground:
             self.__vy = -10
             self.__on_ground = False
+    
+    def __stop(self):
+        self.__vx = self.__vx + self.ACC_SPEED_X * (1 if self.__isleft else -1)
+        self.__rawrect.x += self.__vx
+        
+        # Collision check to prevent going into blocks by inertia 
+        if self.__map.chk_collision(self.__rawrect):
+            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20
     
     def __deading(self):
         if self.__animecounter == 0:
