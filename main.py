@@ -50,7 +50,7 @@ class Map():
     
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
-        Draws the visible area of the game map on the screen based on Mario's current position.
+        Draw the visible area of the game map on the screen based on Mario's current position.
     
         The function determines which tiles are visible in the viewport by calculating the appropriate
         starting position and adjusting for Mario's horizontal movement. Only the visible tiles are drawn 
@@ -219,6 +219,7 @@ class Mario(pygame.sprite.Sprite):
         if self.__status == Status.DEADING:
             self.image = self.__imgs[3]
             self.__deading()
+            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
         # Get key status
@@ -234,8 +235,8 @@ class Mario(pygame.sprite.Sprite):
                     
         # Move for Y axle
         # if not self.__on_ground:
-        self.__rawrect.y += self.__vy
         self.__vy += 1
+        self.__rawrect.y += self.__vy
         
         # Judge hitbox
         if self.__map.chk_collision(self.__rawrect):
@@ -347,6 +348,10 @@ class Goomba(pygame.sprite.Sprite):
         """Get the status"""
         return self.__status
     
+    @property
+    def rawrect(self):
+        return self.__rawrect
+    
     def update(self):
         # Not update if Mario is dead
         if self.__mario.status == Status.DEADING:
@@ -412,7 +417,6 @@ class Goomba(pygame.sprite.Sprite):
         self.rect = pygame.Rect(self.__map.get_drawxenemy(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
 
         
-
 def init():
      # Define Sprite group
     group = pygame.sprite.RenderUpdates()
