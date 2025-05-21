@@ -186,6 +186,7 @@ class Mario(pygame.sprite.Sprite):
             pygame.image.load('./img/mario_2.jpg'),
             pygame.image.load('./img/mario_3.jpg'),
             pygame.image.load('./img/mario_death.jpg'),
+            pygame.image.load('./img/mario_jump.jpg')
         ]
         
         self.image = self.__imgs[0]
@@ -273,6 +274,10 @@ class Mario(pygame.sprite.Sprite):
             imageidx = 0
         else:
             imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6]
+        
+        # Choose the jump mario image
+        if not self.__on_ground:
+            imageidx = 4
             
         # Change the image direction 
         self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)        
