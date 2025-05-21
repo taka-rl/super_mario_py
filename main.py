@@ -30,11 +30,11 @@ class Map():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-            [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 2, 0, 0, 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -171,6 +171,9 @@ class Mario(pygame.sprite.Sprite):
         # X axle move distance 
         self.__vx: float = 0
         
+        # Cumulative ascent distance
+        self.__ay: int = 0
+        
         # Judge if Mario is on ground
         self.__on_ground: bool = False
 
@@ -193,7 +196,7 @@ class Mario(pygame.sprite.Sprite):
         
         # The coordinate for map and the location of Mario are different.
         # Mario location coordinate        
-        self.__rawrect = pygame.Rect(150, 180, 20, 20)
+        self.__rawrect = pygame.Rect(30, 180, 20, 20)
         # Mario coordinate for Map
         self.rect = self.__rawrect
         
@@ -240,7 +243,15 @@ class Mario(pygame.sprite.Sprite):
         
         if keys[pygame.K_SPACE]:
             self.__jump()
-        
+        else:
+            # When Space isn't inputed
+            if self.__vy <= -5:
+                # Don't fall down imediately
+                self.__vy = -3
+            if self.__vy >= 0:
+                # Status is Normal when falling down
+                self.__status = Status.NORMAL
+            
         if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT] and self.__vx != 0:
             self.__stop()
                     
@@ -316,8 +327,16 @@ class Mario(pygame.sprite.Sprite):
         
     def __jump(self):
         if self.__on_ground:
-            self.__vy = -10
+            self.__vy = -7
+            self.__ay = 0
             self.__on_ground = False
+        
+        if self.__vy < 0:
+            # Keep jumping until ay reaches 65
+            if self.__ay < 65:
+                print(self.__ay)
+                self.__vy -= 1
+                self.__ay -= self.__vy
     
     def __stop(self):
         self.__vx = self.__vx + self.ACC_SPEED_X * (1 if self.__isleft else -1)
