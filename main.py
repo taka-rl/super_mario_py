@@ -388,12 +388,48 @@ class Mario(pygame.sprite.Sprite):
         self.__animecounter += 1
         
 
-class Goomba(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, x, y, dir, mario, map):
+        pygame.sprite.Sprite.__init__(self)
+                
+        # The coordinate for map and the location of Mario are different.
+        # Enemy location coordinate        
+        self._rawrect = pygame.Rect(x, y, 20, 20)
+        # Enemy coordinate for Map
+        self.rect = self._rawrect
+        
+        # Get a map
+        self._map: Map = map
+        
+        # X axle move distance
+        self._dir: int = dir
+        self._walkidx: int = 0
+        
+        # Y axle move
+        self._vy: int = 0
+        
+        # Get mario 
+        self._mario: Mario = mario
+
+        # Status
+        self._status = Status.NORMAL
+
+        # Counter for collapse
+        self._collapsecount: int = 0
+
+    @property
+    def status(self):
+        """Get the status"""
+        return self._status
+    
+    @property
+    def rawrect(self):
+        return self._rawrect     
+
+class Goomba(Enemy):
     WALK_SPEED = 6
     
-    def __init__(self, x, y, mario, map):
-        pygame.sprite.Sprite.__init__(self)
-        
+    def __init__(self, x, y, dir, mario, map):
         # Load goomba images        
         self.__imgs: list = [
             pygame.image.load('./img/goomba.jpg'),
@@ -401,106 +437,74 @@ class Goomba(pygame.sprite.Sprite):
         ]
 
         self.image = self.__imgs[0]
-        
-        # The coordinate for map and the location of Mario are different.
-        # Goomba location coordinate        
-        self.__rawrect = pygame.Rect(x, y, 20, 20)
-        # Goomba coordinate for Map
-        self.rect = self.__rawrect
-        
-        # Get a map
-        self.__map: Map = map
-        
-        # X axle move distance
-        self.__dir: int = -2
-        self.__walkidx: int = 0
-        
-        # Y axle move
-        self.__vy: int = 0
-        
-        # Get mario 
-        self.__mario: Mario = mario
+        super().__init__(x, y, dir, mario, map)
 
-        # Status
-        self.__status = Status.NORMAL
-
-        # Counter for collapse
-        self.__collapsecount: int = 0
-
-    @property
-    def status(self):
-        """Get the status"""
-        return self.__status
-    
-    @property
-    def rawrect(self):
-        return self.__rawrect
     
     def update(self):
         # Not update if Mario is dead
-        if self.__mario.status == Status.DEADING:
+        if self._mario.status == Status.DEADING:
             return
         
-        if self.__status == Status.DEADING:
+        if self._status == Status.DEADING:
             self.image = self.__imgs[1]
             # Update rect for Splite
-            self.rect = pygame.Rect(self.__map.get_drawxenemy(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
-            self.__collapsecount += 1
-            if self.__collapsecount == 30:
-                self.__status = Status.DEAD
+            self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+            self._collapsecount += 1
+            if self._collapsecount == 30:
+                self._status = Status.DEAD
             return
         
-        if self.__status == Status.DEAD:
+        if self._status == Status.DEAD:
             pass
         
         # X axle move
-        self.__rawrect.x += self.__dir
+        self._rawrect.x += self._dir
         
         # X axle collision check
-        if self.__map.chk_collision(self.__rawrect):
-            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__dir < 0 else 0)) * 20
-            self.__dir *= -1
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+            self._dir *= -1
         
         # Change the direction
         # if self.__rawrect.x <= 0 or self.__rawrect.x >= W - self.__rawrect.width:
         #     self.__dir *= -1
             
         # Y axle move
-        self.__vy += 1
-        self.__rawrect.y += self.__vy
+        self._vy += 1
+        self._rawrect.y += self._vy
         
         # Y axle collision check
-        if self.__map.chk_collision(self.__rawrect):
-            self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
         
-            if self.__vy > 0:
-                self.__vy = 0
+            if self._vy > 0:
+                self._vy = 0
             else:
                 # jump
-                self.__vy = 1
+                self._vy = 1
             
-        self.__walkidx += 1
-        if self.__walkidx == self.WALK_SPEED:
-            self.__walkidx = 0
+        self._walkidx += 1
+        if self._walkidx == self.WALK_SPEED:
+            self._walkidx = 0
         
-        self.image = pygame.transform.flip(self.__imgs[0], self.__walkidx < self.WALK_SPEED // 2, False)
+        self.image = pygame.transform.flip(self.__imgs[0], self._walkidx < self.WALK_SPEED // 2, False)
         
         # Collision check
-        if self.__rawrect.colliderect(self.__mario.rawrect):
+        if self._rawrect.colliderect(self._mario.rawrect):
             # If Mario hits Goomba
-            if self.__mario.vy > 0:
+            if self._mario.vy > 0:
                 # Squash
-                self.__status = Status.DEADING
+                self._status = Status.DEADING
                 
                 # Mario jump action
-                self.__mario.status = Status.TREADING
-                self.__mario.vy = -5
+                self._mario.status = Status.TREADING
+                self._mario.vy = -5
             else:
-                if self.__mario.status != Status.TREADING:
-                    self.__mario.status = Status.DEADING
+                if self._mario.status != Status.TREADING:
+                    self._mario.status = Status.DEADING
     
         # Update rect for Splite
-        self.rect = pygame.Rect(self.__map.get_drawxenemy(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
         
 def init():
@@ -515,9 +519,9 @@ def init():
     
     # Goomba class
     goombas = [
-        # Goomba(250, 180, mario, map),
-        # Goomba(270, 180, mario, map),
-        # Goomba(310, 180, mario, map)
+        Goomba(250, 180, -2, mario, map),
+        Goomba(270, 180, -2, mario, map),
+        Goomba(310, 180, -2, mario, map)
     ]
     
     # Add mario into the group
