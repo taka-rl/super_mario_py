@@ -7,6 +7,7 @@ class Status(Enum):
     NORMAL = auto()
     DEADING = auto()
     DEAD = auto()
+    TREADING = auto()
 
 
 # Display size
@@ -435,9 +436,11 @@ class Goomba(pygame.sprite.Sprite):
                 self.__status = Status.DEADING
                 
                 # Mario jump action
+                self.__mario.status = Status.TREADING
                 self.__mario.vy = -5
             else:
-                self.__mario.status = Status.DEADING
+                if self.__mario.status != Status.TREADING:
+                    self.__mario.status = Status.DEADING
     
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawxenemy(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
