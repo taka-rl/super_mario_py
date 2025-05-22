@@ -89,6 +89,7 @@ class Map():
         # Horizontal offset in Mario's position
         self.__drawmargin = -startx * 20 -margin
         
+        # Draw a map
         for y in range(TILE_Y):
             for x in range(startx, startx + TILE_X + 1):
                 map_num = self.__data[y][x]
@@ -424,7 +425,87 @@ class Enemy(pygame.sprite.Sprite):
     
     @property
     def rawrect(self):
-        return self._rawrect     
+        return self._rawrect
+    
+class Koopa(Enemy):
+    WALK_SPEED = 6
+    
+    def __init__(self, x, y, dir, mario, map):
+            # Load goomba images        
+            self.__imgs: list = [
+                pygame.image.load('./img/Koopa_1.jpg'),
+                pygame.image.load('./img/Koopa_2.jpg'),
+            ]
+
+            self.image = self.__imgs[0]
+            super().__init__(x, y, dir, mario, map)
+    
+    def update(self):
+        # Not update if Mario is dead
+        if self._mario.status == Status.DEADING:
+            return
+        
+        if self._status == Status.DEADING:
+            self.image = self.__imgs[1]
+            # Update rect for Splite
+            self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+            self._collapsecount += 1
+            if self._collapsecount == 30:
+                self._status = Status.DEAD
+            return
+        
+        if self._status == Status.DEAD:
+            pass
+        
+        # X axle move
+        self._rawrect.x += self._dir
+        
+        # X axle collision check
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+            self._dir *= -1
+        
+        # Change the direction
+        # if self.__rawrect.x <= 0 or self.__rawrect.x >= W - self.__rawrect.width:
+        #     self.__dir *= -1
+            
+        # Y axle move
+        self._vy += 1
+        self._rawrect.y += self._vy
+        
+        # Y axle collision check
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+        
+            if self._vy > 0:
+                self._vy = 0
+            else:
+                # jump
+                self._vy = 1
+            
+        self._walkidx += 1
+        if self._walkidx == self.WALK_SPEED:
+            self._walkidx = 0
+        
+        self.image = pygame.transform.flip(self.__imgs[0], self._walkidx < self.WALK_SPEED // 2, False)
+        
+        # Collision check
+        if self._rawrect.colliderect(self._mario.rawrect):
+            # If Mario hits Goomba
+            if self._mario.vy > 0:
+                # Squash
+                self._status = Status.DEADING
+                
+                # Mario jump action
+                self._mario.status = Status.TREADING
+                self._mario.vy = -5
+            else:
+                if self._mario.status != Status.TREADING:
+                    self._mario.status = Status.DEADING
+    
+        # Update rect for Splite
+        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+      
 
 class Goomba(Enemy):
     WALK_SPEED = 6
@@ -519,7 +600,7 @@ def init():
     
     # Goomba class
     goombas = [
-        Goomba(250, 180, -2, mario, map),
+        Koopa(250, 180, -2, mario, map),
         Goomba(270, 180, -2, mario, map),
         Goomba(310, 180, -2, mario, map)
     ]
