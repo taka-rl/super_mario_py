@@ -48,6 +48,8 @@ class Map():
         
         # Map shifts relative to Mario's position
         self.__drawmargin: int = 0
+        
+        self.__nowx = 0
     
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
@@ -436,6 +438,7 @@ class Koopa(Enemy):
             self.__imgs: list = [
                 pygame.image.load('./img/Koopa_1.jpg'),
                 pygame.image.load('./img/Koopa_2.jpg'),
+                pygame.image.load('./img/Koopa_death.jpg'),
             ]
 
             self.image = self.__imgs[0]
@@ -447,12 +450,13 @@ class Koopa(Enemy):
             return
         
         if self._status == Status.DEADING:
-            self.image = self.__imgs[1]
+            self.image = self.__imgs[2]
             # Update rect for Splite
             self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
             self._collapsecount += 1
-            if self._collapsecount == 30:
-                self._status = Status.DEAD
+            # collapsecount is set 100 temporarily
+            if self._collapsecount == 100:
+                self._status = Status.NORMAL
             return
         
         if self._status == Status.DEAD:
@@ -465,10 +469,6 @@ class Koopa(Enemy):
         if self._map.chk_collision(self._rawrect):
             self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
             self._dir *= -1
-        
-        # Change the direction
-        # if self.__rawrect.x <= 0 or self.__rawrect.x >= W - self.__rawrect.width:
-        #     self.__dir *= -1
             
         # Y axle move
         self._vy += 1
