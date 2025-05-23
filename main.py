@@ -439,6 +439,7 @@ class Koopa(Enemy):
                 pygame.image.load('./img/Koopa_1.jpg'),
                 pygame.image.load('./img/Koopa_2.jpg'),
                 pygame.image.load('./img/Koopa_death.jpg'),
+                pygame.image.load('./img/Koopa_reborn.jpg'),
             ]
 
             self.image = self.__imgs[0]
@@ -454,8 +455,13 @@ class Koopa(Enemy):
             # Update rect for Splite
             self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
             self._collapsecount += 1
+            
+            if self._collapsecount >= 60:
+                # Add an animation for reborn
+                self.image = self.__imgs[3]
+                
             # collapsecount is set 100 temporarily
-            if self._collapsecount == 100:
+            if self._collapsecount == 110:
                 self._status = Status.NORMAL
                 self._collapsecount = 0 
             return
