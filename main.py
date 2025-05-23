@@ -457,6 +457,7 @@ class Koopa(Enemy):
             # collapsecount is set 100 temporarily
             if self._collapsecount == 100:
                 self._status = Status.NORMAL
+                self._collapsecount = 0 
             return
         
         if self._status == Status.DEAD:
