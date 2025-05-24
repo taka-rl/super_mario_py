@@ -48,8 +48,6 @@ class Map():
         
         # Map shifts relative to Mario's position
         self.__drawmargin: int = 0
-        
-        self.__nowx = 0
     
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
