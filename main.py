@@ -8,6 +8,7 @@ class Status(Enum):
     DEADING = auto()
     DEAD = auto()
     TREADING = auto()
+    SLIDING = auto()
 
 
 # Display size
@@ -459,59 +460,75 @@ class Koopa(Enemy):
                 self.image = self.__imgs[3]
                 
             # collapsecount is set 100 temporarily
-            if self._collapsecount == 110:
+            if self._collapsecount == 100:
                 self._status = Status.NORMAL
-                self._collapsecount = 0 
-            return
-        
-        if self._status == Status.DEAD:
-            pass
-        
-        # X axle move
-        self._rawrect.x += self._dir
-        
-        # X axle collision check
-        if self._map.chk_collision(self._rawrect):
-            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
-            self._dir *= -1
+                self._collapsecount = 0
+
+        else:
+            # X axle move
+            self._rawrect.x += self._dir
             
-        # Y axle move
-        self._vy += 1
-        self._rawrect.y += self._vy
-        
-        # Y axle collision check
-        if self._map.chk_collision(self._rawrect):
-            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
-        
-            if self._vy > 0:
-                self._vy = 0
-            else:
-                # jump
-                self._vy = 1
-            
-        self._walkidx += 1
-        if self._walkidx == self.WALK_SPEED:
-            self._walkidx = 0
-        
-        self.image = pygame.transform.flip(self.__imgs[self._walkidx < self.WALK_SPEED // 2], self._dir > 0, False)
-        
-        # Collision check
-        if self._rawrect.colliderect(self._mario.rawrect):
-            # If Mario hits Goomba
-            if self._mario.vy > 0:
-                # Squash
-                self._status = Status.DEADING
+            # X axle collision check
+            if self._map.chk_collision(self._rawrect):
+                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+                self._dir *= -1
                 
-                # Mario jump action
-                self._mario.status = Status.TREADING
-                self._mario.vy = -5
-            else:
+            # Y axle move
+            self._vy += 1
+            self._rawrect.y += self._vy
+            
+            # Y axle collision check
+            if self._map.chk_collision(self._rawrect):
+                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                
+                if self._vy > 0:
+                    self._vy = 0
+                else:
+                    # jump
+                    self._vy = 1
+            
+            self._walkidx += 1
+            if self._walkidx == self.WALK_SPEED:
+                self._walkidx = 0
+            if self._status == Status.NORMAL:
+                self.image = pygame.transform.flip(self.__imgs[self._walkidx < self.WALK_SPEED // 2], self._dir > 0, False)
+            elif self._status == Status.SLIDING:
+                # Image for Koopa kick
+                self.image = self.__imgs[2]
+
+        # Collision check with Mario
+        if self._rawrect.colliderect(self._mario.rawrect):
+                
+            if self._status == Status.NORMAL:
+                # If Mario hits Koopa
+                if self._mario.vy > 0:
+                    # Squash
+                    self._status = Status.DEADING
+                            
+                    # Mario jump action
+                    self._mario.status = Status.TREADING
+                    self._mario.vy = -15
+                    
+                else:
+                    if self._mario.status != Status.TREADING:
+                        self._mario.status = Status.DEADING
+                        
+            elif self._status == Status.DEADING:
+                # Koopa kick when Mario hits deading Koopa
+                self._status = Status.SLIDING
+                if self._mario.vy > 0:
+                    self._mario.status = Status.TREADING
+                    self._mario.vy = -10
+                    
+                self._dir = 6 if self._mario.rawrect.centerx < self._rawrect.centerx else -6
+            elif self._status == Status.SLIDING:
+                # Mario is dead if he is hit by Koopa kick
                 if self._mario.status != Status.TREADING:
                     self._mario.status = Status.DEADING
-    
+                
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
-      
+
 
 class Goomba(Enemy):
     WALK_SPEED = 6
@@ -607,8 +624,8 @@ def init():
     # Goomba class
     goombas = [
         Koopa(250, 180, -2, mario, map),
-        Goomba(270, 180, -2, mario, map),
-        Goomba(310, 180, -2, mario, map)
+        # Goomba(270, 180, -2, mario, map),
+        # Goomba(310, 180, -2, mario, map)
     ]
     
     # Add mario into the group
