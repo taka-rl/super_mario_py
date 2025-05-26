@@ -490,11 +490,11 @@ class Koopa(Enemy):
                     # jump
                     self._vy = 1
             
-            self._walkidx += 1
-            if self._walkidx == self.WALK_SPEED:
-                self._walkidx = 0
             if self._status == Status.NORMAL:
-                self.image = pygame.transform.flip(self.__imgs[self._walkidx < self.WALK_SPEED // 2], self._dir > 0, False)
+                self._walkidx += 1
+                if self._walkidx == self.WALK_SPEED:
+                    self._walkidx = 0
+                    self.image = pygame.transform.flip(self.__imgs[self._walkidx < self.WALK_SPEED // 2], self._dir > 0, False)
             elif self._status == Status.SLIDING:
                 # Image for Koopa kick
                 self.image = self.__imgs[2]
