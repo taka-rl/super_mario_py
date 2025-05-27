@@ -439,6 +439,27 @@ class Enemy(pygame.sprite.Sprite):
     def rawrect(self):
         return self._rawrect
     
+    def kickHit(self):
+        # Koopa kick flying
+        for marioarrly in self._mario.arrlies:
+            if self._rawrect.colliderect(marioarrly):
+                self._status = Status.FLYING
+                    
+                # Decide the direction to fly
+                self._dir = 3 if self._rawrect.centerx > marioarrly.centerx else -3
+                self._vy = -8
+    
+    def flying(self):
+        self._rawrect.x += self._dir
+        self._rawrect.y += self._vy
+        self._vy += 1
+            
+        if self._rawrect.y >= H:
+            # Disapear
+            self._status = Status.DEAD
+            return
+    
+
 class Koopa(Enemy):
     WALK_SPEED = 6
     WALK_ANIME_IDX = [0, 0, 0, 1, 1, 1]
@@ -552,7 +573,7 @@ class Koopa(Enemy):
                         
                         # Mario jump action
                         self._mario.status = Status.TREADING
-                        self._mario.vy = -15                  
+                        self._mario.vy = -15
                 
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
@@ -590,14 +611,7 @@ class Goomba(Enemy):
             pass
         
         if self._status == Status.FLYING:
-            self._rawrect.x += self._dir
-            self._rawrect.y += self._vy
-            self._vy += 1
-            
-            if self._rawrect.y >= H:
-                # Disapear
-                self._status = Status.DEAD
-                return
+            super().flying()
             # self._rect = self._map.get_drawxenemy(self._rawrect), self._rawrect.top
             self.image = pygame.transform.flip(self.__imgs[0], False, True)
             
@@ -650,13 +664,7 @@ class Goomba(Enemy):
                         self._mario.status = Status.DEADING
             
             # Koopa kick flying
-            for marioarrly in self._mario.arrlies:
-                if self._rawrect.colliderect(marioarrly):
-                    self._status = Status.FLYING
-                    
-                    # Decide the direction to fly
-                    self._dir = 3 if self._rawrect.centerx > marioarrly.centerx else -3
-                    self._vy = -8
+            super().kickHit()
         
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
