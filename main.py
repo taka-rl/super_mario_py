@@ -474,6 +474,9 @@ class Koopa(Enemy):
             if self._collapsecount == 100:
                 self._status = Status.NORMAL
                 self._collapsecount = 0
+                
+                # move again after reborn
+                self._dir = 2 if self._dir > 0 else -2
 
         else:
             # X axle move
@@ -526,21 +529,30 @@ class Koopa(Enemy):
                         
             elif self._status == Status.DEADING:
                 # Koopa kick when Mario hits deading Koopa
-                self._status = Status.SLIDING
                 if self._mario.vy > 0:
+                    self._status = Status.SLIDING
                     self._mario.status = Status.TREADING
                     self._mario.vy = -10
                 
                 # Decide the direction to slide
                 self._dir = 6 if self._mario.rawrect.centerx < self._rawrect.centerx else -6
                 
-                # add
+                # add kicked Koopa rawrect into array
                 self._mario.arrlies.append(self._rawrect)
                 
             elif self._status == Status.SLIDING:
                 # Mario is dead if he is hit by Koopa kick
                 if self._mario.status != Status.TREADING:
                     self._mario.status = Status.DEADING
+                
+                # If Mario hits Koopa
+                    if self._mario.vy > 0:
+                        # Squash
+                        self._status = Status.DEADING
+                        
+                        # Mario jump action
+                        self._mario.status = Status.TREADING
+                        self._mario.vy = -15                  
                 
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
@@ -586,7 +598,7 @@ class Goomba(Enemy):
                 # Disapear
                 self._status = Status.DEAD
                 return
-            self._rect = self._map.get_drawxenemy(self._rawrect), self._rawrect.top
+            # self._rect = self._map.get_drawxenemy(self._rawrect), self._rawrect.top
             self.image = pygame.transform.flip(self.__imgs[0], False, True)
             
         if self._status == Status.NORMAL:
@@ -644,7 +656,6 @@ class Goomba(Enemy):
                     
                     # Decide the direction to fly
                     self._dir = 3 if self._rawrect.centerx > marioarrly.centerx else -3
-                    
                     self._vy = -8
         
         # Update rect for Splite
@@ -663,9 +674,11 @@ def init():
     
     # Goomba class
     goombas = [
-        Koopa(210, 180, -2, mario, map),
+        Koopa(200, 180, -2, mario, map),
+        Koopa(220, 180, -2, mario, map),
+        Goomba(250, 180, -2, mario, map),
         Goomba(270, 180, -2, mario, map),
-        Goomba(310, 180, -2, mario, map)
+        Goomba(310, 180, -2, mario, map),
     ]
     
     # Add mario into the group
