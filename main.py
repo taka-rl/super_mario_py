@@ -21,6 +21,7 @@ TILE_X, TILE_Y = 16, 14
 
 class Map():
     NOMOVE_X = 120
+    BLOCK_VY = 5
     
     def __init__(self):      
         # Define map 
@@ -56,6 +57,9 @@ class Map():
         
         # Map shifts relative to Mario's position
         self.__drawmargin: int = 0
+    
+        # Array for pushed blocks
+        self.__pushedblocks: dict = {}
     
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
@@ -97,12 +101,25 @@ class Map():
         # Horizontal offset in Mario's position
         self.__drawmargin = -startx * 20 -margin
         
+        # pushed block
+        delkeys = []
+        for key in self.__pushedblocks:
+            blockydata = (self.__pushedblocks[key][0] + 1, self.__pushedblocks[key][1] + 1 + self.__pushedblocks[key][0] + 1)
+            self.__pushedblocks[key] = blockydata
+            if self.__pushedblocks[key][0] >= self.BLOCK_VY:
+                delkeys.append(key)
+        for key in delkeys:
+            del self.__pushedblocks[key]
+        
         # Draw a map
         for y in range(TILE_Y):
             for x in range(startx, startx + TILE_X + 1):
                 map_num = self.__data[y][x]
                 if map_num > 0:
-                    win.blit(self.__imgs[map_num], ((x - startx) * 20 - margin, y * 20))
+                    ymargin = 0
+                    if (y, x) in self.__pushedblocks:
+                        ymargin = self.__pushedblocks[(y, x)][1]
+                    win.blit(self.__imgs[map_num], ((x - startx) * 20 - margin, y * 20 + ymargin))
 
     def chk_collision(self, rect: pygame.rect) -> bool:
         """
@@ -129,6 +146,12 @@ class Map():
                 # collides with the tile's area, return True (collision detected)
                 if self.__data[yidx + y][xidx + x] and rect.colliderect(
                     pygame.Rect((xidx + x) * 20, (yidx + y) * 20, 20, 20)):
+                    
+                    map_id = self.__data[yidx + y][xidx + x]
+                    if map_id == 2:
+                        self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
+                        
+                    
                     return True
         return False
 
@@ -670,11 +693,11 @@ def init():
     
     # Goomba class
     goombas = [
-        Koopa(200, 180, -2, mario, map),
-        Koopa(220, 180, -2, mario, map),
-        Goomba(250, 180, -2, mario, map),
-        Goomba(270, 180, -2, mario, map),
-        Koopa(310, 180, -2, mario, map),
+        # Koopa(200, 180, -2, mario, map),
+        # Koopa(220, 180, -2, mario, map),
+        # Goomba(250, 180, -2, mario, map),
+        # Goomba(270, 180, -2, mario, map),
+        # Koopa(310, 180, -2, mario, map),
     ]
     
     # Add mario into the group
