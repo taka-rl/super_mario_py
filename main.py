@@ -141,17 +141,44 @@ class Map():
         
         # Check the 2x2 grid of tiles surrounding the rectangle's top-left corner
         for y in range(2):
+            # Get Mario's both side of rect
+            hitleft, hitright = False, False
+            blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, 20, 20)
+            blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, 20, 20)
+            
+            # Collision check
+            if (self.__data[yidx + y][xidx]) and rect.colliderect(blockrectL):
+                hitleft = True
+            if (self.__data[yidx + y][xidx + 1]) and rect.colliderect(blockrectR):
+                hitright = True
+            
+            # Make sure which block is pushed considering the Mario location
+            x = 0
+            if hitleft and hitright:
+                if rect.x < blockrectL.centerx:
+                    blockrect = blockrectL
+                else:
+                    blockrect = blockrectR
+                    x = 1
+            elif hitleft:
+                blockrect = blockrectL
+            elif hitright:
+                blockrect = blockrectR
+                x = 1
+            else:
+                continue
+
+            map_id = self.__data[yidx + y][xidx + x]
+            if map_id == 2 and rect.y > blockrect.y:
+                if abs(blockrect.centerx - rect.centerx) < 10:
+                    self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
+                return True
+            
             for x in range(2):
                 # If the tile contains an obstacle (non-zero value) and the rectangle 
                 # collides with the tile's area, return True (collision detected)
                 if self.__data[yidx + y][xidx + x] and rect.colliderect(
                     pygame.Rect((xidx + x) * 20, (yidx + y) * 20, 20, 20)):
-                    
-                    map_id = self.__data[yidx + y][xidx + x]
-                    if map_id == 2:
-                        self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
-                        
-                    
                     return True
         return False
 
