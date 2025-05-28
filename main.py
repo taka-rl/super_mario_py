@@ -442,6 +442,32 @@ class Enemy(pygame.sprite.Sprite):
     def rawrect(self):
         return self._rawrect
     
+    def move_and_collide(self):
+        """
+        Let enemy move and check its collision. 
+        """
+        # X axle move
+        self._rawrect.x += self._dir
+        
+        # X axle collision check
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+            self._dir *= -1
+                
+        # Y axle move
+        self._vy += 1
+        self._rawrect.y += self._vy
+            
+        # Y axle collision check
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                
+            if self._vy > 0:
+                self._vy = 0
+            else:
+                # jump
+                self._vy = 1      
+    
     def kickHit(self) -> None:
         """
         Judge if Koopa kick hits or not. If it hits, the status is changed to FLYING.
@@ -518,27 +544,8 @@ class Koopa(Enemy):
             super().kickHit()
 
         if self._status == Status.NORMAL or self._status == Status.SLIDING:
-            # X axle move
-            self._rawrect.x += self._dir
             
-            # X axle collision check
-            if self._map.chk_collision(self._rawrect):
-                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
-                self._dir *= -1
-                
-            # Y axle move
-            self._vy += 1
-            self._rawrect.y += self._vy
-            
-            # Y axle collision check
-            if self._map.chk_collision(self._rawrect):
-                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
-                
-                if self._vy > 0:
-                    self._vy = 0
-                else:
-                    # jump
-                    self._vy = 1
+            super().move_and_collide()
             
             if self._status == Status.NORMAL:
                 self._walkidx += 1
@@ -636,32 +643,7 @@ class Goomba(Enemy):
             self.image = pygame.transform.flip(self.__imgs[0], False, True)
         
         if self._status == Status.NORMAL:
-                    
-            # X axle move
-            self._rawrect.x += self._dir
-            
-            # X axle collision check
-            if self._map.chk_collision(self._rawrect):
-                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
-                self._dir *= -1
-            
-            # Change the direction
-            # if self.__rawrect.x <= 0 or self.__rawrect.x >= W - self.__rawrect.width:
-            #     self.__dir *= -1
-                
-            # Y axle move
-            self._vy += 1
-            self._rawrect.y += self._vy
-            
-            # Y axle collision check
-            if self._map.chk_collision(self._rawrect):
-                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
-            
-                if self._vy > 0:
-                    self._vy = 0
-                else:
-                    # jump
-                    self._vy = 1
+            super().move_and_collide()
                 
             self._walkidx += 1
             if self._walkidx == self.WALK_SPEED:
