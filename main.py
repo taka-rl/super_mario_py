@@ -545,6 +545,11 @@ class Koopa(Enemy):
                 
                 # move again after reborn
                 self._dir = 2 if self._dir > 0 else -2
+                
+                # Remove Koopa from Mario's arrlies list if reborn
+                for _ in range(len(self._mario.arrlies)):
+                    if self._rawrect in self._mario.arrlies:
+                       self._mario.arrlies.remove(self._rawrect)
 
         # Flying if Koopa kick hits goomba
         if self._status == Status.FLYING:
