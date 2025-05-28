@@ -542,18 +542,18 @@ class Koopa(Enemy):
                             
                     # Mario jump action
                     self._mario.status = Status.TREADING
-                    self._mario.vy = -15
+                    self._mario.vy = -5
                     
                 else:
                     if self._mario.status != Status.TREADING:
                         self._mario.status = Status.DEADING
                         
             elif self._status == Status.DEADING:
+                self._status = Status.SLIDING
                 # Koopa kick when Mario hits deading Koopa
                 if self._mario.vy > 0:
-                    self._status = Status.SLIDING
                     self._mario.status = Status.TREADING
-                    self._mario.vy = -10
+                    self._mario.vy = -5
                 
                 # Decide the direction to slide
                 self._dir = 6 if self._mario.rawrect.centerx < self._rawrect.centerx else -6
@@ -573,7 +573,7 @@ class Koopa(Enemy):
                         
                         # Mario jump action
                         self._mario.status = Status.TREADING
-                        self._mario.vy = -15
+                        self._mario.vy = -5
                 
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
