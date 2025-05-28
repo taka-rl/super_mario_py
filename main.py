@@ -493,6 +493,19 @@ class Enemy(pygame.sprite.Sprite):
             # Disapear
             self._status = Status.DEAD
     
+    def _handle_mario_hit(self) -> None:
+        # If Mario hits Koopa
+        if self._mario.vy > 0:
+            # Squash
+            self._status = Status.DEADING
+                                
+            # Mario jump action
+            self._mario.status = Status.TREADING
+            self._mario.vy = -5
+                        
+        else:
+            if self._mario.status != Status.TREADING:
+                self._mario.status = Status.DEADING    
 
 class Koopa(Enemy):
     WALK_SPEED = 6
@@ -561,19 +574,8 @@ class Koopa(Enemy):
             if self._rawrect.colliderect(self._mario.rawrect):
                     
                 if self._status == Status.NORMAL:
-                    # If Mario hits Koopa
-                    if self._mario.vy > 0:
-                        # Squash
-                        self._status = Status.DEADING
-                                
-                        # Mario jump action
-                        self._mario.status = Status.TREADING
-                        self._mario.vy = -5
-                        
-                    else:
-                        if self._mario.status != Status.TREADING:
-                            self._mario.status = Status.DEADING
-                            
+                    super()._handle_mario_hit()
+                                            
                 elif self._status == Status.DEADING:
                     self._status = Status.SLIDING
                     # Koopa kick when Mario hits deading Koopa
@@ -588,19 +590,8 @@ class Koopa(Enemy):
                     self._mario.arrlies.append(self._rawrect)
                     
                 elif self._status == Status.SLIDING:
-                    # Mario is dead if he is hit by Koopa kick
-                    if self._mario.status != Status.TREADING:
-                        self._mario.status = Status.DEADING
-                    
-                    # If Mario hits Koopa
-                        if self._mario.vy > 0:
-                            # Squash
-                            self._status = Status.DEADING
-                            
-                            # Mario jump action
-                            self._mario.status = Status.TREADING
-                            self._mario.vy = -5
-                
+                    super()._handle_mario_hit()
+                                    
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
@@ -653,17 +644,7 @@ class Goomba(Enemy):
             
             # Collision check
             if self._rawrect.colliderect(self._mario.rawrect):
-                # If Mario hits Goomba
-                if self._mario.vy > 0:
-                    # Squash
-                    self._status = Status.DEADING
-                    
-                    # Mario jump action
-                    self._mario.status = Status.TREADING
-                    self._mario.vy = -5
-                else:
-                    if self._mario.status != Status.TREADING:
-                        self._mario.status = Status.DEADING
+                super().__handle_mario_hit()
             
             # Koopa kick flying
             super().kickHit()
@@ -687,8 +668,8 @@ def init():
         Koopa(200, 180, -2, mario, map),
         Koopa(220, 180, -2, mario, map),
         Goomba(250, 180, -2, mario, map),
-        Koopa(270, 180, -2, mario, map),
-        Goomba(310, 180, -2, mario, map),
+        Goomba(270, 180, -2, mario, map),
+        Koopa(310, 180, -2, mario, map),
     ]
     
     # Add mario into the group
