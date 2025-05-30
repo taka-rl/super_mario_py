@@ -171,7 +171,6 @@ class Map():
             if map_id == 2 and rect.y > blockrect.y: # Block is being pushed.
                 if abs(blockrect.centerx - rect.centerx) < 10:
                     self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
-                    print(f"Inserted: {self.__pushedblocks[(yidx + y, xidx + x)]}, xidx: {(xidx + x) * 20}, yidx:{(yidx + y) * 20}")
             return (yidx + y, xidx + x)
         return None
 
@@ -201,7 +200,6 @@ class Map():
     
     def ispushedblock(self, yx): 
         """Ensure if it's pushed or not."""
-        print(f"yx: {yx}")
         return yx in self.__pushedblocks
 
 
@@ -596,7 +594,6 @@ class Koopa(Enemy):
                 # If a block is pushedW
                 # if yx := self._map.chk_collision(self._rawrect):  # pygame.Rect(self._rawrect.x, self._rawrect.bottom, 20, 20): Works Hitbox might be the issue.
                 if self._map.ispushedblock(yx):
-                    print("Being pushed")
                     self._status = Status.FLYING
                     self._dir = 3 if self._rawrect.centerx > self._mario.rawrect.centerx else -3
                     self._vy = -8
@@ -704,7 +701,6 @@ class Goomba(Enemy):
                 # If a block is pushedW
                 # if yx := self._map.chk_collision(self._rawrect):  # pygame.Rect(self._rawrect.x, self._rawrect.bottom, 20, 20): Works Hitbox might be the issue.
                 if self._map.ispushedblock(yx):
-                    print("Being pushed")
                     self._status = Status.FLYING
                     self._dir = 3 if self._rawrect.centerx > self._mario.rawrect.centerx else -3
                     self._vy = -8
