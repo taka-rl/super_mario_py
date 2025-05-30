@@ -32,12 +32,12 @@ class Map():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 3, 0, 4, 0, 0, 0, 0, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 2, 3, 2, 4, 5, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -96,8 +96,7 @@ class Map():
             startx = 0
         else:
             startx = rect.x // 20 - self.NOMOVE_X // 20
-            margin = rect.x % 20
-        
+            margin = rect.x % 20        
         # Horizontal offset in Mario's position
         self.__drawmargin = -startx * 20 -margin
         
@@ -146,7 +145,7 @@ class Map():
             blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, 20, 20)
             blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, 20, 20)
             
-            # Collision check
+            # Collision check            
             if (self.__data[yidx + y][xidx]) and rect.colliderect(blockrectL):
                 hitleft = True
             if (self.__data[yidx + y][xidx + 1]) and rect.colliderect(blockrectR):
@@ -169,18 +168,12 @@ class Map():
                 continue
 
             map_id = self.__data[yidx + y][xidx + x]
-            if map_id == 2 and rect.y > blockrect.y:
+            if map_id == 2 and rect.y > blockrect.y: # Block is being pushed.
                 if abs(blockrect.centerx - rect.centerx) < 10:
                     self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
-                return True
-            
-            for x in range(2):
-                # If the tile contains an obstacle (non-zero value) and the rectangle 
-                # collides with the tile's area, return True (collision detected)
-                if self.__data[yidx + y][xidx + x] and rect.colliderect(
-                    pygame.Rect((xidx + x) * 20, (yidx + y) * 20, 20, 20)):
-                    return True
-        return False
+                    print(f"Inserted: {self.__pushedblocks[(yidx + y, xidx + x)]}, xidx: {(xidx + x) * 20}, yidx:{(yidx + y) * 20}")
+            return (yidx + y, xidx + x)
+        return None
 
     def get_drawx(self, rect: pygame.rect) -> int:
         """X coordinate to draw Mario on the map"""
@@ -205,6 +198,11 @@ class Map():
         
         """
         return rect.x + self.__drawmargin
+    
+    def ispushedblock(self, yx): 
+        """Ensure if it's pushed or not."""
+        print(f"yx: {yx}")
+        return yx in self.__pushedblocks
 
 
 class Mario(pygame.sprite.Sprite):
@@ -348,12 +346,6 @@ class Mario(pygame.sprite.Sprite):
             else:
                 self._vy = 1
         
-        # temporary heigh is set 180 for on_ground
-        # if self.__rawrect.y >= 180:
-        #     self.__rawrect.y = 180
-        #     self.__on_ground = True
-        #     self.__vy = 0
-        
         # Choose the stop mario image
         if self.__vx == 0:
             imageidx = 0
@@ -491,33 +483,7 @@ class Enemy(pygame.sprite.Sprite):
     @property
     def rawrect(self):
         return self._rawrect
-    
-    def move_and_collide(self):
-        """
-        Let enemy move and check its collision. 
-        """
-        # X axle move
-        self._rawrect.x += self._dir
         
-        # X axle collision check
-        if self._map.chk_collision(self._rawrect):
-            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
-            self._dir *= -1
-                
-        # Y axle move
-        self._vy += 1
-        self._rawrect.y += self._vy
-            
-        # Y axle collision check
-        if self._map.chk_collision(self._rawrect):
-            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
-                
-            if self._vy > 0:
-                self._vy = 0
-            else:
-                # jump
-                self._vy = 1      
-    
     def kickHit(self) -> None:
         """
         Judge if Koopa kick hits or not. If it hits, the status is changed to FLYING.
@@ -612,9 +578,40 @@ class Koopa(Enemy):
             super().kickHit()
 
         if self._status == Status.NORMAL or self._status == Status.SLIDING:
+            # X axle move
+            self._rawrect.x += self._dir
             
-            super().move_and_collide()
-            
+            # X axle collision check
+            if self._map.chk_collision(self._rawrect):
+                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+                self._dir *= -1
+                    
+            # Y axle move
+            self._vy += 1
+            self._rawrect.y += self._vy
+                
+            # Y axle collision check
+            if yx := self._map.chk_collision(self._rawrect):
+                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                # If a block is pushedW
+                # if yx := self._map.chk_collision(self._rawrect):  # pygame.Rect(self._rawrect.x, self._rawrect.bottom, 20, 20): Works Hitbox might be the issue.
+                if self._map.ispushedblock(yx):
+                    print("Being pushed")
+                    self._status = Status.FLYING
+                    self._dir = 3 if self._rawrect.centerx > self._mario.rawrect.centerx else -3
+                    self._vy = -8
+                    
+                    self.image = pygame.transform.flip(self.__imgs[0], False, True)
+                    # Update rect for Splite
+                    self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+                    return
+
+                if self._vy > 0:
+                    self._vy = 0
+                else:
+                    # jump
+                    self._vy = 1
+
             if self._status == Status.NORMAL:
                 self._walkidx += 1
                 if self._walkidx == self.WALK_SPEED:
@@ -689,8 +686,40 @@ class Goomba(Enemy):
             self.image = pygame.transform.flip(self.__imgs[0], False, True)
         
         if self._status == Status.NORMAL:
-            super().move_and_collide()
+            # X axle move
+            self._rawrect.x += self._dir
+            
+            # X axle collision check
+            if self._map.chk_collision(self._rawrect):
+                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+                self._dir *= -1
+                    
+            # Y axle move
+            self._vy += 1
+            self._rawrect.y += self._vy
                 
+            # Y axle collision check
+            if yx := self._map.chk_collision(self._rawrect):
+                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                # If a block is pushedW
+                # if yx := self._map.chk_collision(self._rawrect):  # pygame.Rect(self._rawrect.x, self._rawrect.bottom, 20, 20): Works Hitbox might be the issue.
+                if self._map.ispushedblock(yx):
+                    print("Being pushed")
+                    self._status = Status.FLYING
+                    self._dir = 3 if self._rawrect.centerx > self._mario.rawrect.centerx else -3
+                    self._vy = -8
+                    
+                    self.image = pygame.transform.flip(self.__imgs[0], False, True)
+                    # Update rect for Splite
+                    self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+                    return
+                
+                if self._vy > 0:
+                    self._vy = 0
+                else:
+                    # jump
+                    self._vy = 1
+
             self._walkidx += 1
             if self._walkidx == self.WALK_SPEED:
                 self._walkidx = 0
@@ -722,9 +751,9 @@ def init():
     goombas = [
         # Koopa(200, 180, -2, mario, map),
         # Koopa(220, 180, -2, mario, map),
-        # Goomba(250, 180, -2, mario, map),
-        # Goomba(270, 180, -2, mario, map),
-        # Koopa(310, 180, -2, mario, map),
+        Koopa(150, 30, -2, mario, map),
+        Goomba(160, 140, -2, mario, map),
+        Koopa(170, 120, -2, mario, map),
     ]
     
     # Add mario into the group
