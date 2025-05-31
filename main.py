@@ -10,6 +10,7 @@ class Status(Enum):
     TREADING = auto()
     SLIDING = auto()
     FLYING = auto()
+    GROWING = auto()
 
 
 # Display size
@@ -220,6 +221,7 @@ class Mario(pygame.sprite.Sprite):
     """Mario class"""
     
     WALK_ANIME_IDX = [0, 0, 1, 1, 2, 2]
+    WALK_ANIME_BIG_IDX = [6, 6, 7, 7, 8, 8]
     MAX_SPEED_X: int = 5
     ACC_SPEED_X: float = 0.25
     DASH_SPPED_X: int = 8
@@ -259,14 +261,25 @@ class Mario(pygame.sprite.Sprite):
         # Anime counter
         self.__animecounter: int = 0
         
+        # Growing counter
+        self.__growcounter: int = 0
+        
+        # Grown Mario
+        self.__isbig: bool = False
+        
         # Load mario images
         self.__imgs: list = [
             pygame.image.load('./img/mario_1.jpg'),
             pygame.image.load('./img/mario_2.jpg'),
             pygame.image.load('./img/mario_3.jpg'),
             pygame.image.load('./img/mario_death.jpg'),
-            pygame.image.load('./img/mario_jump.jpg')
-        ]
+            pygame.image.load('./img/mario_jump.jpg'),
+            pygame.image.load('./img/mario_middle.jpg'),
+            pygame.image.load('./img/mario_big_1.jpg'),
+            pygame.image.load('./img/mario_big_2.jpg'),
+            pygame.image.load('./img/mario_big_3.jpg'),
+            pygame.image.load('./img/mario_big_jump.jpg'),
+            ]
         
         self.image = self.__imgs[0]
         
@@ -313,6 +326,11 @@ class Mario(pygame.sprite.Sprite):
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
+        # Mario gets a mushroom
+        if self.__status == Status.GROWING:            
+            self.__growing()
+            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+        
         # Get key status
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
@@ -330,7 +348,8 @@ class Mario(pygame.sprite.Sprite):
                 self.__vy = -3
             if self.__vy >= 0:
                 # Status is Normal when falling down
-                self.__status = Status.NORMAL
+                # self.__status = Status.NORMAL
+                pass
         
         # Dash with left shift
         self.__isdash = keys[pygame.K_LSHIFT]
@@ -361,17 +380,17 @@ class Mario(pygame.sprite.Sprite):
         if self.__vx == 0:
             imageidx = 0
         else:
-            imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6]
+            imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6] if not self.__isbig else self.WALK_ANIME_BIG_IDX[self.__walkidx % 6]
         
         # Choose the jump mario image
         if not self.__on_ground:
-            imageidx = 4
+            imageidx = 4 if not self.__isbig else 9
             
-        # Change the image direction 
-        self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)        
+        # Change the image direction
+        self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
     
         # Update rect for Splite
-        self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+        self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y if not self.__isbig else self.__rawrect.y - 20, self.__rawrect.width, self.__rawrect.height)
         
     def move(self):
         self.__walkidx += 1
@@ -455,7 +474,54 @@ class Mario(pygame.sprite.Sprite):
             return
          
         self.__animecounter += 1
+    
+    def __growing(self):
         
+        if self.__growcounter == 0:
+            self.image = self.__imgs[6]
+            self.__rawrect.y -= 20
+        
+        elif self.__growcounter == 6:
+            self.image = self.__imgs[5]
+            # self.__rawrect.y -= 10
+            
+        elif self.__growcounter == 8:
+            self.image = self.__imgs[0]
+            self.__rawrect.y += 20
+                     
+        elif self.__growcounter == 10:
+            self.image = self.__imgs[6]
+            self.__rawrect.y -= 20
+                     
+        elif self.__growcounter == 12:
+            self.image = self.__imgs[5]
+            # self.__rawrect.y -= 10
+            
+        elif self.__growcounter == 14:
+            self.image = self.__imgs[0]
+            self.__rawrect.y += 20
+                     
+        elif self.__growcounter == 16:
+            self.image = self.__imgs[6]
+            self.__rawrect.y -= 20
+            
+        elif self.__growcounter == 18:
+            self.image = self.__imgs[5]
+            # self.__rawrect.y -= 10
+
+        elif self.__growcounter == 20:
+            self.image = self.__imgs[6]
+            # self.__rawrect.y -= 20
+            
+            # Initialize counter
+            self.__growcounter = 0
+            
+            self.__isbig = True
+            
+            self.__status = Status.NORMAL
+                    
+        self.__growcounter += 1
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
@@ -537,9 +603,8 @@ class Enemy(pygame.sprite.Sprite):
 class Mushroom(Enemy):    
     def __init__(self, x, y, dir, mario, map):
         self.__imgs = [pygame.image.load('./img/kinoko.jpg')]
-        
-        self._rawrect = pygame.Rect(x, y, 20, 20)
         self.image = self.__imgs[0]
+        self._rawrect = pygame.Rect(x, y, 20, 20)
         
         super().__init__(x, y, dir, mario, map)
     
@@ -583,6 +648,11 @@ class Mushroom(Enemy):
                 else:
                     # jump
                     self._vy = 1
+        
+        # Collision check with Mario
+        if self._rawrect.colliderect(self._mario.rawrect):
+            self._mario.status = Status.GROWING
+            self._status = Status.DEAD
 
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
         
@@ -814,9 +884,9 @@ def init():
     enemies = [
         # Koopa(200, 180, -2, mario, map),
         # Koopa(220, 180, -2, mario, map),
-        Koopa(80, 30, -2, mario, map),
-        Goomba(100, 60, -2, mario, map),
-        Koopa(120, 100, -2, mario, map),        
+        # Koopa(80, 30, -2, mario, map),
+        # Goomba(100, 60, -2, mario, map),
+        # Koopa(120, 100, -2, mario, map),        
     ]
     
     enemies_bg = [
@@ -832,7 +902,7 @@ def init():
     # Add enemy bg into the group
     group_bg.add(enemies_bg)
     
-    return group, group_bg, mario, enemies, map
+    return group, group_bg, mario, enemies, enemies_bg, map
 
 
 def main():
@@ -848,7 +918,7 @@ def main():
     clock = pygame.time.Clock()
     
     # Initialize sprite
-    group, group_bg, mario, enemies, map = init()
+    group, group_bg, mario, enemies, enemies_bg, map = init()
     
     # Event loop
     running = True
@@ -869,13 +939,17 @@ def main():
         # If Mario is dead
         if mario.status == Status.DEAD:
             time.sleep(2)
-            group, group_bg, mario, enemies, map = init()
+            group, group_bg, mario, enemies, enemies_bg, map = init()
             continue 
         
         # Remove DEAD status
         for enemy in enemies:
             if enemy.status == Status.DEAD:
                 group.remove(enemy)
+        
+        for enemy_bg in enemies_bg:
+            if enemy_bg.status == Status.DEAD:
+                group_bg.remove(enemy_bg)
 
         # Draw the group_bg
         group_bg.draw(win)
