@@ -329,8 +329,7 @@ class Mario(pygame.sprite.Sprite):
         # Mario gets a mushroom
         if self.__status == Status.GROWING:            
             self.__growing()
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
-        
+            
         # Get key status
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
@@ -376,9 +375,9 @@ class Mario(pygame.sprite.Sprite):
             else:
                 self._vy = 1
         
-        # Choose the stop mario image
+        # Choose Mario image for walking animation
         if self.__vx == 0:
-            imageidx = 0
+            imageidx = 0 if not self.__isbig else 6
         else:
             imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6] if not self.__isbig else self.WALK_ANIME_BIG_IDX[self.__walkidx % 6]
         
@@ -386,7 +385,7 @@ class Mario(pygame.sprite.Sprite):
         if not self.__on_ground:
             imageidx = 4 if not self.__isbig else 9
             
-        # Change the image direction
+        # Change the image direction if its direction is left
         self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
     
         # Update rect for Splite
@@ -479,7 +478,7 @@ class Mario(pygame.sprite.Sprite):
         
         if self.__growcounter == 0:
             self.image = self.__imgs[6]
-            self.__rawrect.y -= 20
+            # self.__rawrect.y -= 20
         
         elif self.__growcounter == 6:
             self.image = self.__imgs[5]
@@ -487,11 +486,11 @@ class Mario(pygame.sprite.Sprite):
             
         elif self.__growcounter == 8:
             self.image = self.__imgs[0]
-            self.__rawrect.y += 20
+            # self.__rawrect.y += 20
                      
         elif self.__growcounter == 10:
             self.image = self.__imgs[6]
-            self.__rawrect.y -= 20
+            # self.__rawrect.y -= 20
                      
         elif self.__growcounter == 12:
             self.image = self.__imgs[5]
@@ -499,11 +498,11 @@ class Mario(pygame.sprite.Sprite):
             
         elif self.__growcounter == 14:
             self.image = self.__imgs[0]
-            self.__rawrect.y += 20
+            # self.__rawrect.y += 20
                      
         elif self.__growcounter == 16:
             self.image = self.__imgs[6]
-            self.__rawrect.y -= 20
+            # self.__rawrect.y -= 20
             
         elif self.__growcounter == 18:
             self.image = self.__imgs[5]
