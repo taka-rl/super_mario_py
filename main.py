@@ -363,7 +363,6 @@ class Mario(pygame.sprite.Sprite):
         
         # Judge hitbox
         if self.__map.chk_collision(self.__rawrect):
-            
             # If Mario is moving upward, it lets him go downward
             # vy is bigger than 0 -> 1 to go upward
             self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
@@ -374,7 +373,7 @@ class Mario(pygame.sprite.Sprite):
                 self.__vy = 0
             else:
                 self._vy = 1
-        
+
         # Choose Mario image for walking animation
         if self.__vx == 0:
             imageidx = 0 if not self.__isbig else 6
@@ -607,7 +606,7 @@ class Mushroom(Enemy):
         
         super().__init__(x, y, dir, mario, map)
     
-    def update(self):
+    def update(self):        
         # If Mario hit Mushroom box
         if self._status == Status.NORMAL:
             x, y = self._rawrect.x // 20, self._rawrect.y // 20
@@ -673,8 +672,8 @@ class Koopa(Enemy):
             super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # Not update if Mario is dead
-        if self._mario.status == Status.DEADING:
+        # Not update if Mario is dead or growing
+        if self._mario.status in [Status.DEADING, Status.GROWING]:
             return
         
         if self._status == Status.DEADING:
@@ -795,8 +794,8 @@ class Goomba(Enemy):
 
     
     def update(self):
-        # Not update if Mario is dead
-        if self._mario.status == Status.DEADING:
+        # Not update if Mario is dead or growing
+        if self._mario.status in [Status.DEADING, Status.GROWING]:
             return
         
         if self._status == Status.DEADING:
@@ -883,9 +882,9 @@ def init():
     enemies = [
         # Koopa(200, 180, -2, mario, map),
         # Koopa(220, 180, -2, mario, map),
-        # Koopa(80, 30, -2, mario, map),
-        # Goomba(100, 60, -2, mario, map),
-        # Koopa(120, 100, -2, mario, map),        
+        Koopa(80, 30, -2, mario, map),
+        Goomba(100, 60, -2, mario, map),
+        Koopa(120, 100, -2, mario, map),        
     ]
     
     enemies_bg = [
