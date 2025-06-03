@@ -144,14 +144,15 @@ class Map():
         """
     
         # Convert the top-left position of the rectangle to the corresponding tile indices
-        xidx, yidx = rect.x // 20, rect.y // 20
+        xidx, yidx = rect.x // 20, ((rect.y // 20) - (1 if rect.height == 40 else 0))
+
         
         # Check the 2x2 grid of tiles surrounding the rectangle's top-left corner
-        for y in range(2):
+        for y in range(2 + (1 if rect.height == 40 else 0)):
             # Get Mario's both side of rect
             hitleft, hitright = False, False
-            blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, 20, 20)
-            blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, 20, 20)
+            blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, rect.width, rect.height)
+            blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, rect.width, rect.height)
             
             # Collision check            
             if (self.__data[yidx + y][xidx]) and rect.colliderect(blockrectL):
@@ -285,7 +286,7 @@ class Mario(pygame.sprite.Sprite):
         
         # The coordinate for map and the location of Mario are different.
         # Mario location coordinate        
-        self.__rawrect = pygame.Rect(30, 180, 20, 20)
+        self.__rawrect = pygame.Rect(30, 220, 20, 20)
         # Mario coordinate for Map
         self.rect = self.__rawrect
         
@@ -360,13 +361,13 @@ class Mario(pygame.sprite.Sprite):
         # if not self.__on_ground:
         self.__vy += 1
         self.__rawrect.y += self.__vy
-        
+                
         # Judge hitbox
         if self.__map.chk_collision(self.__rawrect):
             # If Mario is moving upward, it lets him go downward
             # vy is bigger than 0 -> 1 to go upward
             self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
-            
+                
             # Check if Mario is on ground 
             if self.__vy > 0:
                 self.__on_ground = True
@@ -431,7 +432,8 @@ class Mario(pygame.sprite.Sprite):
         
         self.__rawrect.x += self.__vx
         self.__isleft = True
-        self.move()        
+        self.move()
+        print(f"rect: {self.rect}, rawrect.x: {self.__rawrect.x}")
         
     def __jump(self):
         # If Mario is on ground, he can jump
@@ -509,14 +511,12 @@ class Mario(pygame.sprite.Sprite):
 
         elif self.__growcounter == 20:
             self.image = self.__imgs[6]
-            # self.__rawrect.y -= 20
-            
+            self.__rawrect.y -= 20            
+            self.__rawrect.height = 40
+            self.__isbig = True
+            self.__status = Status.NORMAL
             # Initialize counter
             self.__growcounter = 0
-            
-            self.__isbig = True
-            
-            self.__status = Status.NORMAL
                     
         self.__growcounter += 1
 
@@ -858,7 +858,7 @@ class Goomba(Enemy):
             
             # Collision check
             if self._rawrect.colliderect(self._mario.rawrect):
-                super().__handle_mario_hit()
+                super()._handle_mario_hit()
             
             # Koopa kick flying
             super().kickHit()
