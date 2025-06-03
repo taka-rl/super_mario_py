@@ -726,7 +726,6 @@ class Koopa(Enemy):
             if yx := self._map.chk_collision(self._rawrect):
                 self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
                 # If a block is pushedW
-                # if yx := self._map.chk_collision(self._rawrect):  # pygame.Rect(self._rawrect.x, self._rawrect.bottom, 20, 20): Works Hitbox might be the issue.
                 if self._map.ispushedblock(yx):
                     self._status = Status.FLYING
                     self._dir = 3 if self._rawrect.centerx > self._mario.rawrect.centerx else -3
@@ -833,7 +832,6 @@ class Goomba(Enemy):
             if yx := self._map.chk_collision(self._rawrect):
                 self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
                 # If a block is pushedW
-                # if yx := self._map.chk_collision(self._rawrect):  # pygame.Rect(self._rawrect.x, self._rawrect.bottom, 20, 20): Works Hitbox might be the issue.
                 if self._map.ispushedblock(yx):
                     self._status = Status.FLYING
                     self._dir = 3 if self._rawrect.centerx > self._mario.rawrect.centerx else -3
