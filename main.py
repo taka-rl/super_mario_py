@@ -11,6 +11,7 @@ class Status(Enum):
     SLIDING = auto()
     FLYING = auto()
     GROWING = auto()
+    SHRINKING = auto()
 
 
 # Display size
@@ -45,7 +46,7 @@ class Map():
             [2, 2, 2, 2, 3, 3, 3, 3, 2, 5, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -312,6 +313,10 @@ class Mario(pygame.sprite.Sprite):
     def arrlies(self):
         return self._arrlies
     
+    @property
+    def isbig(self):
+        return self.__isbig
+    
     def update(self):
         if self.__status == Status.DEAD:
             pass
@@ -325,9 +330,15 @@ class Mario(pygame.sprite.Sprite):
         # Mario gets a mushroom
         if self.__status == Status.GROWING:            
             self.__growing()
-            # Update rect for Splite
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
+        
+        # Mario becomes small
+        if self.__status == Status.SHRINKING:
+            pass
+            # self.__shrinking()
+            # self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            # return
         
         # Get key status
         keys = pygame.key.get_pressed()
@@ -471,8 +482,7 @@ class Mario(pygame.sprite.Sprite):
          
         self.__animecounter += 1
     
-    def __growing(self):
-        
+    def __growing(self):    
         if self.__growcounter == 0:
             self.image = self.__imgs[6]
             self.__rawrect.y -= 20
@@ -666,10 +676,10 @@ class Koopa(Enemy):
             super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # Not update if Mario is dead or growing
-        if self._mario.status in [Status.DEADING, Status.GROWING]:
+        # Not update if Mario is dead or growing or shrinking
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
             return
-        
+                
         if self._status == Status.DEADING:
             self.image = self.__imgs[2]
             # Update rect for Splite
@@ -787,8 +797,8 @@ class Goomba(Enemy):
 
     
     def update(self):
-        # Not update if Mario is dead or growing
-        if self._mario.status in [Status.DEADING, Status.GROWING]:
+        # Not update if Mario is dead or growing or shrinking
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
             return
         
         if self._status == Status.DEADING:
@@ -872,8 +882,8 @@ def init():
     
     # Enemy class
     enemies = [
-        # Koopa(200, 180, -2, mario, map),
-        # Koopa(220, 180, -2, mario, map),
+        Koopa(180, 180, -2, mario, map),
+        # Goomba(220, 180, -2, mario, map),
         # Koopa(80, 30, -2, mario, map),
         # Goomba(100, 60, -2, mario, map),
         # Koopa(120, 100, -2, mario, map),        
