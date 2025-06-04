@@ -130,29 +130,25 @@ class Map():
 
     def chk_collision(self, rect: pygame.rect) -> bool:
         """
-        Check for collision between a given rectangular area (rect) and the tiles
-        in the game map. The function checks the four tiles surrounding the top-left
-        corner of the given rectangle. If any of these tiles contain an obstacle 
-        (represented by non-zero values in the map) and the given rectangle collides
-        with the corresponding tile's area. 
-        
+        Check for collision between a given rectangular area (rect) and the tiles in the game map. 
+        The function checks the 2x2(small Mario) or 2x3(big Mario) tiles surrounding the rectangle.
+    
         Args:
             rect (pygame.rect): Targeted rect to be checked collision
 
         Returns:
-            bool: Return True to indicate a collision, otherwise it returns False
+            tuple: Return (x,y) coordinate to indicate a collision, otherwise it returns False
         """
     
         # Convert the top-left position of the rectangle to the corresponding tile indices
-        xidx, yidx = rect.x // 20, ((rect.y // 20) - (1 if rect.height == 40 else 0))
-
+        xidx, yidx = rect.x // 20, rect.y // 20  
         
-        # Check the 2x2 grid of tiles surrounding the rectangle's top-left corner
-        for y in range(2 + (1 if rect.height == 40 else 0)):
+        # Check the 2x2 or 2x3 grid of tiles surrounding the rectangle's top-left corner
+        for y in range(2 if rect.height == 20 else 3):
             # Get Mario's both side of rect
             hitleft, hitright = False, False
-            blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, rect.width, rect.height)
-            blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, rect.width, rect.height)
+            blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, 20, 20)
+            blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, 20, 20)
             
             # Collision check            
             if (self.__data[yidx + y][xidx]) and rect.colliderect(blockrectL):
@@ -175,6 +171,7 @@ class Map():
                 x = 1
             else:
                 continue
+                # If nothing collides, the function returns. 
 
             map_id = self.__data[yidx + y][xidx + x]
             if map_id in self.PUSHED_BLOCKS and rect.y > blockrect.y: # Block is being pushed.
@@ -183,9 +180,7 @@ class Map():
                 
                 # Change Question block to Panel
                 if map_id == self.BLOCK_QUESTION:
-                    self.__data[yidx + y][xidx + x] = self.BLOCK_PANEL
-                    
-                    
+                    self.__data[yidx + y][xidx + x] = self.BLOCK_PANEL      
             return (yidx + y, xidx + x)
         return None
 
@@ -330,7 +325,10 @@ class Mario(pygame.sprite.Sprite):
         # Mario gets a mushroom
         if self.__status == Status.GROWING:            
             self.__growing()
-            
+            # Update rect for Splite
+            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            return
+        
         # Get key status
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
@@ -367,8 +365,7 @@ class Mario(pygame.sprite.Sprite):
             # If Mario is moving upward, it lets him go downward
             # vy is bigger than 0 -> 1 to go upward
             self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
-                
-            # Check if Mario is on ground 
+            
             if self.__vy > 0:
                 self.__on_ground = True
                 self.__vy = 0
@@ -389,7 +386,7 @@ class Mario(pygame.sprite.Sprite):
         self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
     
         # Update rect for Splite
-        self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y if not self.__isbig else self.__rawrect.y - 20, self.__rawrect.width, self.__rawrect.height)
+        self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
         
     def move(self):
         self.__walkidx += 1
@@ -433,7 +430,6 @@ class Mario(pygame.sprite.Sprite):
         self.__rawrect.x += self.__vx
         self.__isleft = True
         self.move()
-        print(f"rect: {self.rect}, rawrect.x: {self.__rawrect.x}")
         
     def __jump(self):
         # If Mario is on ground, he can jump
@@ -479,39 +475,37 @@ class Mario(pygame.sprite.Sprite):
         
         if self.__growcounter == 0:
             self.image = self.__imgs[6]
-            # self.__rawrect.y -= 20
+            self.__rawrect.y -= 20
         
         elif self.__growcounter == 6:
             self.image = self.__imgs[5]
-            # self.__rawrect.y -= 10
             
         elif self.__growcounter == 8:
             self.image = self.__imgs[0]
-            # self.__rawrect.y += 20
+            self.__rawrect.y += 20
                      
         elif self.__growcounter == 10:
             self.image = self.__imgs[6]
-            # self.__rawrect.y -= 20
+            self.__rawrect.y -= 20
                      
         elif self.__growcounter == 12:
             self.image = self.__imgs[5]
-            # self.__rawrect.y -= 10
             
         elif self.__growcounter == 14:
             self.image = self.__imgs[0]
-            # self.__rawrect.y += 20
+            self.__rawrect.y += 20
                      
         elif self.__growcounter == 16:
             self.image = self.__imgs[6]
-            # self.__rawrect.y -= 20
+            self.__rawrect.y -= 20
             
         elif self.__growcounter == 18:
             self.image = self.__imgs[5]
-            # self.__rawrect.y -= 10
+            self.__rawrect.y += 10
 
         elif self.__growcounter == 20:
             self.image = self.__imgs[6]
-            self.__rawrect.y -= 20            
+            self.__rawrect.y -= 10  # to offset +=10
             self.__rawrect.height = 40
             self.__isbig = True
             self.__status = Status.NORMAL
@@ -880,9 +874,9 @@ def init():
     enemies = [
         # Koopa(200, 180, -2, mario, map),
         # Koopa(220, 180, -2, mario, map),
-        Koopa(80, 30, -2, mario, map),
-        Goomba(100, 60, -2, mario, map),
-        Koopa(120, 100, -2, mario, map),        
+        # Koopa(80, 30, -2, mario, map),
+        # Goomba(100, 60, -2, mario, map),
+        # Koopa(120, 100, -2, mario, map),        
     ]
     
     enemies_bg = [
