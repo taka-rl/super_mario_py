@@ -43,10 +43,10 @@ class Map():
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [2, 2, 2, 2, 3, 3, 3, 3, 2, 5, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -264,6 +264,10 @@ class Mario(pygame.sprite.Sprite):
         # Grown Mario
         self.__isbig: bool = False
         
+        # Invisible
+        self.__isinvisible: bool = False
+        self.__invisiblecounter: int = 90
+        
         # Load mario images
         self.__imgs: list = [
             pygame.image.load('./img/mario_1.jpg'),
@@ -317,6 +321,11 @@ class Mario(pygame.sprite.Sprite):
     def isbig(self):
         return self.__isbig
     
+    @property
+    def isinvisible(self):
+        return self.__isinvisible
+    
+
     def update(self):
         if self.__status == Status.DEAD:
             pass
@@ -335,10 +344,10 @@ class Mario(pygame.sprite.Sprite):
         
         # Mario becomes small
         if self.__status == Status.SHRINKING:
-            pass
-            # self.__shrinking()
-            # self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
-            # return
+            self.__shrinking()
+            self.image.set_alpha(128) 
+            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            return
         
         # Get key status
         keys = pygame.key.get_pressed()
@@ -380,9 +389,19 @@ class Mario(pygame.sprite.Sprite):
             if self.__vy > 0:
                 self.__on_ground = True
                 self.__vy = 0
+                if self.__status == Status.TREADING:
+                    self.__status = Status.NORMAL
             else:
                 self._vy = 1
-
+        
+        # End invisible state
+        if self.__isinvisible:
+            self.__invisiblecounter -= 1
+            if self.__invisiblecounter == 0:
+                self.__isinvisible = False
+                # initialization
+                self.__invisiblecounter = 90
+        
         # Choose Mario image for walking animation
         if self.__vx == 0:
             imageidx = 0 if not self.__isbig else 6
@@ -395,6 +414,9 @@ class Mario(pygame.sprite.Sprite):
             
         # Change the image direction if its direction is left
         self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
+        
+        # Set invisible Mario
+        self.image.set_alpha(128 if self.__isinvisible else 256)
     
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
@@ -523,6 +545,44 @@ class Mario(pygame.sprite.Sprite):
             self.__growcounter = 0
                     
         self.__growcounter += 1
+    
+    def __shrinking(self):
+        if self.__growcounter == 0:
+            self.image = self.__imgs[0]
+            self.__rawrect.y += 20
+        
+        elif self.__growcounter == 6:
+            self.image = self.__imgs[5]
+            
+        elif self.__growcounter == 8:
+            self.image = self.__imgs[6]
+                     
+        elif self.__growcounter == 10:
+            self.image = self.__imgs[0]
+                     
+        elif self.__growcounter == 12:
+            self.image = self.__imgs[5]
+            
+        elif self.__growcounter == 14:
+            self.image = self.__imgs[6]
+                     
+        elif self.__growcounter == 16:
+            self.image = self.__imgs[0]
+            
+        elif self.__growcounter == 18:
+            self.image = self.__imgs[5]
+
+        elif self.__growcounter == 20:
+            self.image = self.__imgs[0]
+            # self.__rawrect.y += 20  # to offset +=10
+            self.__rawrect.height = 20
+            self.__isbig = False
+            self.__status = Status.NORMAL
+            # Initialize counter
+            self.__growcounter = 0
+            
+            self.__isinvisible = True
+        self.__growcounter += 1
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -599,8 +659,16 @@ class Enemy(pygame.sprite.Sprite):
             self._mario.vy = -5
                         
         else:
+            # If Mario is invisible, then return.
+            if self._mario.isinvisible:
+                return
+            
             if self._mario.status != Status.TREADING:
-                self._mario.status = Status.DEADING    
+                if self._mario.isbig:
+                    self._mario.status = Status.SHRINKING
+                else:
+                    self._mario.status = Status.DEADING
+            
 
 class Mushroom(Enemy):    
     def __init__(self, x, y, dir, mario, map):
@@ -882,9 +950,9 @@ def init():
     
     # Enemy class
     enemies = [
-        Koopa(180, 180, -2, mario, map),
-        # Goomba(220, 180, -2, mario, map),
-        # Koopa(80, 30, -2, mario, map),
+        # Koopa(230, 180, -2, mario, map),
+        # Goomba(250, 180, -2, mario, map),
+        Koopa(270, 180, -2, mario, map),
         # Goomba(100, 60, -2, mario, map),
         # Koopa(120, 100, -2, mario, map),        
     ]
