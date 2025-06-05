@@ -69,6 +69,17 @@ class Map():
     
         # Array for pushed blocks
         self.__pushedblocks: dict = {}
+        
+        # Mario info
+        self.__mario = None
+    
+    @property
+    def mario(self):
+        return self.__mario
+    
+    @mario.setter
+    def mario(self, value):
+        self.__mario = value
     
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
@@ -177,11 +188,16 @@ class Map():
             map_id = self.__data[yidx + y][xidx + x]
             if map_id in self.PUSHED_BLOCKS and rect.y > blockrect.y: # Block is being pushed.
                 if abs(blockrect.centerx - rect.centerx) < 10:
-                    self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
+                    
+                    # Crush a block
+                    if map_id == self.BLOCK_NORMAL and self.__mario.isbig:
+                        self.__data[yidx + y][xidx + x] = 0
+                    else:
+                        self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
                 
-                # Change Question block to Panel
-                if map_id == self.BLOCK_QUESTION:
-                    self.__data[yidx + y][xidx + x] = self.BLOCK_PANEL      
+                        # Change Question block to Panel
+                        if map_id == self.BLOCK_QUESTION:
+                            self.__data[yidx + y][xidx + x] = self.BLOCK_PANEL
             return (yidx + y, xidx + x)
         return None
 
@@ -292,6 +308,10 @@ class Mario(pygame.sprite.Sprite):
         
         # Get a map
         self.__map: Map = map
+
+        # Set Mario to Map
+        self.__map.mario = self
+        
     
     @property
     def vy(self):
