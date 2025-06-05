@@ -31,8 +31,7 @@ class Map():
     BLOCK_PANEL = 4
     PUSHED_BLOCKS = [BLOCK_NORMAL, BLOCK_QUESTION]
     
-    
-    def __init__(self):      
+    def __init__(self, group):      
         # Define map 
         self.__data = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -72,6 +71,9 @@ class Map():
         
         # Mario info
         self.__mario = None
+        
+        # Sprite group
+        self.__group = group
     
     @property
     def mario(self):
@@ -192,6 +194,14 @@ class Map():
                     # Crush a block
                     if map_id == self.BLOCK_NORMAL and self.__mario.isbig:
                         self.__data[yidx + y][xidx + x] = 0
+                        
+                        # Add animation for a crushed block
+                        bx, by = (xidx + x) * 20, (yidx + y) * 20
+                        self.__group.add(BrokenBlock(bx, by, 3, -5, self.__mario, self))
+                        self.__group.add(BrokenBlock(bx, by, -3, -5, self.__mario, self))
+                        self.__group.add(BrokenBlock(bx, by, 3, 5, self.__mario, self))
+                        self.__group.add(BrokenBlock(bx, by, -3, 5, self.__mario, self))
+                        
                     else:
                         self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
                 
@@ -956,6 +966,20 @@ class Goomba(Enemy):
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
+
+class BrokenBlock(Enemy):
+    def __init__(self, x, y, dir, vy, mario, map):
+        self.__imgs: list = [pygame.image.load('./img/crushed_block.jpg')]
+        self.image = self.__imgs[0]
+        
+        self.__rawrect = pygame.Rect(x, y, 10, 10)
+        
+        super().__init__(x, y, dir, mario, map)
+        self._vy = vy
+        
+    def update(self):
+        super().flying()
+        
         
 def init():
      # Define Sprite group
@@ -963,7 +987,7 @@ def init():
     group_bg = pygame.sprite.RenderUpdates()
     
     # Map class
-    map = Map()
+    map = Map(group)
     
     # Mario class
     mario = Mario(map)
@@ -978,7 +1002,7 @@ def init():
     ]
     
     enemies_bg = [
-        Mushroom(120, 160, -2, mario, map),
+        Mushroom(120, 160, -2, mario, map)
     ]
     
     # Add mario into the group
