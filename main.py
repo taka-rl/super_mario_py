@@ -70,7 +70,7 @@ class Map():
             self.ONEUPKINOKO: pygame.image.load('./img/1upkinoko.jpg'),
             self.PIPE_1: pygame.image.load('./img/pipe_1.jpg'),
             self.PIPE_2: pygame.image.load('./img/pipe_2.jpg'),
-            self.BLOCK_STAIRS: pygame.image.load('./img/staris_block.jpg'),
+            self.BLOCK_STAIRS: pygame.image.load('./img/stairs_block.jpg'),
             }
         
         # Map shifts relative to Mario's position
