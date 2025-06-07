@@ -268,7 +268,7 @@ class Map():
             blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, 20, 20)
             
             # Prevent list index out of range
-            if (yidx + y) >= 16:
+            if (yidx + y) >= len(self.__data) or (xidx + 1) >= len(self.__data[0]):
                 return
             
             # Collision check            
@@ -1213,7 +1213,7 @@ class BrokenBlock(Enemy):
         self.__imgs: list = [pygame.image.load('./img/crushed_block.jpg')]
         self.image = self.__imgs[0]
         
-        self.__rawrect = pygame.Rect(x, y, 10, 10)
+        self._rawrect = pygame.Rect(x, y, 10, 10)
         super().__init__(x, y, dir, mario, map)
         self._vy = vy
         
