@@ -75,6 +75,9 @@ class Map():
         
         # Map shifts relative to Mario's position
         self.__drawmargin: int = 0
+        
+        # X coordinate on the left edge of the map
+        self.__nowx: int = 0
     
         # Array for pushed blocks
         self.__pushedblocks: dict = {}
@@ -93,6 +96,12 @@ class Map():
     @mario.setter
     def mario(self, value):
         self.__mario = value
+    
+    @property
+    def nowx(self):
+        """Get X coordinate on the left edge of the map"""
+        return self.__nowx
+        
     
     def get_mapdata(self, x, y):
         """
@@ -183,13 +192,16 @@ class Map():
         margin = 0
         
         # Mario start position
-        if rect.x <= self.NOMOVE_X:
-            startx = 0
+        if rect.x <= self.NOMOVE_X + self.__nowx:
+            startx = self.__nowx // 20
+            margin = self.__nowx % 20
         else:
             startx = rect.x // 20 - self.NOMOVE_X // 20
             margin = rect.x % 20        
         # Horizontal offset in Mario's position
         self.__drawmargin = -startx * 20 -margin
+        # Update X coordinate on the left edge of the map
+        self.__nowx = startx * 20
         
         # Enemy apprers
         enemy_col = [self.get_upper(self.__data[yidx][startx + TILE_X + 1]) for yidx in range(16)]
@@ -304,8 +316,8 @@ class Map():
 
     def get_drawx(self, rect: pygame.rect) -> int:
         """X coordinate to draw Mario on the map"""
-        if rect.x < self.NOMOVE_X:
-            x = rect.x
+        if rect.x < self.NOMOVE_X + self.__nowx:
+            x = rect.x - self.__nowx
         else:
             x = self.NOMOVE_X
         return x
@@ -549,6 +561,10 @@ class Mario(pygame.sprite.Sprite):
     def move(self):
         self.__walkidx += 1
         
+        # Prevent to move to the outside of the window
+        if self.__rawrect.x < self.__map.nowx:
+            self.__rawrect.x = self.__map.nowx
+        
         # Collision check
         if self.__map.chk_collision(self.__rawrect):
             self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20     
@@ -610,6 +626,10 @@ class Mario(pygame.sprite.Sprite):
     def __stop(self):
         self.__vx = self.__vx + self.ACC_SPEED_X * (1 if self.__isleft else -1)
         self.__rawrect.x += self.__vx
+        
+        # Prevent to move to the outside of the window
+        if self.__rawrect.x < self.__map.nowx:
+            self.__rawrect.x = self.__map.nowx
         
         # Collision check to prevent going into blocks by inertia 
         if self.__map.chk_collision(self.__rawrect):
