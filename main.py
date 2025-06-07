@@ -412,6 +412,9 @@ class Mario(pygame.sprite.Sprite):
         self.__isinvisible: bool = False
         self.__invisiblecounter: int = 90
         
+        # Star Mario
+        self.__hasstar: bool = False
+        
         # Load mario images
         self.__imgs: list = [
             pygame.image.load('./img/mario_1.jpg'),
@@ -473,6 +476,25 @@ class Mario(pygame.sprite.Sprite):
     def isinvisible(self):
         return self.__isinvisible
     
+    @isinvisible.setter
+    def isinvisible(self, value):
+        self.__isinvisible = value
+
+    @property
+    def invisiblecounter(self):
+        return self.__invisiblecounter
+
+    @invisiblecounter.setter
+    def invisiblecounter(self, value):
+        self.__invisiblecounter = value
+
+    @property
+    def hasstar(self):
+        return self.__hasstar
+    
+    @hasstar.setter
+    def hasstar(self, value):
+        self.__hasstar = value
 
     def update(self):
         if self.__status == Status.DEAD:
@@ -567,9 +589,28 @@ class Mario(pygame.sprite.Sprite):
         # Change the image direction if its direction is left
         self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
         
-        # Set invisible Mario
-        self.image.set_alpha(128 if self.__isinvisible else 256)
-    
+        if self.__isinvisible:
+            # Blinking for a star mario
+            if self.__hasstar:
+                pixels = pygame.surfarray.pixels3d(self.image)
+                if self.__invisiblecounter < 60:
+                    # Slowly blinking for the last 2 seconds
+                    n = self.__invisiblecounter % 16 // 4
+                else:
+                    n = self.__invisiblecounter % 4
+                if n == 0:
+                    pixels[..., [0, 1, 2]] = pixels[..., [1, 2, 0]]
+                elif n== 1:
+                    pixels[..., [0, 1, 2]] = pixels[..., [2, 1, 0]]
+                elif n == 2:
+                    pixels[..., [0, 1, 2]] = pixels[..., [0, 2, 1]]
+                    
+            else:
+                # Set invisible Mario
+                self.image.set_alpha(128)
+        else:
+            self.image.set_alpha(256)
+                
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
         
@@ -1175,13 +1216,16 @@ class Star(Enemy):
         
             # Collision check with Mario
             if self._rawrect.colliderect(self._mario.rawrect):
-                # Temporary turing to a big mario not a star mario
-                self._mario.status = Status.GROWING
+                # Disappear star
                 self._status = Status.DEAD
+                
+                # Prepare for a star mario
+                self._mario.hasstar = True
+                self._mario.isinvisible = True
+                self._mario.invisiblecounter = 240  # 8 seconds
         
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
-        
-    
+
         
 def init():
      # Define Sprite group
