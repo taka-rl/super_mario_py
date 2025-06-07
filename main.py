@@ -501,6 +501,37 @@ class Mario(pygame.sprite.Sprite):
     @isfire.setter
     def isfire(self, value):
         self.__isfire = value
+    
+    def __change_pixel(self, n, image):
+        pixels = pygame.surfarray.pixels3d(image)
+        if n == 0:
+            pixels[..., [0, 1, 2]] = pixels[..., [1, 2, 0]]
+        elif n== 1:
+            pixels[..., [0, 1, 2]] = pixels[..., [2, 1, 0]]
+        elif n == 2:
+            pixels[..., [0, 1, 2]] = pixels[..., [0, 2, 1]]
+    
+    def __get_image(self):
+        # Choose Mario image for walking animation
+        if self.__vx == 0:
+            if not self.__isfire:
+                imageidx = 0 if not self.__isbig else 6 
+            else:
+                imageidx = 10
+        else:
+            if not self.__isfire:
+                imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6] if not self.__isbig else self.WALK_ANIME_BIG_IDX[self.__walkidx % 6]
+            else:
+                imageidx = self.WALK_ANIME_FIRE_IDX[self.__walkidx % 6]
+        # Choose the jump mario image
+        if not self.__on_ground:
+            if not self.__isfire:
+                imageidx = 4 if not self.__isbig else 9
+            else:
+                imageidx = 13
+            
+        # Change the image direction if its direction is left
+        return pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
 
     def update(self):
         if self.__status == Status.DEAD:
@@ -582,42 +613,19 @@ class Mario(pygame.sprite.Sprite):
                 # initialization
                 self.__invisiblecounter = 90
         
-        # Choose Mario image for walking animation
-        if self.__vx == 0:
-            if not self.__isfire:
-                imageidx = 0 if not self.__isbig else 6 
-            else:
-                imageidx = 10
-        else:
-            if not self.__isfire:
-                imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6] if not self.__isbig else self.WALK_ANIME_BIG_IDX[self.__walkidx % 6]
-            else:
-                imageidx = self.WALK_ANIME_FIRE_IDX[self.__walkidx % 6]
-        # Choose the jump mario image
-        if not self.__on_ground:
-            if not self.__isfire:
-                imageidx = 4 if not self.__isbig else 9
-            else:
-                imageidx = 13
-            
-        # Change the image direction if its direction is left
-        self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
+        # Get the image
+        self.image = self.__get_image()
         
         if self.__isinvisible:
             # Blinking for a star mario
             if self.__hasstar:
-                pixels = pygame.surfarray.pixels3d(self.image)
+                
                 if self.__invisiblecounter < 60:
                     # Slowly blinking for the last 2 seconds
                     n = self.__invisiblecounter % 16 // 4
                 else:
                     n = self.__invisiblecounter % 4
-                if n == 0:
-                    pixels[..., [0, 1, 2]] = pixels[..., [1, 2, 0]]
-                elif n== 1:
-                    pixels[..., [0, 1, 2]] = pixels[..., [2, 1, 0]]
-                elif n == 2:
-                    pixels[..., [0, 1, 2]] = pixels[..., [0, 2, 1]]
+
                     
             else:
                 # Set invisible Mario
@@ -725,6 +733,9 @@ class Mario(pygame.sprite.Sprite):
                 self.__status = Status.NORMAL
                 self.__growcounter = 0
                 return
+            self.image = self.__get_image()
+            self.__change_pixel(self.__growcounter % 8 //2, self.image)
+            
         else:
             if self.__growcounter == 0:
                 self.image = self.__imgs[6]
