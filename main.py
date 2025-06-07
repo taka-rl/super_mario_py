@@ -224,16 +224,6 @@ class Map():
                     # Star
                     self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
                     self.set_enemydata(startx + TILE_X + 1, yidx, 0)
-
-                if dte == 5:
-                    # Fire flower
-                    pass
-                if dte == 6:
-                    # Coin
-                    pass
-                if dte == 7:
-                    # 1 up kinoko
-                    pass
                 
         # pushed block
         delkeys = []
@@ -363,6 +353,7 @@ class Mario(pygame.sprite.Sprite):
     
     WALK_ANIME_IDX = [0, 0, 1, 1, 2, 2]
     WALK_ANIME_BIG_IDX = [6, 6, 7, 7, 8, 8]
+    WALK_ANIME_FIRE_IDX = [10, 10, 11, 11, 12, 12]
     MAX_SPEED_X: int = 5
     ACC_SPEED_X: float = 0.25
     DASH_SPPED_X: int = 8
@@ -415,6 +406,9 @@ class Mario(pygame.sprite.Sprite):
         # Star Mario
         self.__hasstar: bool = False
         
+        # Fire Mario
+        self.__isfire: bool = False
+        
         # Load mario images
         self.__imgs: list = [
             pygame.image.load('./img/mario_1.jpg'),
@@ -427,6 +421,10 @@ class Mario(pygame.sprite.Sprite):
             pygame.image.load('./img/mario_big_2.jpg'),
             pygame.image.load('./img/mario_big_3.jpg'),
             pygame.image.load('./img/mario_big_jump.jpg'),
+            pygame.image.load('./img/mario_fire_1.jpg'),
+            pygame.image.load('./img/mario_fire_2.jpg'),
+            pygame.image.load('./img/mario_fire_3.jpg'),
+            pygame.image.load('./img/mario_fire_jump.jpg'),
             ]
         
         self.image = self.__imgs[0]
@@ -495,6 +493,14 @@ class Mario(pygame.sprite.Sprite):
     @hasstar.setter
     def hasstar(self, value):
         self.__hasstar = value
+
+    @property
+    def isfire(self):
+        return self.__isfire
+    
+    @isfire.setter
+    def isfire(self, value):
+        self.__isfire = value
 
     def update(self):
         if self.__status == Status.DEAD:
@@ -578,13 +584,21 @@ class Mario(pygame.sprite.Sprite):
         
         # Choose Mario image for walking animation
         if self.__vx == 0:
-            imageidx = 0 if not self.__isbig else 6
+            if not self.__isfire:
+                imageidx = 0 if not self.__isbig else 6 
+            else:
+                imageidx = 10
         else:
-            imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6] if not self.__isbig else self.WALK_ANIME_BIG_IDX[self.__walkidx % 6]
-        
+            if not self.__isfire:
+                imageidx = self.WALK_ANIME_IDX[self.__walkidx % 6] if not self.__isbig else self.WALK_ANIME_BIG_IDX[self.__walkidx % 6]
+            else:
+                imageidx = self.WALK_ANIME_FIRE_IDX[self.__walkidx % 6]
         # Choose the jump mario image
         if not self.__on_ground:
-            imageidx = 4 if not self.__isbig else 9
+            if not self.__isfire:
+                imageidx = 4 if not self.__isbig else 9
+            else:
+                imageidx = 13
             
         # Change the image direction if its direction is left
         self.image = pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
@@ -705,46 +719,52 @@ class Mario(pygame.sprite.Sprite):
          
         self.__animecounter += 1
     
-    def __growing(self):    
-        if self.__growcounter == 0:
-            self.image = self.__imgs[6]
-            self.__rawrect.y -= 20
-        
-        elif self.__growcounter == 6:
-            self.image = self.__imgs[5]
+    def __growing(self):
+        if self.__isfire:
+            if self.__growcounter == 30:
+                self.__status = Status.NORMAL
+                self.__growcounter = 0
+                return
+        else:
+            if self.__growcounter == 0:
+                self.image = self.__imgs[6]
+                self.__rawrect.y -= 20
             
-        elif self.__growcounter == 8:
-            self.image = self.__imgs[0]
-            self.__rawrect.y += 20
-                     
-        elif self.__growcounter == 10:
-            self.image = self.__imgs[6]
-            self.__rawrect.y -= 20
-                     
-        elif self.__growcounter == 12:
-            self.image = self.__imgs[5]
-            
-        elif self.__growcounter == 14:
-            self.image = self.__imgs[0]
-            self.__rawrect.y += 20
-                     
-        elif self.__growcounter == 16:
-            self.image = self.__imgs[6]
-            self.__rawrect.y -= 20
-            
-        elif self.__growcounter == 18:
-            self.image = self.__imgs[5]
-            self.__rawrect.y += 10
+            elif self.__growcounter == 6:
+                self.image = self.__imgs[5]
+                
+            elif self.__growcounter == 8:
+                self.image = self.__imgs[0]
+                self.__rawrect.y += 20
+                        
+            elif self.__growcounter == 10:
+                self.image = self.__imgs[6]
+                self.__rawrect.y -= 20
+                        
+            elif self.__growcounter == 12:
+                self.image = self.__imgs[5]
+                
+            elif self.__growcounter == 14:
+                self.image = self.__imgs[0]
+                self.__rawrect.y += 20
+                        
+            elif self.__growcounter == 16:
+                self.image = self.__imgs[6]
+                self.__rawrect.y -= 20
+                
+            elif self.__growcounter == 18:
+                self.image = self.__imgs[5]
+                self.__rawrect.y += 10
 
-        elif self.__growcounter == 20:
-            self.image = self.__imgs[6]
-            self.__rawrect.y -= 10  # to offset +=10
-            self.__rawrect.height = 40
-            self.__isbig = True
-            self.__status = Status.NORMAL
-            # Initialize counter
-            self.__growcounter = 0
-                    
+            elif self.__growcounter == 20:
+                self.image = self.__imgs[6]
+                self.__rawrect.y -= 10  # to offset +=10
+                self.__rawrect.height = 40
+                self.__isbig = True
+                self.__status = Status.NORMAL
+                # Initialize counter
+                self.__growcounter = 0
+                        
         self.__growcounter += 1
     
     def __shrinking(self):
@@ -871,15 +891,22 @@ class Enemy(pygame.sprite.Sprite):
             if self._mario.status != Status.TREADING:
                 if self._mario.isbig:
                     self._mario.status = Status.SHRINKING
+                    if self._mario.isfire:
+                        self._mario.isfire = False
                 else:
                     self._mario.status = Status.DEADING
             
 
 class Mushroom(Enemy):    
     def __init__(self, x, y, dir, mario, map):
-        self.__imgs = [pygame.image.load('./img/kinoko.jpg')]
-        self.image = self.__imgs[0]
+        self.__imgs = [
+            pygame.image.load('./img/kinoko.jpg'),
+            pygame.image.load('./img/fireflower.jpg')
+            ]
+        # self.image = self.__imgs[0]
         self._rawrect = pygame.Rect(x, y, 20, 20)
+        
+        self.__isflower: bool = False
         
         super().__init__(x, y, dir, mario, map)
     
@@ -894,6 +921,7 @@ class Mushroom(Enemy):
             if self._map.ispushedblock((y, x)):
                 self._status = Status.TREADING
                 self._rawrect.y -= 5
+                self.__isflower = self._mario.isbig 
         
         # Fall down
         if self._rawrect.y > H:
@@ -910,33 +938,39 @@ class Mushroom(Enemy):
         
         # Mushroom is moving horizontally
         elif self._status == Status.FLYING:
-            # X axle move
-            self._rawrect.x += self._dir
-            
-            # X axle collision check
-            if self._map.chk_collision(self._rawrect):
-                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
-                self._dir *= -1
-
-            # Y axle move
-            self._vy += 1
-            self._rawrect.y += self._vy
+            # If Mario is big, it plays as a flower, if not mushroom.
+            if not self.__isflower:
+                # X axle move
+                self._rawrect.x += self._dir
                 
-            # Y axle collision check
-            if self._map.chk_collision(self._rawrect):
-                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
-                                
-                if self._vy > 0:
-                    self._vy = 0
-                else:
-                    # jump
-                    self._vy = 1
-        
-        # Collision check with Mario
-        if self._rawrect.colliderect(self._mario.rawrect):
-            self._mario.status = Status.GROWING
-            self._status = Status.DEAD
+                # X axle collision check
+                if self._map.chk_collision(self._rawrect):
+                    self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+                    self._dir *= -1
 
+                # Y axle move
+                self._vy += 1
+                self._rawrect.y += self._vy
+                    
+                # Y axle collision check
+                if self._map.chk_collision(self._rawrect):
+                    self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                                    
+                    if self._vy > 0:
+                        self._vy = 0
+                    else:
+                        # jump
+                        self._vy = 1
+            
+            # Collision check with Mario
+            if self._rawrect.colliderect(self._mario.rawrect):
+                if not self._mario.isfire:                    
+                    self._mario.status = Status.GROWING
+                    if self.__isflower:
+                        self._mario.isfire = True
+                self._status = Status.DEAD
+                
+        self.image = self.__imgs[0 if not self._mario.isbig else 1]
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
         
 
