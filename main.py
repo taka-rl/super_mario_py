@@ -360,7 +360,7 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
-    def __init__(self, map):
+    def __init__(self, map, group):
         pygame.sprite.Sprite.__init__(self)
         
         # Flag for Mario direction
@@ -441,6 +441,8 @@ class Mario(pygame.sprite.Sprite):
         # Set Mario to Map
         self.__map.mario = self
         
+        # Set a group for Sprite
+        self.__group = group
     
     @property
     def vy(self):
@@ -579,6 +581,9 @@ class Mario(pygame.sprite.Sprite):
                 # Status is Normal when falling down
                 # self.__status = Status.NORMAL
                 pass
+        
+        if self.__isfire and keys[pygame.K_LSHIFT]:
+            self.fire()
         
         # Dash with left shift
         self.__isdash = keys[pygame.K_LSHIFT]
@@ -815,6 +820,10 @@ class Mario(pygame.sprite.Sprite):
             
             self.__isinvisible = True
         self.__growcounter += 1
+    
+    def fire(self):
+        fire = Fire(self.__rawrect.x, self.__rawrect.y + 10, -5 if self.__isleft else 5, self, self.__map)
+        self.__group.add(fire)
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -1275,7 +1284,45 @@ class Star(Enemy):
         
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
+
+class Fire(Enemy):
+    def __init__(self, x, y, dir, mario, map):
+        self._imgs: list = [
+            pygame.image.load('./img/fireball.jpg'),
+            pygame.image.load('./img/explode.jpg'),
+        ]
+        self.image = self._imgs[0]
         
+        self._rawrect = pygame.Rect(x, y, 10, 10)
+        super().__init__(x, y, dir, mario, map)
+    
+    def update(self):
+
+        # X axle move
+        self._rawrect.x += self._dir
+                
+        # X axle collision check
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+            self._dir *= -1
+
+        # Y axle move
+        self._vy += 1
+        self._rawrect.y = self._vy
+        
+        # Y axle collision check
+        if self._map.chk_collision(self._rawrect):
+            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                                
+            if self._vy > 0:
+                self._vy = -5
+            else:
+                # jump
+                self._vy = 0
+        
+        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+
+
 def init():
      # Define Sprite group
     group = pygame.sprite.RenderUpdates()
@@ -1285,7 +1332,7 @@ def init():
     map = Map(group, group_bg)
     
     # Mario class
-    mario = Mario(map)
+    mario = Mario(map, group)
         
     # Add mario into the group
     group.add(mario)
