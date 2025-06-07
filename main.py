@@ -1219,6 +1219,7 @@ class BrokenBlock(Enemy):
         
     def update(self):
         super().flying()
+        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
 class Star(Enemy):
@@ -1308,7 +1309,7 @@ class Fire(Enemy):
 
         # Y axle move
         self._vy += 1
-        self._rawrect.y = self._vy
+        self._rawrect.y += self._vy
         
         # Y axle collision check
         if self._map.chk_collision(self._rawrect):
