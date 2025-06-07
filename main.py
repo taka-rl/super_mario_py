@@ -861,7 +861,11 @@ class Enemy(pygame.sprite.Sprite):
                         
         else:
             # If Mario is invisible, then return.
-            if self._mario.isinvisible:
+            if self._mario.isinvisible and not self._mario.hasstar:
+                return
+            
+            if self._mario.hasstar:
+                self._status = Status.FLYING
                 return
             
             if self._mario.status != Status.TREADING:
