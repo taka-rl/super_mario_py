@@ -582,9 +582,6 @@ class Mario(pygame.sprite.Sprite):
                 # self.__status = Status.NORMAL
                 pass
         
-        if self.__isfire and keys[pygame.K_LSHIFT]:
-            self.fire()
-        
         # Dash with left shift
         self.__isdash = keys[pygame.K_LSHIFT]
             
@@ -1298,7 +1295,6 @@ class Fire(Enemy):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-
         # X axle move
         self._rawrect.x += self._dir
                 
@@ -1362,6 +1358,11 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
+            
+            # Release fire balls
+            elif e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_LSHIFT and mario.isfire:
+                    mario.fire()
 
         # Fill in the background     
         win.fill((135, 206, 235))
