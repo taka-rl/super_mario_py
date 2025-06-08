@@ -26,6 +26,8 @@ Images for this project were drawn by pixels, using the following web pages writ
 Currently, World 1-1 is implemented.  
 Adding more worlds is a future plan.
 
+I built this [map creator](https://github.com/taka-rl/map_creator) as a support tool to generate a map data. 
+
 ## Get started
 1. Clone this project: `git clone https://github.com/taka-rl/super_mario_py.git`
 
