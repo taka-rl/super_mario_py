@@ -545,7 +545,7 @@ class Mario(pygame.sprite.Sprite):
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
-        # Fall down
+        # Fall handling
         if self.__rawrect.y > H:
             self.__status = Status.DEAD
         
@@ -819,9 +819,21 @@ class Mario(pygame.sprite.Sprite):
         self.__growcounter += 1
     
     def fire(self):
+        """Create Fire objects, limiting only two objects."""
+        firecount = 0
+        for enemy in self.__group.sprites():
+            if isinstance(enemy, Fire):
+                firecount += 1
+        
+        if firecount == 2:
+            return
+        
+        # Create and add Fire ojects
         fire = Fire(self.__rawrect.x, self.__rawrect.y + 10, -5 if self.__isleft else 5, self, self.__map)
         self.__group.add(fire)
-
+        
+        # Add if a fireball hits enemies
+        self._arrlies.append(fire)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
@@ -857,9 +869,17 @@ class Enemy(pygame.sprite.Sprite):
         """Get the status"""
         return self._status
     
+    @status.setter
+    def status(self, value):
+        self._status = value
+    
     @property
     def rawrect(self):
         return self._rawrect
+    
+    @property
+    def dir(self):
+        return self._dir
         
     def kickHit(self) -> None:
         """
@@ -867,11 +887,17 @@ class Enemy(pygame.sprite.Sprite):
         """
         # Koopa kick flying
         for marioarrly in self._mario.arrlies:
-            if self._rawrect.colliderect(marioarrly):
+            if self._rawrect.colliderect(marioarrly.rawrect):
                 self._status = Status.FLYING
                     
                 # Decide the direction to fly
-                self._dir = 3 if self._rawrect.centerx > marioarrly.centerx else -3
+                self._dir = 3 if self._rawrect.centerx > marioarrly.rawrect.centerx else -3
+                
+                # Remove a fire ball
+                if isinstance(marioarrly, Fire):
+                    marioarrly.status = Status.DEADING
+                    self._mario.arrlies.remove(marioarrly)
+                
                 self._vy = -8
     
     def flying(self) -> None:
@@ -940,7 +966,7 @@ class Mushroom(Enemy):
                 self._rawrect.y -= 5
                 self.__isflower = self._mario.isbig 
         
-        # Fall down
+        # Fall handling
         if self._rawrect.y > H:
             self._status = Status.DEAD
         
@@ -1105,7 +1131,7 @@ class Koopa(Enemy):
                     self._dir = 6 if self._mario.rawrect.centerx < self._rawrect.centerx else -6
                     
                     # add kicked Koopa rawrect into array
-                    self._mario.arrlies.append(self._rawrect)
+                    self._mario.arrlies.append(self)
                     
                 elif self._status == Status.SLIDING:
                     super()._handle_mario_hit()
@@ -1133,7 +1159,7 @@ class Goomba(Enemy):
         if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
             return
 
-        # Fall down
+        # Fall handling
         if self._rawrect.y > H:
             self._status = Status.DEAD
         
@@ -1295,28 +1321,56 @@ class Fire(Enemy):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # X axle move
-        self._rawrect.x += self._dir
-                
-        # X axle collision check
-        if self._map.chk_collision(self._rawrect):
-            self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
-            self._dir *= -1
+        # Not update if Mario is dead or growing or shrinking
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+            return
+        
+        if self._status == Status.NORMAL:
+            # X axle move
+            self._rawrect.x += self._dir
+                    
+            # X axle collision check
+            if self._map.chk_collision(self._rawrect):
+                self._status = Status.DEAD
+                return
+            
+            # Disappear fire balls when hitting walls/pipes
+            if self._rawrect.x < self._map.nowx or self._rawrect.x > self._map.nowx + W:
+                self._status = Status.DEAD
+                return
+            
+            # Disappear fire balls for fall handing
+            if self._rawrect.y > H:
+                self._status = Status.DEAD
+                return
 
-        # Y axle move
-        self._vy += 1
-        self._rawrect.y += self._vy
-        
-        # Y axle collision check
-        if self._map.chk_collision(self._rawrect):
-            self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
-                                
-            if self._vy > 0:
-                self._vy = -5
+            # Y axle move
+            self._vy += 1
+            self._rawrect.y += self._vy
+            
+            # Y axle collision check
+            if self._map.chk_collision(self._rawrect):
+                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                                    
+                if self._vy > 0:
+                    self._vy = -5
+                else:
+                    # jump
+                    self._vy = 0
+            
+            # Add fire ball image animation here
+            self.image = pygame.transform.rotate(self._imgs[0], (self._walkidx % 4) * 90)
+            self._walkidx += 1
+        elif self._status == Status.DEADING:
+            # Change to explosion image
+            if self._collapsecount < 4:
+                self.image = self._imgs[1]
             else:
-                # jump
-                self._vy = 0
-        
+                self._status = Status.DEAD
+                return
+            
+            self._collapsecount += 1
+            
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
