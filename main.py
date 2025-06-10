@@ -1,7 +1,7 @@
 import pygame
 from enum import Enum, auto
 import time
-
+import numpy as np
 
 class Status(Enum):
     NORMAL = auto()
@@ -1380,14 +1380,17 @@ class Fire(Enemy):
 
 
 class Coin(Enemy):
+    # ANIME_IDX = [0, 1, 2, 3]
     def __init__(self, x, y, dir, mario, map):
-        self._imgs: list = [
+        self.__imgs: list = [
             pygame.image.load('./img/coin.jpg'),
         ]
-        self.image = self._imgs[0]
+        self.image = self.__imgs[0]
         
         self._rawrect = pygame.Rect(x, y, 20, 20)
-        super().__init__(x, y, dir, mario, map)    
+        super().__init__(x, y, dir, mario, map)
+
+        self.__sound = Sound()
     
     def update(self):
         # Not update if Mario is dead or growing or shrinking
@@ -1399,6 +1402,7 @@ class Coin(Enemy):
             
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):
+                self.__sound.play_coin()
                 self._status = Status.FLYING
                 self._vy = -15
                 self._rawrect.y -= 20
@@ -1414,8 +1418,43 @@ class Coin(Enemy):
             if self._vy > 10:
                 self._status = Status.DEAD
                 return
+            
+            # Coin animation
+            # self.image = self.__imgs[self.ANIME_IDX[self._walkidx]]
+            # self._walkidx += 1
+
+
         
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+
+
+class Sound:
+
+    # Sound for シ(B)
+    FREQ_B = 987.77
+
+    # Sound for ミ(E)
+    FREQ_E = 1318.51
+
+    def __init__(self):
+        self.__sample_rate = 44100
+
+        self.__coin_duration = (0.1, 0.7)
+        self.__coin_sound_1st = self._make_sawtooth_sound(self.FREQ_B, self.__coin_duration[0], fadeout=False)
+        self.__coin_sound_2nd = self._make_sawtooth_sound(self.FREQ_E, self.__coin_duration[1], fadeout=True)
+
+    def _make_sawtooth_sound(self, frequency, duration, fadeout=False):
+        """Generate a sawtooth sound"""
+        t = np.linspace(0, duration, int(self.__sample_rate * duration), endpoint=False)
+        waveform = 0.5 * (t * frequency - np.floor(0.5 + t * frequency))
+        if fadeout:
+            waveform *= np.exp(-5 * t / duration)
+        return pygame.sndarray.make_sound(((waveform * 32767)).astype(np.int16))
+
+    def play_coin(self):
+        self.__coin_sound_1st.play()
+        pygame.time.wait(int(self.__coin_duration[0] * 1000))
+        self.__coin_sound_2nd.play()
 
 
 def init():
@@ -1439,6 +1478,7 @@ def main():
     """main function"""
     
     # Initialize pygame
+    pygame.mixer.pre_init(frequency=44100, channels=1)
     pygame.init()
     
     # Build a display
