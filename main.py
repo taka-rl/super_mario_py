@@ -959,6 +959,8 @@ class Mushroom(Enemy):
         self.__isflower: bool = False
         
         super().__init__(x, y, dir, mario, map)
+
+        self.__sound = Sound()
     
     def update(self):
         # Not update if Mario is dead or growing or shrinking
@@ -969,6 +971,7 @@ class Mushroom(Enemy):
         if self._status == Status.NORMAL:
             x, y = self._rawrect.x // 20, self._rawrect.y // 20
             if self._map.ispushedblock((y, x)):
+                self.__sound.play_sound_asnync(self.__sound.play_item)
                 self._status = Status.TREADING
                 self._rawrect.y -= 5
                 self.__isflower = self._mario.isbig 
@@ -1404,7 +1407,7 @@ class Coin(Enemy):
             
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):
-                threading.Thread(target=self.__sound.play_coin()).start()
+                self.__sound.play_sound_asnync(self.__sound.play_coin)
                 self._status = Status.FLYING
                 self._vy = -15
                 self._rawrect.y -= 20
@@ -1424,9 +1427,7 @@ class Coin(Enemy):
             # Coin animation
             # self.image = self.__imgs[self.ANIME_IDX[self._walkidx]]
             # self._walkidx += 1
-
-
-        
+    
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
@@ -1441,9 +1442,16 @@ class Sound:
     def __init__(self):
         self.__sample_rate = 44100
 
-        self.__coin_duration = (0.1, 0.7)
-        self.__coin_sound_1st = self._make_sawtooth_sound(self.FREQ_B, self.__coin_duration[0], fadeout=False)
-        self.__coin_sound_2nd = self._make_sawtooth_sound(self.FREQ_E, self.__coin_duration[1], fadeout=True)
+        # Sound for coins
+        self.__coin_durations = (0.1, 0.7)
+        coin_frequencies = (self.FREQ_B, self.FREQ_E)
+        coin_fades = (False, True)
+        self.__coin_sounds = self._make_sound(coin_frequencies, self.__coin_durations, coin_fades)
+
+        # Sound for mushrooms
+        self.__item_durations = [0.04] * 8
+        item_frequencies = (261.63, 415.30, 277.18, 293.66, 466.16, 311.13, 466.16)
+        self.__item_sounds = self._make_sound(item_frequencies, self.__item_durations, [False] * 8)
 
     def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
@@ -1455,11 +1463,23 @@ class Sound:
         if fadeout:
             waveform *= np.exp(-5 * t)
         return pygame.sndarray.make_sound(((waveform * 32767)).astype(np.int32))
+    
+    def _make_sound(self, freqs, durs, fades):
+        return [self._make_square_sound(freq, dur, fade) for freq, dur, fade in zip(freqs, durs, fades)]
+    
+    def play_sound_asnync(self, func):
+        threading.Thread(target=func).start()
+
+    def play_sounds(self, sounds, durations):
+         for sound, dur in zip(sounds, durations):
+            sound.play()
+            pygame.time.wait(int(dur * 1000))       
 
     def play_coin(self):
-        self.__coin_sound_1st.play()
-        pygame.time.wait(int(self.__coin_duration[0] * 1000))
-        self.__coin_sound_2nd.play()
+        self.play_sounds(self.__coin_sounds, self.__coin_durations)
+    
+    def play_item(self):
+        self.play_sounds(self.__item_sounds, self.__item_durations)
 
 
 def init():
