@@ -1448,10 +1448,15 @@ class Sound:
     def _make_sawtooth_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
         t = np.linspace(0, duration, int(self.__sample_rate * duration), endpoint=False)
-        waveform = 0.5 * (t * frequency - np.floor(0.5 + t * frequency))
+        
+        # sawtooth wave
+        # waveform = 0.5 * (t * frequency - np.floor(0.5 + t * frequency))
+        # square wave
+        waveform = 0.125 * np.sign(np.sin(2 * np.pi * frequency * t))
+
         if fadeout:
-            waveform *= np.exp(-5 * t / duration)
-        return pygame.sndarray.make_sound(((waveform * 32767)).astype(np.int16))
+            waveform *= np.exp(-5 * t)
+        return pygame.sndarray.make_sound(((waveform * 32767)).astype(np.int32))
 
     def play_coin(self):
         self.__coin_sound_1st.play()
