@@ -2,6 +2,8 @@ import pygame
 from enum import Enum, auto
 import time
 import numpy as np
+import threading
+
 
 class Status(Enum):
     NORMAL = auto()
@@ -1402,7 +1404,7 @@ class Coin(Enemy):
             
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):
-                self.__sound.play_coin()
+                threading.Thread(target=self.__sound.play_coin()).start()
                 self._status = Status.FLYING
                 self._vy = -15
                 self._rawrect.y -= 20
