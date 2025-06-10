@@ -1445,13 +1445,11 @@ class Sound:
         self.__coin_sound_1st = self._make_sawtooth_sound(self.FREQ_B, self.__coin_duration[0], fadeout=False)
         self.__coin_sound_2nd = self._make_sawtooth_sound(self.FREQ_E, self.__coin_duration[1], fadeout=True)
 
-    def _make_sawtooth_sound(self, frequency, duration, fadeout=False):
+    def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
         t = np.linspace(0, duration, int(self.__sample_rate * duration), endpoint=False)
         
-        # sawtooth wave
-        # waveform = 0.5 * (t * frequency - np.floor(0.5 + t * frequency))
-        # square wave
+        # Create a wave
         waveform = 0.125 * np.sign(np.sin(2 * np.pi * frequency * t))
 
         if fadeout:
