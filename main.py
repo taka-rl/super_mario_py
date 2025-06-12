@@ -923,8 +923,12 @@ class Enemy(pygame.sprite.Sprite):
                 if isinstance(marioarrly, Fire):
                     marioarrly.status = Status.DEADING
                     self._mario.arrlies.remove(marioarrly)
+                    
+                    # Display score for Fira ball
+                    self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))                    
                 
                 elif isinstance(marioarrly, Koopa):
+                    # Display score for Koopa kick
                     self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[self._mario.continuous_counter + 2]))
                     self._mario.continuous_counter += 1
                 
@@ -1070,16 +1074,7 @@ class Koopa(Enemy):
             self.image = self.__imgs[0]
             
             super().__init__(x, y, dir, mario, map)
-    
-    @property
-    def continuous_counter(self):
-        return self.__continuous_counter
-    
-    @continuous_counter.setter
-    def continuous_counter(self, value):
-        self.__continuous_counter = value
-    
-    
+        
     def update(self):
         # Not update if Mario is dead or growing or shrinking
         if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
