@@ -965,6 +965,9 @@ class Enemy(pygame.sprite.Sprite):
             
             if self._mario.hasstar:
                 self._status = Status.FLYING
+                # Display score for Fira ball
+                self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))                    
+
                 return
             
             if self._mario.status != Status.TREADING:
