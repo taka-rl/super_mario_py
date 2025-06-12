@@ -793,11 +793,10 @@ class Mario(pygame.sprite.Sprite):
                 
             elif self.__growcounter == 18:
                 self.image = self.__imgs[5]
-                self.__rawrect.y += 10
 
             elif self.__growcounter == 20:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= 10  # to offset +=10
+                self.__rawrect.y -= 20  # to offset +=10
                 self.__rawrect.height = 40
                 self.__isbig = True
                 self.__status = Status.NORMAL
