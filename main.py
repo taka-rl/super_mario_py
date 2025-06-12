@@ -23,6 +23,9 @@ W, H = 320, 270
 # Number of tiles
 TILE_X, TILE_Y = 16, 14
 
+# Array for socre
+SCORE_ARRAY = [100, 200, 400, 500, 800, 1000, 2000, 4000, 8000, 9999]
+
 
 class Map():
     NOMOVE_X = 120
@@ -399,9 +402,12 @@ class Mario(pygame.sprite.Sprite):
         # Status
         self.__status = Status.NORMAL
         
-        # Array for Koopa kick
+        # Array for Koopa kick/fire ball
         self._arrlies: list = []
 
+        # Counter for crushing enemies continuously
+        self.__continuous_counter : int = 0
+        
         # Anime counter
         self.__animecounter: int = 0
         
@@ -516,6 +522,14 @@ class Mario(pygame.sprite.Sprite):
     def isfire(self, value):
         self.__isfire = value
     
+    @property
+    def continuous_counter(self):
+        return self.__continuous_counter
+    
+    @continuous_counter.setter
+    def continuous_counter(self, value):
+        self.__continuous_counter = value
+    
     def __change_pixel(self, n, image):
         pixels = pygame.surfarray.pixels3d(image)
         if n == 0:
@@ -591,8 +605,7 @@ class Mario(pygame.sprite.Sprite):
                 self.__vy = -3
             if self.__vy >= 0:
                 # Status is Normal when falling down
-                # self.__status = Status.NORMAL
-                pass
+                self.__status = Status.NORMAL
         
         # Dash with left shift
         self.__isdash = keys[pygame.K_LSHIFT]
@@ -614,8 +627,10 @@ class Mario(pygame.sprite.Sprite):
             if self.__vy > 0:
                 self.__on_ground = True
                 self.__vy = 0
-                if self.__status == Status.TREADING:
-                    self.__status = Status.NORMAL
+                
+                # Initialize continuous_counter
+                self.__continuous_counter = 0
+                    
             else:
                 self._vy = 1
         
@@ -640,7 +655,6 @@ class Mario(pygame.sprite.Sprite):
                 else:
                     n = self.__invisiblecounter % 4
 
-                    
             else:
                 # Set invisible Mario
                 self.image.set_alpha(128)
@@ -933,7 +947,9 @@ class Enemy(pygame.sprite.Sprite):
             # Mario jump action
             self._mario.status = Status.TREADING
             self._mario.vy = -5
-                        
+            # Display score
+            self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[self._mario.continuous_counter]))
+            self._mario.continuous_counter += 1
         else:
             # If Mario is invisible, then return.
             if self._mario.isinvisible and not self._mario.hasstar:
