@@ -105,6 +105,10 @@ class Map():
         """Get X coordinate on the left edge of the map"""
         return self.__nowx
     
+    @property
+    def group(self):
+        return self.__group
+    
     def get_mapdata(self, x, y):
         """
         Get data from the lower 4 bit on the map, corresponding to x, y coordinate tile.
@@ -1424,6 +1428,7 @@ class Coin(Enemy):
             self._rawrect.y += self._vy
             if self._vy > 10:
                 self._status = Status.DEAD
+                self._map.group.add(Number(self.rect.x, self.rect.y, 200))
                 return
             
             # Coin animation
@@ -1519,6 +1524,37 @@ class Sound:
     def play_clear(self):
         self.play_sounds(self.__clear_sounds, self.__clear_durations)
 
+
+class Number(pygame.sprite.Sprite):   
+    def __init__(self, x, y, score):
+        pygame.sprite.Sprite.__init__(self)
+        
+        font_size: int = 14
+        self.__font = pygame.font.SysFont("Arial", font_size)
+        self.image: pygame.Surface = self.__create_surface(score)
+        self.rect = pygame.Rect(x, y, self.image.get_width(), self.image.get_height())
+        self.__counter: int = 0
+        self.__status = Status.NORMAL
+    
+    @property
+    def status(self):
+        return self.__status
+        
+    def __create_surface(self, score):
+        """Generate a surface for score"""
+        text_surface = self.__font.render(str(score), True, (255, 255, 255))
+        surface = pygame.Surface(text_surface.get_size(), pygame.SRCALPHA)        
+        surface.blit(text_surface, (0, 0))
+        return surface
+
+    def update(self):
+        # Move up
+        self.rect.y -= 1        
+        # Disappear after 1 second
+        if self.__counter == 30:
+            self.__status = Status.DEAD   
+        self.__counter += 1     
+    
 
 def init():
      # Define Sprite group
