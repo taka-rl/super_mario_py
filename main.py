@@ -375,7 +375,7 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
-    def __init__(self, map, group):
+    def __init__(self, map, group, sound):
         pygame.sprite.Sprite.__init__(self)
         
         # Flag for Mario direction
@@ -461,6 +461,9 @@ class Mario(pygame.sprite.Sprite):
         
         # Set a group for Sprite
         self.__group = group
+        
+        # Set Sound
+        self.__sound = Sound()
     
     @property
     def vy(self):
@@ -857,6 +860,7 @@ class Mario(pygame.sprite.Sprite):
         # Create and add Fire ojects
         fire = Fire(self.__rawrect.x, self.__rawrect.y + 10, -5 if self.__isleft else 5, self, self.__map)
         self.__group.add(fire)
+        self.__sound.play_sound_asnync(self.__sound.play_fire)
         
         # Add if a fireball hits enemies
         self._arrlies.append(fire)
@@ -1511,6 +1515,11 @@ class Sound:
         self.__clear_durations = [0.2] * len(power_frequencies)
         self.__clear_sounds = self._make_sound(power_frequencies, self.__clear_durations, [False] * len(self.__power_durations))
         
+        # Sound for a fire ball
+        fire_frequencies = (self.FREQ_G, self.FREQ_G * 2, self.FREQ_G * 4)
+        self.__fire_durations = [0.02] * len(fire_frequencies)
+        self.__fire_sounds = self._make_sound(fire_frequencies, self.__fire_durations, [False] * len(self.__fire_durations))
+        
     def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
         t = np.linspace(0, duration, int(self.__sample_rate * duration), endpoint=False)
@@ -1552,6 +1561,9 @@ class Sound:
     
     def play_clear(self):
         self.play_sounds(self.__clear_sounds, self.__clear_durations)
+    
+    def play_fire(self):
+        self.play_sounds(self.__fire_sounds, self.__fire_durations)
 
 
 class Number(pygame.sprite.Sprite):   
@@ -1594,7 +1606,7 @@ def init():
     map = Map(group, group_bg)
     
     # Mario class
-    mario = Mario(map, group)
+    mario = Mario(map, group, Sound())
         
     # Add mario into the group
     group.add(mario)
