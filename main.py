@@ -1028,6 +1028,7 @@ class Mushroom(Enemy):
                     if self.__isflower:
                         self._mario.isfire = True
                 self._status = Status.DEAD
+                self._map.group.add(Number(self.rect.x, self.rect.y, 1000))
                 
         self.image = self.__imgs[0 if not self._mario.isbig else 1]
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
