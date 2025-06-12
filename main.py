@@ -3,6 +3,7 @@ from enum import Enum, auto
 import time
 import numpy as np
 import threading
+import platform
 
 
 class Status(Enum):
@@ -1462,7 +1463,15 @@ class Sound:
 
         if fadeout:
             waveform *= np.exp(-5 * t)
-        return pygame.sndarray.make_sound(((waveform * 32767)).astype(np.int32))
+        
+        if platform.system() == 'Windows':
+            # For windows
+            mono = (waveform * 32767).astype(np.int16)
+            stereo = np.column_stack((mono, mono))  # duplicate to L/R channels
+            return pygame.sndarray.make_sound(stereo)
+        else:
+            # For mac
+            return pygame.sndarray.make_sound(((waveform * 32767)).astype(np.int16))
     
     def _make_sound(self, freqs, durs, fades):
         return [self._make_square_sound(freq, dur, fade) for freq, dur, fade in zip(freqs, durs, fades)]
@@ -1503,7 +1512,7 @@ def main():
     """main function"""
     
     # Initialize pygame
-    pygame.mixer.pre_init(frequency=44100, channels=1)
+    pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
     pygame.init()
     
     # Build a display
