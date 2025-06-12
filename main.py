@@ -654,6 +654,7 @@ class Mario(pygame.sprite.Sprite):
                     n = self.__invisiblecounter % 16 // 4
                 else:
                     n = self.__invisiblecounter % 4
+                self.__change_pixel(n, self.image)
 
             else:
                 # Set invisible Mario
