@@ -1020,6 +1020,7 @@ class Mushroom(Enemy):
             if self._rawrect.colliderect(self._mario.rawrect):
                 if not self._mario.isfire:                    
                     self._mario.status = Status.GROWING
+                    self.__sound.play_sound_asnync(self.__sound.play_power)
                     if self.__isflower:
                         self._mario.isfire = True
                 self._status = Status.DEAD
@@ -1434,26 +1435,48 @@ class Coin(Enemy):
 
 class Sound:
 
-    # Sound for シ(B)
-    FREQ_B = 987.77
-
-    # Sound for ミ(E)
-    FREQ_E = 1318.51
+    FREQ_C = 261.63  # Sound for ド(C)
+    FREQ_CS = 277.18
+    FREQ_D = 293.66  # Sound for レ(D)
+    FREQ_DS = 311.13
+    FREQ_E = 329.63  # Sound for ミ(E)
+    FREQ_F = 349.23  # Sound for ファ(F)
+    FREQ_FS = 369.99
+    FREQ_G = 392.00  # Sound for ソ(G)
+    FREQ_GS = 415.30
+    FREQ_A = 440.00  # Sound for ラ(A)
+    FREQ_AS = 466.16
+    FREQ_B = 493.88  # Sound for シ(B)
 
     def __init__(self):
         self.__sample_rate = 44100
 
         # Sound for coins
         self.__coin_durations = (0.1, 0.7)
-        coin_frequencies = (self.FREQ_B, self.FREQ_E)
+        coin_frequencies = (self.FREQ_B * 2, self.FREQ_E * 4)
         coin_fades = (False, True)
         self.__coin_sounds = self._make_sound(coin_frequencies, self.__coin_durations, coin_fades)
 
         # Sound for mushrooms
         self.__item_durations = [0.04] * 8
-        item_frequencies = (261.63, 415.30, 277.18, 293.66, 466.16, 311.13, 466.16)
+        item_frequencies = (self.FREQ_C, self.FREQ_GS, self.FREQ_CS, self.FREQ_D, self.FREQ_AS, self.FREQ_DS, self.FREQ_AS)
         self.__item_sounds = self._make_sound(item_frequencies, self.__item_durations, [False] * 8)
-
+        
+        # Sound for power up
+        power_frequencies = (
+            self.FREQ_C * 2, self.FREQ_G, self.FREQ_C * 2, self.FREQ_E * 2, self.FREQ_G * 2, self.FREQ_C * 4,
+            self.FREQ_G * 2, self.FREQ_GS, self.FREQ_C * 2, self.FREQ_DS * 2, self.FREQ_GS * 2, self.FREQ_E * 2,
+            self.FREQ_A * 2, self.FREQ_C * 4, self.FREQ_DS * 4, self.FREQ_GS * 4, self.FREQ_DS * 4, self.FREQ_AS,
+            self.FREQ_D * 2, self.FREQ_F * 2, self.FREQ_AS * 2, self.FREQ_F * 2, self.FREQ_B * 2, self.FREQ_D * 4, 
+            self.FREQ_AS * 4, self.FREQ_D * 4
+        )
+        self.__power_durations = [0.05] * len(power_frequencies)
+        self.__power_sounds = self._make_sound(power_frequencies, self.__power_durations, [False] * len(self.__power_durations))
+        
+        # Sound for Clear game
+        self.__clear_durations = [0.2] * len(power_frequencies)
+        self.__clear_sounds = self._make_sound(power_frequencies, self.__clear_durations, [False] * len(self.__power_durations))
+        
     def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
         t = np.linspace(0, duration, int(self.__sample_rate * duration), endpoint=False)
@@ -1489,6 +1512,12 @@ class Sound:
     
     def play_item(self):
         self.play_sounds(self.__item_sounds, self.__item_durations)
+        
+    def play_power(self):
+        self.play_sounds(self.__power_sounds, self.__power_durations)
+    
+    def play_clear(self):
+        self.play_sounds(self.__clear_sounds, self.__clear_durations)
 
 
 def init():
