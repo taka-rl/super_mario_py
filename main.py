@@ -38,10 +38,6 @@ class Map():
     BLOCK_STAIRS = 5
     PIPE_1 = 6
     PIPE_2 = 7
-    COIN = 8
-    KINOKO = 9
-    STAR = 10
-    ONEUPKINOKO = 11
     PUSHED_BLOCKS = [BLOCK_NORMAL, BLOCK_QUESTION]
     
     def __init__(self, group, group_bg, sound):      
@@ -70,10 +66,6 @@ class Map():
             self.BLOCK_NORMAL: pygame.image.load('./img/block.jpg'),
             self.BLOCK_QUESTION: pygame.image.load('./img/question_block.jpg'),
             self.BLOCK_PANEL: pygame.image.load('./img/panel.jpg'),
-            self.COIN: pygame.image.load('./img/coin.jpg'),
-            self.KINOKO: pygame.image.load('./img/kinoko.jpg'),
-            self.STAR: pygame.image.load('./img/star.jpg'),
-            self.ONEUPKINOKO: pygame.image.load('./img/1upkinoko.jpg'),
             self.PIPE_1: pygame.image.load('./img/pipe_1.jpg'),
             self.PIPE_2: pygame.image.load('./img/pipe_2.jpg'),
             self.BLOCK_STAIRS: pygame.image.load('./img/stairs_block.jpg'),
