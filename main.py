@@ -44,7 +44,7 @@ class Map():
     ONEUPKINOKO = 11
     PUSHED_BLOCKS = [BLOCK_NORMAL, BLOCK_QUESTION]
     
-    def __init__(self, group, group_bg):      
+    def __init__(self, group, group_bg, sound):      
         # Define map
         self.__data = [
             [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
@@ -94,6 +94,9 @@ class Map():
         # Sprite groups
         self.__group = group
         self.__group_bg = group_bg
+        
+        # Set Sound class
+        self.__sound = sound
     
     @property
     def mario(self):
@@ -111,6 +114,10 @@ class Map():
     @property
     def group(self):
         return self.__group
+    
+    @property
+    def sound(self):
+        return self.__sound
     
     def get_mapdata(self, x, y):
         """
@@ -375,7 +382,7 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
-    def __init__(self, map, group, sound):
+    def __init__(self, map, group):
         pygame.sprite.Sprite.__init__(self)
         
         # Flag for Mario direction
@@ -462,9 +469,6 @@ class Mario(pygame.sprite.Sprite):
         # Set a group for Sprite
         self.__group = group
         
-        # Set Sound
-        self.__sound = Sound()
-    
     @property
     def vy(self):
         return self.__vy
@@ -860,7 +864,7 @@ class Mario(pygame.sprite.Sprite):
         # Create and add Fire ojects
         fire = Fire(self.__rawrect.x, self.__rawrect.y + 10, -5 if self.__isleft else 5, self, self.__map)
         self.__group.add(fire)
-        self.__sound.play_sound_asnync(self.__sound.play_fire)
+        self.__map.sound.play_sound_asnync(self.__map.sound.play_fire)
         
         # Add if a fireball hits enemies
         self._arrlies.append(fire)
@@ -995,8 +999,6 @@ class Mushroom(Enemy):
         self.__isflower: bool = False
         
         super().__init__(x, y, dir, mario, map)
-
-        self.__sound = Sound()
     
     def update(self):
         # Not update if Mario is dead or growing or shrinking
@@ -1007,7 +1009,7 @@ class Mushroom(Enemy):
         if self._status == Status.NORMAL:
             x, y = self._rawrect.x // 20, self._rawrect.y // 20
             if self._map.ispushedblock((y, x)):
-                self.__sound.play_sound_asnync(self.__sound.play_item)
+                self._map.sound.play_sound_asnync(self._map.sound.play_item)
                 self._status = Status.TREADING
                 self._rawrect.y -= 5
                 self.__isflower = self._mario.isbig 
@@ -1055,7 +1057,7 @@ class Mushroom(Enemy):
             if self._rawrect.colliderect(self._mario.rawrect):
                 if not self._mario.isfire:                    
                     self._mario.status = Status.GROWING
-                    self.__sound.play_sound_asnync(self.__sound.play_power)
+                    self._map.sound.play_sound_asnync(self._map.sound.play_power)
                     if self.__isflower:
                         self._mario.isfire = True
                 self._status = Status.DEAD
@@ -1433,8 +1435,6 @@ class Coin(Enemy):
         
         self._rawrect = pygame.Rect(x, y, 20, 20)
         super().__init__(x, y, dir, mario, map)
-
-        self.__sound = Sound()
     
     def update(self):
         # Not update if Mario is dead or growing or shrinking
@@ -1446,7 +1446,7 @@ class Coin(Enemy):
             
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):
-                self.__sound.play_sound_asnync(self.__sound.play_coin)
+                self._map.sound.play_sound_asnync(self._map.sound.play_coin)
                 self._status = Status.FLYING
                 self._vy = -15
                 self._rawrect.y -= 20
@@ -1603,10 +1603,10 @@ def init():
     group_bg = pygame.sprite.RenderUpdates()
     
     # Map class
-    map = Map(group, group_bg)
+    map = Map(group, group_bg, Sound())
     
     # Mario class
-    mario = Mario(map, group, Sound())
+    mario = Mario(map, group)
         
     # Add mario into the group
     group.add(mario)
