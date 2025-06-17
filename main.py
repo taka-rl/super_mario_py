@@ -334,7 +334,7 @@ class Map():
                         else:
                             self.__pushedblocks[(yidx + y, xidx + x)] = (-1 * self.BLOCK_VY, 0)
                     
-                            # Change Question/Invisible 1Up blocks to Panel
+                            # Change Question/Invisible 1Up/Normal Star blocks to Panel
                             if map_id in [self.BLOCK_QUESTION, self.BLOCK_INVISIBLE, self.BLOCK_STAR] :
                                 self.set_mapdata(xidx + x, yidx + y, self.BLOCK_PANEL)
                 
