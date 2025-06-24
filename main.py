@@ -632,12 +632,10 @@ class Mario(pygame.sprite.Sprite):
         # If Mario sits or not
         if keys[pygame.K_DOWN]:
             if not self.__issit and self.__isbig:
-                # self.__rawrect.y += 10
                 self.__rawrect.height = 30
             self.__issit = True
         else:
             if self.__issit and self.__isbig:
-                # self.__rawrect.y -= 10
                 self.__rawrect.height = 40
             self.__issit = False
         
@@ -657,7 +655,7 @@ class Mario(pygame.sprite.Sprite):
         if self.__map.chk_collision(self.__rawrect, is_mario=True):
             # If Mario is moving upward, it lets him go downward
             # vy is bigger than 0 -> 1 to go upward
-            self.__rawrect.y = ((self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20) 
+            self.__rawrect.y = ((self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20)
             
             # Adjustment when Mario is sitting
             self.__rawrect.y += 10 if self.__issit else 0
