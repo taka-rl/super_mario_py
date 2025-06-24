@@ -437,6 +437,9 @@ class Mario(pygame.sprite.Sprite):
         # Fire Mario
         self.__isfire: bool = False
         
+        # Sit Mario
+        self.__issit: bool = False
+        
         # Load mario images
         self.__imgs: list = [
             pygame.image.load('./img/mario_1.jpg'),
@@ -453,6 +456,8 @@ class Mario(pygame.sprite.Sprite):
             pygame.image.load('./img/mario_fire_2.jpg'),
             pygame.image.load('./img/mario_fire_3.jpg'),
             pygame.image.load('./img/mario_fire_jump.jpg'),
+            pygame.image.load('./img/mario_sit.jpg'),
+            pygame.image.load('./img/mario_fire_sit.jpg'),
             ]
         
         self.image = self.__imgs[0]
@@ -550,8 +555,12 @@ class Mario(pygame.sprite.Sprite):
             pixels[..., [0, 1, 2]] = pixels[..., [0, 2, 1]]
     
     def __get_image(self):
+        # Image for sitting
+        if self.__issit and self.__isbig:
+            imageidx = 14 if not self.__isfire else 15
+            
         # Choose Mario image for walking animation
-        if self.__vx == 0:
+        elif self.__vx == 0:
             if not self.__isfire:
                 imageidx = 0 if not self.__isbig else 6 
             else:
@@ -600,11 +609,14 @@ class Mario(pygame.sprite.Sprite):
         
         # Get key status
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_RIGHT]:
-            self.__right()
-            
-        if keys[pygame.K_LEFT]:
-            self.__left()
+        
+        # Not move when sitting
+        if not keys[pygame.K_DOWN]:
+            if keys[pygame.K_RIGHT]:
+                self.__right()
+                
+            if keys[pygame.K_LEFT]:
+                self.__left()
         
         if keys[pygame.K_SPACE]:
             self.__jump()
@@ -617,11 +629,24 @@ class Mario(pygame.sprite.Sprite):
                 # Status is Normal when falling down
                 self.__status = Status.NORMAL
         
+        # If Mario sits or not
+        if keys[pygame.K_DOWN]:
+            if not self.__issit and self.__isbig:
+                # self.__rawrect.y += 10
+                self.__rawrect.height = 30
+            self.__issit = True
+        else:
+            if self.__issit and self.__isbig:
+                # self.__rawrect.y -= 10
+                self.__rawrect.height = 40
+            self.__issit = False
+        
         # Dash with left shift
         self.__isdash = keys[pygame.K_LSHIFT]
-            
-        if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT] and self.__vx != 0:
-            self.__stop()
+        
+        if self.__vx != 0:
+            if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or keys[pygame.K_DOWN]:
+                self.__stop()
                     
         # Move for Y axle
         # if not self.__on_ground:
@@ -632,7 +657,10 @@ class Mario(pygame.sprite.Sprite):
         if self.__map.chk_collision(self.__rawrect, is_mario=True):
             # If Mario is moving upward, it lets him go downward
             # vy is bigger than 0 -> 1 to go upward
-            self.__rawrect.y = (self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20
+            self.__rawrect.y = ((self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20) 
+            
+            # Adjustment when Mario is sitting
+            self.__rawrect.y += 10 if self.__issit else 0
             
             if self.__vy > 0:
                 self.__on_ground = True
@@ -674,7 +702,7 @@ class Mario(pygame.sprite.Sprite):
                 
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
-        
+            
     def move(self):
         self.__walkidx += 1
         
