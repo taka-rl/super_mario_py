@@ -4,7 +4,7 @@ import time
 import numpy as np
 import threading
 import platform
-
+  
 
 class Status(Enum):
     NORMAL = auto()
@@ -30,8 +30,7 @@ ONEUP_SCORE: str = '1UP'
 class Map():
     NOMOVE_X = 120
     BLOCK_VY = 5
-    
-    BLOCK_WALL = 1
+    BLOCK_GROUND = 1
     BLOCK_NORMAL = 2
     BLOCK_QUESTION = 3
     BLOCK_PANEL = 4
@@ -66,7 +65,7 @@ class Map():
         ]
             
         self.__imgs: dict = {
-            self.BLOCK_WALL: pygame.image.load('./img/ground.jpg'),
+            self.BLOCK_GROUND: pygame.image.load('./img/ground.jpg'),
             self.BLOCK_NORMAL: pygame.image.load('./img/block.jpg'),
             self.BLOCK_QUESTION: pygame.image.load('./img/question_block.jpg'),
             self.BLOCK_PANEL: pygame.image.load('./img/panel.jpg'),
