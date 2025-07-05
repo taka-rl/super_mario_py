@@ -53,7 +53,10 @@ class Map():
     
     def __init__(self, group, group_bg, sound):
         # Map index
-        self.__map_idx: int = 1
+        self.__map_idx: int = 0
+
+        # Background color
+        self.__bg_color = ((135, 206, 235), (0, 0, 0))
         
         # Define map
         self.__data = [
@@ -308,6 +311,10 @@ class Map():
                     if (y, x) in self.__pushedblocks:
                         ymargin = self.__pushedblocks[(y, x)][1]
                     win.blit(self.__imgs[map_num], ((x - startx) * 20 - margin, y * 20 + ymargin))
+    
+    def fill(self, win: pygame.display):
+        win.fill(self.__bg_color[self.__map_idx])
+        
 
     def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> bool:
         """
@@ -1737,9 +1744,6 @@ def main():
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_LSHIFT and mario.isfire:
                     mario.fire()
-
-        # Fill in the background     
-        win.fill((135, 206, 235))
         
         # Update the group_bg
         group_bg.update()
@@ -1761,6 +1765,9 @@ def main():
         for enemy_bg in group_bg.sprites():
             if enemy_bg.status == Status.DEAD:
                 group_bg.remove(enemy_bg)
+    
+        # Fill in the background     
+        map.fill(win)
 
         # Draw the group_bg
         group_bg.draw(win)
