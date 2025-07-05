@@ -5,6 +5,7 @@ import numpy as np
 import threading
 import platform
 
+# TODO: File divisions
 
 class Status(Enum):
     NORMAL = auto()
@@ -1549,7 +1550,7 @@ class Coin(Enemy):
                 self._map.group.add(Number(self.rect.x, self.rect.y, 200))
                 return
             
-            # Coin animation
+            # TODO: Coin animation
             # self.image = self.__imgs[self.ANIME_IDX[self._walkidx]]
             # self._walkidx += 1
     
@@ -1609,6 +1610,8 @@ class Sound:
         oneup_frequencies = (self.FREQ_E * 4, self.FREQ_G * 4, self.FREQ_E * 8, self.FREQ_C * 8, self.FREQ_D * 8, self.FREQ_G * 8)
         self.__oneup_durations = [0.1, 0.1, 0.1, 0.1, 0.1, 0.25] 
         self.__oneup_sounds = self._make_sound(oneup_frequencies, self.__oneup_durations, [False, False, False, False, False, False, True])
+        
+        # TODO: Sound for BGM
         
     def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
