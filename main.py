@@ -53,7 +53,7 @@ class Map():
     
     def __init__(self, group, group_bg, sound):
         # Map index
-        self.__map_idx: int = 0
+        self.__map_idx: int = 1
 
         # Background color
         self.__bg_color = ((135, 206, 235), (0, 0, 0))
@@ -83,11 +83,11 @@ class Map():
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
+                [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
+                [0x000F, 0x0000, 0x0000, 0x0000, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
-                [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
-                [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
-                [0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
+                [0x000F, 0x0000, 0x0000, 0x0000, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0700, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x0000, 0x0000, 0x0000, 0x0000, 0x0008, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x0000, 0x0000, 0x0006, 0x0006, 0x000C, 0x0009, 0x0000],
                 [0x000F, 0x0000, 0x0000, 0x0000, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x000F, 0x0000, 0x0000, 0x0006, 0x0006, 0x000D, 0x0009, 0x0000],
@@ -133,6 +133,10 @@ class Map():
         
         # Set Sound class
         self.__sound = sound
+
+        # Draw entity 
+        for xidx in range(TILE_X):
+            self.__create_entity(xidx)
     
     @property
     def mario(self):
@@ -212,7 +216,46 @@ class Map():
         
         """
         self.__data[self.__map_idx][y][x] = (self.__data[self.__map_idx][y][x] & 0x00FF) | (val & 0xFF00)
-    
+
+    def __create_entity(self, xidx):
+        """
+        """
+        
+        enemy_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx + 1]) for yidx in range(16)]
+        x = (xidx + 1) * 20
+        
+        for yidx, dte in enumerate(enemy_col):
+            if dte != 0:
+                if dte == 1:
+                    self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+
+                if dte == 2:
+                    self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+                
+                if dte == 3:  # Mushroom
+                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+                
+                if dte == 4:  # Star
+                    self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+
+                if dte == 5:  # Coin
+                    self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+                
+                if dte == 6:  # 1 UP mushroom
+                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+                
+                if dte == 7:  # Static Coin
+                    self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))
+                    self.set_enemydata(xidx + 1, yidx, 0)
+        
+
+
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
         Draw the visible area of the game map on the screen based on Mario's current position.
@@ -262,36 +305,9 @@ class Map():
         # Update X coordinate on the left edge of the map
         self.__nowx = startx * 20
         
-        # Enemy apprers
-        enemy_col = [self.get_upper(self.__data[self.__map_idx][yidx][startx + TILE_X + 1]) for yidx in range(16)]
-        x = (startx + TILE_X + 1) * 20
-        
-        for yidx, dte in enumerate(enemy_col):
-            if dte != 0:
-                if dte == 1:
-                    self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
-                    self.set_enemydata(startx + TILE_X + 1, yidx, 0)
+        # Entities apprer
+        self.__create_entity(startx + TILE_X)
 
-                if dte == 2:
-                    self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self))
-                    self.set_enemydata(startx + TILE_X + 1, yidx, 0)
-                
-                if dte == 3:  # Mushroom
-                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))
-                    self.set_enemydata(startx + TILE_X + 1, yidx, 0)
-                
-                if dte == 4:  # Star
-                    self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
-                    self.set_enemydata(startx + TILE_X + 1, yidx, 0)
-
-                if dte == 5:  # Coin
-                    self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_enemydata(startx + TILE_X + 1, yidx, 0)
-                
-                if dte == 6:  # 1 UP mushroom
-                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
-                    self.set_enemydata(startx + TILE_X + 1, yidx, 0)
-                
         # pushed block
         delkeys = []
         for key in self.__pushedblocks:
@@ -1564,6 +1580,21 @@ class Coin(Enemy):
         self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
+class StaticCoin(Enemy):
+    def __init__(self, x, y, dir, mario, map):
+        self.__imgs: list = [
+            # TODO: Update the image to meet the sub stage background color
+            pygame.image.load('./img/coin.jpg'),
+        ]
+        self.image = self.__imgs[0]
+        
+        self._rawrect = pygame.Rect(x, y, 20, 20)
+        super().__init__(x, y, dir, mario, map)
+    
+    def update(self):
+        pass
+
+
 class Sound:
 
     FREQ_C = 261.63  # Sound for ド(C)
@@ -1698,7 +1729,7 @@ class Number(pygame.sprite.Sprite):
         if self.__counter == 30:
             self.__status = Status.DEAD 
         self.__counter += 1     
-    
+
 
 def init():
      # Define Sprite group
