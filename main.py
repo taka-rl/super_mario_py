@@ -197,13 +197,13 @@ class Map():
         """Get the upper 8 bit by shifting 8 bits to the right"""
         return (n >> 8) & 0x00FF
     
-    def get_enemydata(self, x, y):
-        """Get enemy data from the map data"""
+    def get_entitydata(self, x, y):
+        """Get entity data from the map data"""
         return self.get_upper(self.__data[self.__map_idx][y][x])
      
-    def set_enemydata(self, x, y, val):
+    def set_entitydata(self, x, y, val):
         """
-        Set enemy data to the upper 8 bits on the map data.
+        Set entity data to the upper 8 bits on the map data.
         
         self.__data[y][x] & 0x00FF:
             Keeps only the lower 8 bits of the tile, effectively clearing the upper 8 bits.
@@ -221,38 +221,38 @@ class Map():
         """
         """
         
-        enemy_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx + 1]) for yidx in range(16)]
+        entity_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx + 1]) for yidx in range(16)]
         x = (xidx + 1) * 20
         
-        for yidx, dte in enumerate(enemy_col):
+        for yidx, dte in enumerate(entity_col):
             if dte != 0:
                 if dte == 1:
                     self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
 
                 if dte == 2:
                     self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
                 
                 if dte == 3:  # Mushroom
                     self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
                 
                 if dte == 4:  # Star
                     self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
 
                 if dte == 5:  # Coin
                     self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
                 
                 if dte == 6:  # 1 UP mushroom
                     self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
                 
                 if dte == 7:  # Static Coin
                     self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_enemydata(xidx + 1, yidx, 0)
+                    self.set_entitydata(xidx + 1, yidx, 0)
         
 
 
@@ -420,18 +420,18 @@ class Map():
             x = self.NOMOVE_X
         return x
 
-    def get_drawxenemy(self, rect: pygame.rect) -> int:
+    def get_drawxentity(self, rect: pygame.rect) -> int:
         """
-        Calculate the correct X coordinate to draw enemy on the screen based on the map's scrolling position.
-        This function accounts for the scrolling margin and adjusts the enemy's horizontal position accordingly.
+        Calculate the correct X coordinate to draw entity on the screen based on the map's scrolling position.
+        This function accounts for the scrolling margin and adjusts the entity's horizontal position accordingly.
         The position is calculated relative to the current map view, ensuring that enemies are drawn correctly 
         in the viewport and move with the map.
 
         Args:
-            rect (pygame.rect): The rectangle representing the enemy's current position on the map.
+            rect (pygame.rect): The rectangle representing the entity's current position on the map.
 
         Returns:
-            int: The calculated x-coordinate where the enemy should be drawn on the screen.
+            int: The calculated x-coordinate where the entity should be drawn on the screen.
         
         """
         return rect.x + self.__drawmargin
@@ -951,8 +951,8 @@ class Mario(pygame.sprite.Sprite):
     def fire(self):
         """Create Fire objects, limiting only two objects."""
         firecount = 0
-        for enemy in self.__group.sprites():
-            if isinstance(enemy, Fire):
+        for entity in self.__group.sprites():
+            if isinstance(entity, Fire):
                 firecount += 1
         
         if firecount == 2:
@@ -966,14 +966,14 @@ class Mario(pygame.sprite.Sprite):
         # Add if a fireball hits enemies
         self._arrlies.append(fire)
 
-class Enemy(pygame.sprite.Sprite):
+class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
         pygame.sprite.Sprite.__init__(self)
                 
         # The coordinate for map and the location of Mario are different.
-        # Enemy location coordinate        
+        # Entity location coordinate        
         self._rawrect = pygame.Rect(x, y, 20, 20)
-        # Enemy coordinate for Map
+        # Entity coordinate for Map
         self.rect = self._rawrect
         
         # Get a map
@@ -1042,7 +1042,7 @@ class Enemy(pygame.sprite.Sprite):
     
     def flying(self) -> None:
         """
-        Let enemy fly after Koopa kick hits and change the status to DEAD
+        Let entity fly after Koopa kick hits and change the status to DEAD
         """
         self._rawrect.x += self._dir
         self._rawrect.y += self._vy
@@ -1086,7 +1086,7 @@ class Enemy(pygame.sprite.Sprite):
                     self._mario.status = Status.DEADING
             
 
-class Mushroom(Enemy):    
+class Mushroom(Entity):    
     def __init__(self, x, y, dir, mario, map, oneup=False):
         self.__imgs = [
             pygame.image.load('./img/kinoko.jpg'),
@@ -1173,10 +1173,10 @@ class Mushroom(Enemy):
                 self._status = Status.DEAD
                             
         self.image = self.__imgs[2 if self.__isoneup else 0 if not self._mario.isbig else 1]
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
         
 
-class Koopa(Enemy):
+class Koopa(Entity):
     WALK_SPEED = 6
     WALK_ANIME_IDX = [0, 0, 0, 1, 1, 1]
     
@@ -1201,7 +1201,7 @@ class Koopa(Enemy):
         if self._status == Status.DEADING:
             self.image = self.__imgs[2]
             # Update rect for Splite
-            self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+            self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
             self._collapsecount += 1
             
             if self._collapsecount >= 60:
@@ -1255,7 +1255,7 @@ class Koopa(Enemy):
                     
                     self.image = pygame.transform.flip(self.__imgs[0], False, True)
                     # Update rect for Splite
-                    self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+                    self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
                     return
 
                 if self._vy > 0:
@@ -1297,10 +1297,10 @@ class Koopa(Enemy):
                     super()._handle_mario_hit()
                                     
         # Update rect for Splite
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
-class Goomba(Enemy):
+class Goomba(Entity):
     WALK_SPEED = 6
     
     def __init__(self, x, y, dir, mario, map):
@@ -1326,7 +1326,7 @@ class Goomba(Enemy):
         if self._status == Status.DEADING:
             self.image = self.__imgs[1]
             # Update rect for Splite
-            self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+            self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
             self._collapsecount += 1
             if self._collapsecount == 30:
                 self._status = Status.DEAD
@@ -1365,7 +1365,7 @@ class Goomba(Enemy):
                     
                     self.image = pygame.transform.flip(self.__imgs[0], False, True)
                     # Update rect for Splite
-                    self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+                    self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
                     return
                 
                 if self._vy > 0:
@@ -1388,10 +1388,10 @@ class Goomba(Enemy):
             super().kickHit()
         
         # Update rect for Splite
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
-class BrokenBlock(Enemy):
+class BrokenBlock(Entity):
     def __init__(self, x, y, dir, vy, mario, map):
         self.__imgs: list = [pygame.image.load('./img/crushed_block.jpg')]
         self.image = self.__imgs[0]
@@ -1402,10 +1402,10 @@ class BrokenBlock(Enemy):
         
     def update(self):
         super().flying()
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
-class Star(Enemy):
+class Star(Entity):
     def __init__(self, x, y, dir, mario, map):
         self.__imgs: list = [pygame.image.load('./img/star.jpg')]
         self.image = self.__imgs[0]
@@ -1466,10 +1466,10 @@ class Star(Enemy):
                 self._mario.isinvisible = True
                 self._mario.invisiblecounter = 240  # 8 seconds
         
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
-class Fire(Enemy):
+class Fire(Entity):
     def __init__(self, x, y, dir, mario, map):
         self._imgs: list = [
             pygame.image.load('./img/fireball.jpg'),
@@ -1531,10 +1531,10 @@ class Fire(Enemy):
             
             self._collapsecount += 1
             
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
-class Coin(Enemy):
+class Coin(Entity):
     # ANIME_IDX = [0, 1, 2, 3]
     def __init__(self, x, y, dir, mario, map):
         self.__imgs: list = [
@@ -1577,10 +1577,10 @@ class Coin(Enemy):
             # self.image = self.__imgs[self.ANIME_IDX[self._walkidx]]
             # self._walkidx += 1
     
-        self.rect = pygame.Rect(self._map.get_drawxenemy(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 
-class StaticCoin(Enemy):
+class StaticCoin(Entity):
     def __init__(self, x, y, dir, mario, map):
         self.__imgs: list = [
             # TODO: Update the image to meet the sub stage background color
@@ -1792,13 +1792,13 @@ def main():
             continue 
         
         # Remove DEAD status
-        for enemy in group.sprites():
-            if enemy.status == Status.DEAD:
-                group.remove(enemy)
+        for entity in group.sprites():
+            if entity.status == Status.DEAD:
+                group.remove(entity)
         
-        for enemy_bg in group_bg.sprites():
-            if enemy_bg.status == Status.DEAD:
-                group_bg.remove(enemy_bg)
+        for entity_bg in group_bg.sprites():
+            if entity_bg.status == Status.DEAD:
+                group_bg.remove(entity_bg)
     
         # Fill in the background     
         map.fill(win)
