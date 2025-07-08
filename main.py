@@ -1592,7 +1592,10 @@ class StaticCoin(Enemy):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        pass
+        if self._rawrect.colliderect(self._map.mario.rawrect):
+            self._status = Status.DEAD
+            self._map.sound.play_sound_asnync(self._map.sound.play_coin)
+            self._map.group.add(Number(self.rect.x, self.rect.y, 200))
 
 
 class Sound:
