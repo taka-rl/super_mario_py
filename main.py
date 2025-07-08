@@ -217,11 +217,15 @@ class Map():
         """
         self.__data[self.__map_idx][y][x] = (self.__data[self.__map_idx][y][x] & 0x00FF) | (val & 0xFF00)
 
-    def __create_entity(self, xidx):
+    def __create_entity(self, xidx: int):
         """
+        Create entity objects based on the map data.
+        
+        Args:
+            xidx (int): X axle on the map data
         """
         
-        entity_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx + 1]) for yidx in range(16)]
+        entity_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx + 1]) for yidx in range(TILE_X)]
         x = (xidx + 1) * 20
         
         for yidx, dte in enumerate(entity_col):
@@ -253,8 +257,6 @@ class Map():
                 if dte == 7:  # Static Coin
                     self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))
                     self.set_entitydata(xidx + 1, yidx, 0)
-        
-
 
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
@@ -305,7 +307,7 @@ class Map():
         # Update X coordinate on the left edge of the map
         self.__nowx = startx * 20
         
-        # Entities apprer
+        # Entities appear
         self.__create_entity(startx + TILE_X)
 
         # pushed block
