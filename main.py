@@ -1598,7 +1598,8 @@ class StaticCoin(Entity):
             self._status = Status.DEAD
             self._map.sound.play_sound_asnync(self._map.sound.play_coin)
             self._map.group.add(Number(self.rect.x, self.rect.y, 200))
-
+        
+        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
 class Sound:
 
