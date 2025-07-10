@@ -51,10 +51,13 @@ class Map():
     
     def __init__(self, group, group_bg, sound):
         # Map index
-        self.__map_idx: int = 1
+        self.__map_idx: int = 0
 
         # Background color
         self.__bg_color = ((135, 206, 235), (0, 0, 0))
+
+        # Warp infomation (map_idx, xidx, yidx)
+        self.__warp_info: dict = {0: {(6, 12): (1, 1, 1)}, 1: {()}}
         
         # Define map
         self.__data = [
@@ -155,6 +158,10 @@ class Map():
     def sound(self):
         return self.__sound
     
+    @property
+    def warp_info(self):
+        return self.__warp_info[self.__map_idx]
+
     def get_mapdata(self, x, y):
         """
         Get data from the lower 8 bit on the map, corresponding to x, y coordinate tile.
@@ -444,6 +451,10 @@ class Map():
     def ispushedblock(self, yx): 
         """Ensure if it's pushed or not."""
         return yx in self.__pushedblocks
+    
+    def chnage_map(self, next_mapdata):
+        map_idx, xidx, yidx = next_mapdata
+        self.__map_idx = map_idx
 
 
 class Mario(pygame.sprite.Sprite):
@@ -654,6 +665,10 @@ class Mario(pygame.sprite.Sprite):
         return pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
 
     def update(self):
+        
+        # Attempt warp
+        self.warp()
+
         if self.__status == Status.DEAD:
             pass
             
@@ -970,7 +985,22 @@ class Mario(pygame.sprite.Sprite):
         
         # Add if a fireball hits enemies
         self._arrlies.append(fire)
+    
+    def warp(self):
+        """Switch the stage"""
 
+        # Get the current location
+        xidx, yidx = self.__rawrect.x // 20, self.__rawrect.y // 20
+
+        # Switch the stage
+        if (xidx, yidx) in self.__map.warp_info:
+            next_data = self.__map.warp_info[(xidx, yidx)]
+            self.__vx = 0
+            self.__vy = 0
+            self.__rawrect.x = next_data[1] * 20
+            self.__rawrect.y = next_data[2] * 20
+            self.__map.chnage_map(next_data)
+    
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
         pygame.sprite.Sprite.__init__(self)
