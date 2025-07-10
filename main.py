@@ -331,8 +331,8 @@ class Map():
                     win.blit(self.__imgs[map_num], ((x - startx) * 20 - margin, y * 20 + ymargin))
     
     def fill(self, win: pygame.display):
+        """Fill the background of the window with the color."""
         win.fill(self.__bg_color[self.__map_idx])
-        
 
     def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> bool:
         """
