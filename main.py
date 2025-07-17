@@ -29,6 +29,8 @@ SCORE_ARRAY: list[int] = [100, 200, 400, 500, 800, 1000, 2000, 4000, 8000]
 ONEUP_SCORE: str = '1UP'
 
 class Map():
+    # TODO: standardize these code: startx + TILE_X, startx + TILE_X + 1, xidx + 1
+
     NOMOVE_X = 120
     BLOCK_VY = 5
     BLOCK_GROUND = 1
@@ -57,7 +59,7 @@ class Map():
         self.__bg_color = ((135, 206, 235), (0, 0, 0))
 
         # Warp infomation (map_idx, xidx, yidx)
-        self.__warp_info: dict = {0: {(6, 12): (1, 1, 1)}, 1: {()}}
+        self.__warp_info: dict = {0: {(59, 8): (1, 1, 1), (60, 8): (1, 1, 1)}, 1: {()}}
         
         # Define map
         self.__data = [
@@ -291,17 +293,19 @@ class Map():
         """
         margin = 0
         
-        # Mario start position
+        # Mario at the left
         if rect.x <= self.NOMOVE_X + self.__nowx:
             startx = self.__nowx // 20
             margin = self.__nowx % 20
         
-        # TODO: Implement code when the window reaches the edge of the right side, it stops scrolling.
-        # elif rect.x >= (max_startx * 20): # rect.x >= (len(self.__data[self.__map_idx][0]) - 2 - (TILE_X - self.NOMOVE_X // 20)) * 20:
-        #    startx = len(self.__data[self.__map_idx][0]) - TILE_X - 2
-        #    margin = 0
+        # TODO: Mario isn't drawn in the window correctly. -2 might cause this situation.
+        # Mario at the mostright
+        elif rect.x >= (len(self.__data[self.__map_idx][0]) - 2 - (TILE_X - self.NOMOVE_X // 20)) * 20:
+            startx = len(self.__data[self.__map_idx][0]) - TILE_X - 2
+            margin = 0
             
         else:
+            # Normal scrolling
             startx = rect.x // 20 - self.NOMOVE_X // 20
             margin = rect.x % 20
 
@@ -426,9 +430,16 @@ class Map():
 
     def get_drawx(self, rect: pygame.rect) -> int:
         """X coordinate to draw Mario on the map"""
+        # Mario at the left
         if rect.x < self.NOMOVE_X + self.__nowx:
             x = rect.x - self.__nowx
+        
+        # Mario at the mostright
+        elif rect.x >= (len(self.__data[self.__map_idx][0]) - (TILE_X - self.NOMOVE_X // 20)) * 20:
+            x = rect.x - (len(self.__data[self.__map_idx][0]) - (TILE_X - self.NOMOVE_X // 20)) * 20 + self.NOMOVE_X
+        
         else:
+            # Keep Mario at the center
             x = self.NOMOVE_X
         return x
 
@@ -453,8 +464,31 @@ class Map():
         return yx in self.__pushedblocks
     
     def chnage_map(self, next_mapdata):
+        """
+        TODO: Add a docstring
+        """
         map_idx, xidx, yidx = next_mapdata
         self.__map_idx = map_idx
+        self.__nowx = xidx * 20 - self.NOMOVE_X
+
+        if self.__nowx < 0:
+            self.__nowx = 0
+        
+        # Mario at the right
+        elif self.__nowx > (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
+            self.__nowx = (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20
+
+        # Delete entities
+        for entity in self.__group.sprites():
+            if not isinstance(entity, Mario):
+                entity.status = Status.DEAD
+
+        for entity in self.__group_bg.sprites():
+            entity.status = Status.DEAD
+        
+        # Draw entity
+        for xidx in range(self.__nowx // 20, self.__nowx // 20 + TILE_X):
+            self.__create_entity(xidx)
 
 
 class Mario(pygame.sprite.Sprite):
@@ -665,10 +699,6 @@ class Mario(pygame.sprite.Sprite):
         return pygame.transform.flip(self.__imgs[imageidx], self.__isleft, False)
 
     def update(self):
-        
-        # Attempt warp
-        self.warp()
-
         if self.__status == Status.DEAD:
             pass
             
@@ -722,6 +752,9 @@ class Mario(pygame.sprite.Sprite):
             if not self.__issit and self.__isbig:
                 self.__rawrect.height = 30
                 self.__issit = True
+            
+            # warp
+            self.warp()
         else:
             if self.__issit and self.__isbig:
                 self.__rawrect.height = 40
@@ -1689,6 +1722,8 @@ class Sound:
         self.__oneup_sounds = self._make_sound(oneup_frequencies, self.__oneup_durations, [False, False, False, False, False, False, True])
         
         # TODO: Sound for BGM
+        # TODO: Sound for Star Mario
+        # TODO: Sound for defeating enemies
         
     def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
