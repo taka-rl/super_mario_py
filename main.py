@@ -102,20 +102,22 @@ class Map():
                 [0x0002, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000],
             ]
         ]
-            
+        
+        pipe_1, pipe_2 = pygame.image.load('./img/pipe_1.jpg'), pygame.image.load('./img/pipe_2.jpg')
+        
         self.__imgs: dict = {
             self.BLOCK_GROUND: (pygame.image.load('./img/ground.jpg'), pygame.image.load('./img/ground_sub.jpg')),
             self.BLOCK_NORMAL: (pygame.image.load('./img/block.jpg'), pygame.image.load('./img/block_sub.jpg')),
             self.BLOCK_QUESTION: pygame.image.load('./img/question_block.jpg'),
             self.BLOCK_PANEL: pygame.image.load('./img/panel.jpg'),
-            self.PIPE_1: pygame.image.load('./img/pipe_1.jpg'),
-            self.PIPE_2: pygame.image.load('./img/pipe_2.jpg'),
+            self.PIPE_1: pipe_1,
+            self.PIPE_2: pipe_2,
             self.PIPE_3: pygame.image.load('./img/pipe_3.jpg'),
             self.PIPE_4: pygame.image.load('./img/pipe_4.jpg'),
             self.BLOCK_STAIRS: pygame.image.load('./img/stairs_block.jpg'),
             self.BLOCK_STAR: pygame.image.load('./img/block.jpg'),
-            self.PIPE_5: pygame.transform.rotate(pygame.image.load('./img/pipe_1.jpg'), 90),
-            self.PIPE_6: pygame.transform.rotate(pygame.image.load('./img/pipe_2.jpg'), 90),
+            self.PIPE_5: pygame.transform.rotate(pipe_1, 90),
+            self.PIPE_6: pygame.transform.rotate(pipe_2, 90),
             self.PIPE_7: pygame.image.load('./img/pipe_5.jpg'),
             self.PIPE_8: pygame.image.load('./img/pipe_6.jpg'),
             }
