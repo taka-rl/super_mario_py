@@ -16,6 +16,7 @@ class Status(Enum):
     FLYING = auto()
     GROWING = auto()
     SHRINKING = auto()
+    WARPING = auto()
 
 
 # Display size
@@ -60,10 +61,11 @@ class Map():
         # Background color
         self.__bg_color = ((135, 206, 235), (0, 0, 0))
 
-        # Warp infomation (map_idx, xidx, yidx)
+        # Warp infomation (xidx, yidx): (map_idx, xidx, yidx, direction to enter) 
+        # direction(0: None, 1: down, 2: right, 3: top, 4: left) 
         self.__warp_info: dict = {
-            0: {(59, 8): (1, 1, 1), (60, 8): (1, 1, 1)}, 
-            1: {(12, 11): (0, 165, 10)}
+            0: {(59, 8): (1, 1, 1, 1), (60, 8): (1, 1, 1, 1), (59, 7): (1, 1, 1, 1), (60, 7): (1, 1, 1, 1)}, 
+            1: {(12, 11): (0, 165, 10, 2), (12, 10): (0, 165, 10, 2)}
             }
         
         # Define map
@@ -473,11 +475,11 @@ class Map():
         """Ensure if it's pushed or not."""
         return yx in self.__pushedblocks
     
-    def change_map(self, next_mapdata):
+    def change_map(self, next_mapdata) -> None:
         """
-        TODO: Add a docstring
+        Change the map with deleting entities and drawing entites.
         """
-        map_idx, xidx, yidx = next_mapdata
+        map_idx, xidx = next_mapdata[:2]
         self.__map_idx = map_idx
         self.__nowx = xidx * 20 - self.NOMOVE_X
 
@@ -558,6 +560,10 @@ class Mario(pygame.sprite.Sprite):
         # Invisible
         self.__isinvisible: bool = False
         self.__invisiblecounter: int = 90
+
+        # Warping
+        self.__next_data: tuple = None
+        self.__warpcounter: int = 0
         
         # Star Mario
         self.__hasstar: bool = False
@@ -735,6 +741,12 @@ class Mario(pygame.sprite.Sprite):
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
+        # Warping
+        if self.__status == Status.WARPING:
+            self.__warping()
+            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            return
+
         # Get key status
         keys = pygame.key.get_pressed()
         
@@ -764,11 +776,15 @@ class Mario(pygame.sprite.Sprite):
                 self.__issit = True
             
             # warp
-            self.warp()
+            self.warp(keys)
         else:
             if self.__issit and self.__isbig:
                 self.__rawrect.height = 40
             self.__issit = False
+        
+        if keys[pygame.K_RIGHT]:
+            # warp
+            self.warp(keys)
         
         # Dash with left shift
         self.__isdash = keys[pygame.K_LSHIFT]
@@ -1029,20 +1045,43 @@ class Mario(pygame.sprite.Sprite):
         # Add if a fireball hits enemies
         self._arrlies.append(fire)
     
-    def warp(self):
-        """Switch the stage"""
+    def warp(self, keys: pygame.key) -> None:
+        """Proceed with the necessary processes for warp if the conditions are met."""
 
         # Get the current location
         xidx, yidx = self.__rawrect.x // 20, self.__rawrect.y // 20
 
-        # Switch the stage
+        # Ensure about the warp location and key input
         if (xidx, yidx) in self.__map.warp_info:
-            next_data = self.__map.warp_info[(xidx, yidx)]
+            self.__next_data = self.__map.warp_info[(xidx, yidx)]
+            if keys[pygame.K_DOWN] or keys[pygame.K_RIGHT]:
+                self.__status = Status.WARPING
+            
+    def __warping(self) -> None:
+        """
+        Deal with warping animation for both entering a pipe and appearing from a pipe.
+        """
+        if self.__warpcounter == 10:
+            self.__status = Status.NORMAL
+            self.__warpcounter = 0
             self.__vx = 0
             self.__vy = 0
-            self.__rawrect.x = next_data[1] * 20
-            self.__rawrect.y = next_data[2] * 20
-            self.__map.change_map(next_data)
+            self.__rawrect.x = self.__next_data[1] * 20
+            self.__rawrect.y = self.__next_data[2] * 20
+            self.__map.change_map(self.__next_data)
+                
+        else:
+            # To down
+            if self.__next_data[3] == 1:
+                self.__rawrect.y += 2
+            
+            # To right
+            if self.__next_data[3] == 2:
+                self.__rawrect.x += 2
+                self.__walkidx = 0
+
+            self.__warpcounter += 1
+    
     
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
