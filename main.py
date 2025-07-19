@@ -61,7 +61,10 @@ class Map():
         self.__bg_color = ((135, 206, 235), (0, 0, 0))
 
         # Warp infomation (map_idx, xidx, yidx)
-        self.__warp_info: dict = {0: {(59, 8): (1, 1, 1), (60, 8): (1, 1, 1)}, 1: {()}}
+        self.__warp_info: dict = {
+            0: {(59, 8): (1, 1, 1), (60, 8): (1, 1, 1)}, 
+            1: {(12, 11): (0, 165, 10)}
+            }
         
         # Define map
         self.__data = [
@@ -470,7 +473,7 @@ class Map():
         """Ensure if it's pushed or not."""
         return yx in self.__pushedblocks
     
-    def chnage_map(self, next_mapdata):
+    def change_map(self, next_mapdata):
         """
         TODO: Add a docstring
         """
@@ -1039,7 +1042,7 @@ class Mario(pygame.sprite.Sprite):
             self.__vy = 0
             self.__rawrect.x = next_data[1] * 20
             self.__rawrect.y = next_data[2] * 20
-            self.__map.chnage_map(next_data)
+            self.__map.change_map(next_data)
     
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
