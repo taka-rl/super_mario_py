@@ -16,7 +16,8 @@ class Status(Enum):
     FLYING = auto()
     GROWING = auto()
     SHRINKING = auto()
-    WARPING = auto()
+    ENTERING = auto()
+    APPEARING = auto()
 
 
 # Display size
@@ -64,8 +65,8 @@ class Map():
         # Warp infomation (xidx, yidx): (map_idx, xidx, yidx, direction to enter) 
         # direction(0: None, 1: down, 2: right, 3: top, 4: left) 
         self.__warp_info: dict = {
-            0: {(59, 8): (1, 1, 1, 1), (60, 8): (1, 1, 1, 1), (59, 7): (1, 1, 1, 1), (60, 7): (1, 1, 1, 1)}, 
-            1: {(12, 11): (0, 165, 10, 2), (12, 10): (0, 165, 10, 2)}
+            0: {(59, 8): (1, 1, 1, 1, 0), (60, 8): (1, 1, 1, 1, 0), (59, 7): (1, 1, 1, 1, 0), (60, 7): (1, 1, 1, 1, 0)}, 
+            1: {(12, 11): (0, 165, 10, 2, 3), (12, 10): (0, 165, 10, 2, 3)}
             }
         
         # Define map
@@ -742,11 +743,11 @@ class Mario(pygame.sprite.Sprite):
             return
         
         # Warping
-        if self.__status == Status.WARPING:
-            self.__warping()
+        if self.__status in (Status.ENTERING, Status.APPEARING):
+            self.__warping(is_entering=True if self.__status == Status.ENTERING else False)
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
-
+        
         # Get key status
         keys = pygame.key.get_pressed()
         
@@ -1055,33 +1056,43 @@ class Mario(pygame.sprite.Sprite):
         if (xidx, yidx) in self.__map.warp_info:
             self.__next_data = self.__map.warp_info[(xidx, yidx)]
             if keys[pygame.K_DOWN] or keys[pygame.K_RIGHT]:
-                self.__status = Status.WARPING
+                self.__status = Status.ENTERING
             
-    def __warping(self) -> None:
+    def __warping(self, is_entering: bool) -> None:
         """
         Deal with warping animation for both entering a pipe and appearing from a pipe.
+
+        Args:
+            is_entering (bool): True if it depict an animation of entering a pipe.
         """
         if self.__warpcounter == 10:
-            self.__status = Status.NORMAL
             self.__warpcounter = 0
             self.__vx = 0
             self.__vy = 0
             self.__rawrect.x = self.__next_data[1] * 20
-            self.__rawrect.y = self.__next_data[2] * 20
+            self.__rawrect.y = (self.__next_data[2] * 20) - (20 if not is_entering and self.__isbig else 0)
             self.__map.change_map(self.__next_data)
+            if self.__status == Status.APPEARING:
+                self.__status = Status.NORMAL
+            else:
+                self.__status = Status.APPEARING if self.__next_data[4] else Status.NORMAL
                 
         else:
+            idx = 3 if is_entering else 4
             # To down
-            if self.__next_data[3] == 1:
+            if self.__next_data[idx] == 1:
                 self.__rawrect.y += 2
-            
+                
             # To right
-            if self.__next_data[3] == 2:
+            if self.__next_data[idx] == 2:
                 self.__rawrect.x += 2
                 self.__walkidx = 0
 
+            # To up
+            if self.__next_data[idx] == 3:
+                self.__rawrect.y -= 2           
+
             self.__warpcounter += 1
-    
     
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
