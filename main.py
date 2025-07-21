@@ -423,10 +423,10 @@ class Map():
             
             # Collision check            
             if (self.get_mapdata(xidx, yidx + y) and 
-                not self.avoid_collision(xidx, yidx + y) and rect.colliderect(blockrectL)):
+                not self.is_goal_block(xidx, yidx + y) and rect.colliderect(blockrectL)):
                 hitleft = True
             if (self.get_mapdata(xidx + 1, yidx + y) and 
-                not self.avoid_collision(xidx + 1, yidx + y) and rect.colliderect(blockrectR)):
+                not self.is_goal_block(xidx + 1, yidx + y) and rect.colliderect(blockrectR)):
                 hitright = True
             
             # Make sure which block is pushed considering the Mario location
