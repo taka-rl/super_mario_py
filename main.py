@@ -66,7 +66,7 @@ class Map():
     GOAL_3 = 0x87
     GOAL_4 = 0x88
     
-    def __init__(self, group, group_bg, sound):
+    def __init__(self, group, group_bg, sound) -> None:
         # Map index
         self.__map_idx: int = 0
 
@@ -196,7 +196,7 @@ class Map():
     def warp_info(self):
         return self.__warp_info[self.__map_idx]
 
-    def get_mapdata(self, x, y):
+    def get_mapdata(self, x: int, y: int) -> int:
         """
         Get data from the lower 8 bit on the map, corresponding to x, y coordinate tile.
         
@@ -228,7 +228,7 @@ class Map():
         """
         return self.__data[self.__map_idx][y][x] & 0x0080 != 0
     
-    def set_mapdata(self, x: int, y: int, val):
+    def set_mapdata(self, x: int, y: int, val: int) -> None:
         """
         Set data to the lower 8 bits on the map data
         
@@ -253,7 +253,7 @@ class Map():
         """Get entity data from the map data"""
         return self.get_upper(self.__data[self.__map_idx][y][x])
      
-    def set_entitydata(self, x, y, val):
+    def set_entitydata(self, x: int, y: int, val: int) -> None:
         """
         Set entity data to the upper 8 bits on the map data.
         
@@ -269,7 +269,7 @@ class Map():
         """
         self.__data[self.__map_idx][y][x] = (self.__data[self.__map_idx][y][x] & 0x00FF) | (val & 0xFF00)
 
-    def __create_entity(self, xidx: int):
+    def __create_entity(self, xidx: int) -> None:
         """
         Create entity objects based on the map data.
         
@@ -384,11 +384,11 @@ class Map():
                         ymargin = self.__pushedblocks[(y, x)][1]
                     win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
     
-    def fill(self, win: pygame.display):
+    def fill(self, win: pygame.display) -> None:
         """Fill the background of the window with the color."""
         win.fill(self.__bg_color[self.__map_idx])
     
-    def __get_img(self, map_num: int):
+    def __get_img(self, map_num: int) -> pygame.Surface:
         """Get an image"""
         img = self.__imgs[map_num]
         if isinstance(img, tuple):
@@ -509,7 +509,7 @@ class Map():
         """
         return rect.x + self.__drawmargin
     
-    def ispushedblock(self, yx): 
+    def ispushedblock(self, yx: tuple[int, int]) -> bool: 
         """Ensure if it's pushed or not."""
         return yx in self.__pushedblocks
     
