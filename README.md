@@ -44,12 +44,15 @@ On MacOS type: `pip3 install -r requirements.txt`
 - [ ] Complete implemetations for World 1-1
   - [x] Add images for the castle, goal pole and goal flag
   - [ ] Add animation for both Mario and the goal flag after goal
+  - [ ] Change draw orders as Mario is covered by the goal flag
+  - [ ] Add Mario images when falling down to the goal pole
   - [ ] Add fireworks after goal
   - [ ] Sounds such as BGM, Star Mario, Crushing enemies
   - [ ] Background image such as clouds, mountains
   - [ ] Animation improvements for becoming small to big/becoming big to small
   - [ ] Pixel image improvements
   - [ ] Add a pause bottom
+  - [ ] Delete score animation when Mario gets coins in the sub stage
 - [ ] Complete the game window
   - [ ] Add map stage on the top of the window
   - [ ] Add coin on the top of the window
