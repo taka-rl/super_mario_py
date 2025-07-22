@@ -13,7 +13,7 @@ Pixel size is 20x20.
 | crouch | down arrow |
 | space | jump |
 | left shift | dash |
-| left shift | fire |
+| left shift | fire ball |
 
 ### Images
 Images are stored in [here](https://github.com/taka-rl/super_mario_py/tree/main/img).  
