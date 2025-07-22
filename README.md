@@ -42,16 +42,33 @@ On MacOS type: `pip3 install -r requirements.txt`
 
 ## Future Improvements
 - [ ] Complete implemetations for World 1-1
+  - [x] Add images for the castle, goal pole and goal flag
+  - [ ] Add animation for both Mario and the goal flag after goal
+  - [ ] Add fireworks after goal
   - [ ] Sounds such as BGM, Star Mario, Crushing enemies
   - [ ] Background image such as clouds, mountains
   - [ ] Animation improvements for becoming small to big/becoming big to small
   - [ ] Pixel image improvements
+  - [ ] Add a pause bottom
+- [ ] Complete the game window
+  - [ ] Add map stage on the top of the window
+  - [ ] Add coin on the top of the window
+  - [ ] Add increase the number of the coin
+  - [ ] Add score on the top of the window
+  - [ ] Add increase the score
+  - [ ] Add timer on the top of the window
+  - [ ] Add code to decrese the timer
 - [ ] Code improvements
   - [ ] Organize magic numbers
   - [ ] Optimize code
   - [ ] Divide code into several files
 
 ## Bug Fixes
+- [ ] Improve the transition from left to right at 120 rect in the window
+- [ ] Only when Mario warps with the proper arrow input
+- [ ] Mushroom jumps when Mario hits a block
+- [ ] Big Mario defeats enemies while crushing blocks.
+- [ ] Deleted fire balls kill enemies
 
 ## Future Developments
 - [ ] Introduce Reinforcement learning
