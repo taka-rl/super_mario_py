@@ -775,13 +775,6 @@ class Mario(pygame.sprite.Sprite):
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
-        # Goal
-        if self.__status == Status.GOAL:
-            self.__goal()
-            self.image = self.__get_image()
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
-            return
-                
         # Fall handling
         if self.__rawrect.y > H:
             self.__status = Status.DEAD
@@ -805,86 +798,95 @@ class Mario(pygame.sprite.Sprite):
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
-        # Get key status
-        keys = pygame.key.get_pressed()
-        
-        # Not move when sitting
-        if not keys[pygame.K_DOWN]:
-            if keys[pygame.K_RIGHT]:
-                self.__right()
-                
-            if keys[pygame.K_LEFT]:
-                self.__left()
-        
-        if keys[pygame.K_SPACE]:
-            self.__jump()
+        # Goal process
+        if self.__status == Status.GOAL:
+            # Goal animation does not end
+            if not self.__goal():
+                self.image = self.__get_image()
+                self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+                return
         else:
-            # When Space isn't inputed
-            if self.__vy <= -5:
-                # Don't fall down imediately
-                self.__vy = -3
-            if self.__vy >= 0:
-                # Status is Normal when falling down
-                self.__status = Status.NORMAL
-        
-        # If Mario sits or not
-        if keys[pygame.K_DOWN]:
-            if not self.__issit and self.__isbig:
-                self.__rawrect.height = 30
-                self.__issit = True
+            # Mario movement processes except GOAL status
+            # Get key status
+            keys = pygame.key.get_pressed()
             
-            # warp
-            self.warp(keys)
-        else:
-            if self.__issit and self.__isbig:
-                self.__rawrect.height = 40
-            self.__issit = False
-        
-        if keys[pygame.K_RIGHT]:
-            # warp
-            self.warp(keys)
-        
-        # Dash with left shift
-        self.__isdash = keys[pygame.K_LSHIFT]
-        
-        if self.__vx != 0:
-            if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or keys[pygame.K_DOWN]:
-                self.__stop()
+            # Not move when sitting
+            if not keys[pygame.K_DOWN]:
+                if keys[pygame.K_RIGHT]:
+                    self.__right()
                     
-        # Move for Y axle
-        # if not self.__on_ground:
-        self.__vy += 1
-        self.__rawrect.y += self.__vy
-                
-        # Judge hitbox
-        if self.__map.chk_collision(self.__rawrect, is_mario=True):
-            # If Mario is moving upward, it lets him go downward
-            # vy is bigger than 0 -> 1 to go upward
-            self.__rawrect.y = ((self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20)
+                if keys[pygame.K_LEFT]:
+                    self.__left()
             
-            # Adjustment when Mario is sitting
-            self.__rawrect.y += 10 if self.__issit else 0
-            
-            if self.__vy > 0:
-                self.__on_ground = True
-                self.__vy = 0
-                
-                # Initialize continuous_counter
-                self.__continuous_counter = 0
-                    
+            if keys[pygame.K_SPACE]:
+                self.__jump()
             else:
-                self._vy = 1
-        
-        # End invisible state
-        if self.__isinvisible:
-            self.__invisiblecounter -= 1
-            if self.__invisiblecounter == 0:
-                self.__isinvisible = False
-                # initialization
-                self.__invisiblecounter = 90
-        
-        # Get the image
-        self.image = self.__get_image()
+                # When Space isn't inputed
+                if self.__vy <= -5:
+                    # Don't fall down imediately
+                    self.__vy = -3
+                if self.__vy >= 0:
+                    # Status is Normal when falling down
+                    self.__status = Status.NORMAL
+            
+            # If Mario sits or not
+            if keys[pygame.K_DOWN]:
+                if not self.__issit and self.__isbig:
+                    self.__rawrect.height = 30
+                    self.__issit = True
+                
+                # warp
+                self.warp(keys)
+            else:
+                if self.__issit and self.__isbig:
+                    self.__rawrect.height = 40
+                self.__issit = False
+            
+            if keys[pygame.K_RIGHT]:
+                # warp
+                self.warp(keys)
+            
+            # Dash with left shift
+            self.__isdash = keys[pygame.K_LSHIFT]
+            
+            if self.__vx != 0:
+                if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or keys[pygame.K_DOWN]:
+                    self.__stop()
+                        
+            # Move for Y axle
+            # if not self.__on_ground:
+            self.__vy += 1
+            self.__rawrect.y += self.__vy
+                    
+            # Judge hitbox
+            if self.__map.chk_collision(self.__rawrect, is_mario=True):
+                # If Mario is moving upward, it lets him go downward
+                # vy is bigger than 0 -> 1 to go upward
+                self.__rawrect.y = ((self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20)
+                
+                # Adjustment when Mario is sitting
+                self.__rawrect.y += 10 if self.__issit else 0
+                
+                if self.__vy > 0:
+                    self.__on_ground = True
+                    self.__vy = 0
+                    
+                    # Initialize continuous_counter
+                    self.__continuous_counter = 0
+                        
+                else:
+                    self._vy = 1
+            
+            # End invisible state
+            if self.__isinvisible:
+                self.__invisiblecounter -= 1
+                if self.__invisiblecounter == 0:
+                    self.__isinvisible = False
+                    # initialization
+                    self.__invisiblecounter = 90
+            
+            # Get the image
+            self.image = self.__get_image()
         
         if self.__isinvisible:
             # Blinking for a star mario
@@ -1085,46 +1087,50 @@ class Mario(pygame.sprite.Sprite):
             self.__isinvisible = True
         self.__growcounter += 1
     
-    def __goal(self) -> None:
+    def __goal(self) -> bool:
         """
         Represent a goal animation.
         
         The function includes the following steps:
             1. Mario falls down at the bottom of the goal pole.
+                TODO: If the goal flag is lower than Mario, Mario stops when the goal flag reaches the bottom of the goal pole.
+                If the goal flag is higher than Mario, Maio waits for the goal flag until it's falling down to the bottom of the goal post.
             2. Mario moves to the opposite side of the goal pole.
             3. Mario walks and enters the castle entrance.
-            4. Change the Mario status to NORMAL and initialize the goal counter.       
+            4. Change the Mario status to NORMAL and initialize the goal counter.
+
+        Returns:
+            bool: 
         """
-
-        # TODO: Adjust the counter values for each conditions
-
         # Mario falls down to the bottom of the goal pole
         if self.__goalcounter < 50:
             self.__rawrect.y += GOAL_FALL_SPEED
-            if self.__rawrect.y > GOAL_BOTTOM_Y:
-                self.__rawrect.y = GOAL_BOTTOM_Y
+            if self.__rawrect.y > GOAL_BOTTOM_Y - (20 if self.__isbig else 0):
+                self.__rawrect.y = GOAL_BOTTOM_Y - (20 if self.__isbig else 0)
 
         # Change the side
         elif self.__goalcounter == 50:
             self.__rawrect.x += 40
-            self.__rawrect.y = 240
+            self.__rawrect.y = 240 - (20 if self.__isbig else 0)
+            
+            # for walk animation
+            self.__walkidx = 0
+            self.__on_ground = True
 
         # Move to the castle
-        elif self.__goalcounter < 70:
-            # TODO: Walk step by step without law of inertia.
+        elif self.__goalcounter < 68:
             self.__right()
 
-        # TODO: Enter the castle
-        elif self.__goalcounter < 75:
-            pass
-
-        else:
-            # Complete the goal animation
+        # Enter the castle and complete the goal animatio
+        elif self.__goalcounter == 70:
+            self.__isinvisible = True
+            self.__vx = 0
             self.__status = Status.NORMAL
             self.__goalcounter = 0
-            return
-
+            return True
+        
         self.__goalcounter += 1
+        return False
                 
     def fire(self):
         """Create Fire objects, limiting only two objects."""
