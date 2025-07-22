@@ -3,24 +3,27 @@ This repository is a Super Mario style 2D game, using Python and Pygame.
 
 ## Environment Description
 ### Display 
-Width and Height are 320 and 270, respectively. 
+Width and Height are 320 and 270, respectively.
 Pixel size is 20x20. 
 
 ### Key inputs
 |Keys|Description|
 | - | - |
 | move | arrows |
+| crouch | down arrow |
 | space | jump |
 | left shift | dash |
 | left shift | fire |
 
 ### Images
 Images are stored in [here](https://github.com/taka-rl/super_mario_py/tree/main/img).  
-Images for this project were drawn by pixels, using the following web pages written.  
+Images for this project were drawn by pixels, using the following web pages.  
 
-ドット絵ツール: https://neutralx0.net/tools/dot3/  
-ゲームドット絵図鑑: https://pixel-art.tsurezure-brog.com/home/smb/  
+- ドット絵ツール: https://neutralx0.net/tools/dot3/  
+This web page is used to make pixel images. You can make any pixel images up to 50x50 sizes.
 
+- ゲームドット絵図鑑: https://pixel-art.tsurezure-brog.com/home/smb/  
+This web page is a reference to make pixel images for Super Mario characters and objects.
 
 ### Maps
 Currently, World 1-1 is implemented.  
@@ -37,7 +40,19 @@ On MacOS type: `pip3 install -r requirements.txt`
 
 3. Run `main.py`
 
-## Future Development
-- Complete implemetations for game
-- Introduce Pytorch/TensorFlow/Ray RLlib for Reinforcement learning
-- Add different stages
+## Future Improvements
+- [ ] Complete implemetations for World 1-1
+  - [ ] Sounds such as BGM, Star Mario, Crushing enemies
+  - [ ] Background image such as clouds, mountains
+  - [ ] Animation improvements for becoming small to big/becoming big to small
+  - [ ] Pixel image improvements
+- [ ] Code improvements
+  - [ ] Organize magic numbers
+  - [ ] Optimize code
+  - [ ] Divide code into several files
+
+## Bug Fixes
+
+## Future Developments
+- [ ] Introduce Reinforcement learning
+- [ ] Add different stages
