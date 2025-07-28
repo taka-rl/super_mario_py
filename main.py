@@ -20,6 +20,7 @@ class Status(Enum):
     ENTERING = auto()
     APPEARING = auto()
     GOAL = auto()
+    CLEAR = auto()
 
 
 class GoalStatus(Enum):
@@ -41,7 +42,7 @@ GOAL_ANIMATION_SCRIPTS: dict = {
         {"phase": GoalStatus.MARIO_ENTER_CASTLE,  "start": 69, "end": 70},
         {"phase": GoalStatus.CASTLE_FLAG_RISE,    "start": 71, "end": 80},
         {"phase": GoalStatus.FIREWORKS,           "start": 81, "end": 117,},
-        {"phase": GoalStatus.DONE,                "start": 88, "end": 95},
+        {"phase": GoalStatus.DONE,                "start": 118, "end": 118},
     ],
     # Other Worlds in the future
 }
@@ -49,6 +50,7 @@ GOAL_ANIMATION_SCRIPTS: dict = {
 
 class GoalManager:
     # base location x=4120, y=100
+    # TODO: Update the correct locations
     FIREWORKS_LOC: tuple= (
         (4120, 100),
         (4060, 140),
@@ -150,8 +152,6 @@ class GoalManager:
             
             # Change Mario status
             self.__mario.status = Status.CLEAR
-            # self.__castle_flag.status
-            # self.__fireworks.status
             return
         
         self.__counter += 1
@@ -2245,6 +2245,10 @@ def main():
             if e.type == pygame.QUIT:
                 running = False
             
+            # Temporary end when Game is clear
+            if mario.status == Status.CLEAR:
+                running = False
+                
             # Release fire balls
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_LSHIFT and mario.isfire:
