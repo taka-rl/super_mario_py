@@ -7,6 +7,7 @@ import platform
 
 
 # TODO: File divisions
+# TODO: Add docstrings
 
 class Status(Enum):
     NORMAL = auto()
@@ -526,7 +527,7 @@ class Map():
             startx = self.__nowx // 20
             margin = self.__nowx % 20
         
-        # TODO: Mario isn't drawn in the window correctly. -2 might cause this situation.
+        # TODO: Mario isn't drawn in the window correctly. -1 might cause this situation.
         # Mario at the mostright
         elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
             startx = len(self.__data[self.__map_idx][0]) - TILE_X - 1
@@ -811,6 +812,7 @@ class Mario(pygame.sprite.Sprite):
             pygame.image.load('./img/mario_fire_jump.jpg'),
             pygame.image.load('./img/mario_sit.jpg'),
             pygame.image.load('./img/mario_fire_sit.jpg'),
+            # TODO: Add images of falling down to the goal pole for the goal animation
             ]
         
         self.image = self.__imgs[0]
@@ -1991,6 +1993,7 @@ class StaticCoin(Entity):
         if self._rawrect.colliderect(self._map.mario.rawrect):
             self._status = Status.DEAD
             self._map.sound.play_sound_asnync(self._map.sound.play_coin)
+            # TODO: Not display Number
             self._map.group.add(Number(self.rect.x, self.rect.y, 200))
         
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
@@ -2146,6 +2149,7 @@ class Sound:
         # TODO: Sound for BGM
         # TODO: Sound for Star Mario
         # TODO: Sound for defeating enemies
+        # TODO: Sound for Mario getting damaged
         
     def _make_square_sound(self, frequency, duration, fadeout=False):
         """Generate a sawtooth sound"""
@@ -2250,6 +2254,10 @@ def init():
 def main():
     """main function"""
     
+    # TODO: Add a start menu where a player choose a stage
+    # TODO: Add a start screen including World 1-1, Mario life stocks before the game starts.
+    # TODO: Add score/timer/coins/World X-X, Mario on the window
+        
     # Initialize pygame
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
     pygame.init()
