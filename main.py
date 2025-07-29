@@ -21,6 +21,7 @@ class Status(Enum):
     APPEARING = auto()
     GOAL = auto()
     CLEAR = auto()
+    PAUSE = auto()
 
 
 class GoalStatus(Enum):
@@ -61,6 +62,11 @@ class GoalManager:
     )
     
     FIREWORKS_TIMING: tuple = (82, 87, 92, 97, 102, 107)
+    
+    # To make sure if there is a bug/ unnecessary process/code, variables and so on....
+    # Add TODO for the future improvements
+    # How about relocating the following consts in this GoalManager class?
+    # GOAL_ANIMATION_SCRIPTS and GoalStatus
     
     def __init__(self, world_name: str, mario, map) -> None:        
         self.__script: dict = GOAL_ANIMATION_SCRIPTS[world_name]
@@ -960,6 +966,16 @@ class Mario(pygame.sprite.Sprite):
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
+        # Game is paused
+        # "p" is pushed -> Mario status changes from NORMAL to PAUSE and vice versa
+        if self.__status == Status.PAUSE:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_p]:
+                self.__status = Status.NORMAL
+            self.image = self.__get_image()
+            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            return
+            
         # Goal process
         if self.__status == Status.GOAL:
             # Goal animation does not end
@@ -967,6 +983,7 @@ class Mario(pygame.sprite.Sprite):
             self.image = self.__get_image()
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
+        
         else:
             # Mario movement processes except GOAL status
             # Get key status
@@ -1008,6 +1025,14 @@ class Mario(pygame.sprite.Sprite):
                 # warp
                 self.warp(keys)
             
+            # Game is paused
+            # TODO: Add a message like "PAUSE" on the window visually
+            if keys[pygame.K_p]:
+                self.__status = Status.PAUSE
+                self.image = self.__get_image()
+                self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+                return
+                
             # Dash with left shift
             self.__isdash = keys[pygame.K_LSHIFT]
             
@@ -1473,8 +1498,8 @@ class Mushroom(Entity):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # Not update if Mario is dead or growing or shrinking
-        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+        # Not update if Mario is dead or growing or shrinking, or Game is paused
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:
             return
         
         # If Mario hit Mushroom box
@@ -1565,8 +1590,8 @@ class Koopa(Entity):
             super().__init__(x, y, dir, mario, map)
         
     def update(self):
-        # Not update if Mario is dead or growing or shrinking
-        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+        # Not update if Mario is dead or growing or shrinking or Game is paused 
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:
             return
         
         if self._status == Status.DEADING:
@@ -1686,8 +1711,8 @@ class Goomba(Entity):
 
     
     def update(self):
-        # Not update if Mario is dead or growing or shrinking
-        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+        # Not update if Mario is dead or growing or shrinking or Game is paused
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:
             return
 
         # Fall handling
@@ -1785,8 +1810,8 @@ class Star(Entity):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # Not update if Mario is dead or growing or shrinking
-        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+        # Not update if Mario is dead or growing or shrinking or Game is paused
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:
             return
         
         if self._status == Status.NORMAL:
@@ -1852,8 +1877,8 @@ class Fire(Entity):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # Not update if Mario is dead or growing or shrinking
-        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+        # Not update if Mario is dead or growing or shrinking or Game is paused
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:
             return
         
         if self._status == Status.NORMAL:
@@ -1917,8 +1942,8 @@ class Coin(Entity):
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
-        # Not update if Mario is dead or growing or shrinking
-        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING]:
+        # Not update if Mario is dead or growing or shrinking or Game is paused
+        if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:
             return
         
         if self._status == Status.NORMAL:
@@ -2270,7 +2295,7 @@ def main():
         # If Mario is dead
         if mario.status == Status.DEAD:
             time.sleep(2)
-            group, group_bg, mario, map = init()
+            group, group_bg, mario, map, goal_manager = init()
             continue 
         
         # Remove DEAD status
