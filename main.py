@@ -2008,7 +2008,8 @@ class StaticCoin(Entity):
             self._status = Status.DEAD
             self._map.sound.play_sound_asnync(self._map.sound.play_coin)
             # TODO: Not display Number
-            self._map.group.add(Number(self.rect.x, self.rect.y, 200))
+            # self._map.group.add(Number(self.rect.x, self.rect.y, 200))
+            self._map.hud.coin += 1
         
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
@@ -2252,7 +2253,8 @@ class HeadUpDisplay:
         self.__score: int = 0  # temporarily
         self.__timer: int = 60
         self.__world: str = world
-
+        self.__coin: int = 0
+        
         self.__font = pygame.font.SysFont("Arial", size=18)
         self.surf_hud: pygame.Surface = pygame.Surface((W, H), pygame.SRCALPHA)
         
@@ -2264,6 +2266,14 @@ class HeadUpDisplay:
     def score(self, value):
         self.__score = value
     
+    @property
+    def coin(self):
+        return self.__coin
+    
+    @coin.setter
+    def coin(self, value):
+        self.__coin = value
+        
     def __draw_elements(self) -> None:
         """
         Draw elements on the surface for Heads-up display.
@@ -2273,7 +2283,7 @@ class HeadUpDisplay:
         
         stage = self.__world[5:]  # Remove 'WORLD'
         chars_first = (('MARIO', 30, 10), ('WORLD', 180, 10), (stage, 190, 20), ('TIME', 260, 10))
-        chars_second = [["{:06d}".format(self.__score), 30, 20], ['C X 00', 100, 20], [str(self.__timer), 270, 20]]
+        chars_second = [["{:06d}".format(self.__score), 30, 20], [f'C X {self.__coin}', 100, 20], [str(self.__timer), 270, 20]]
         
         for char in chars_first:
             text_surface = self.__font.render(char[0], True, (255, 255, 255))
@@ -2393,7 +2403,7 @@ def main():
         group.draw(win)
         
         # Draw heads up display
-        hud.__draw_elements()
+        hud.update()
         win.blit(hud.surf_hud, (0, 0))
 
         # Update the display
