@@ -2393,7 +2393,7 @@ def main():
         group.draw(win)
         
         # Draw heads up display
-        hud.draw_elements()
+        hud.__draw_elements()
         win.blit(hud.surf_hud, (0, 0))
 
         # Update the display
