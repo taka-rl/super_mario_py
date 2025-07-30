@@ -129,6 +129,7 @@ class GoalManager:
         elif self.__phase == GoalStatus.FIREWORKS:
 
             # TODO: Thu number of fireworks depends on timer
+            # TODO: Increase score based on the number of fireworks
             if self.__counter == 81:
                 fireworks = []
                 for locs in self.FIREWORKS_LOC:
@@ -945,6 +946,10 @@ class Mario(pygame.sprite.Sprite):
     def update(self):
         if self.__status == Status.DEAD:
             pass
+        
+        # When timer is 0, game ends
+        if self.__map.hud.timer == 0:
+            self.__status = Status.DEADING
             
         if self.__status == Status.DEADING:
             self.image = self.__imgs[3]
@@ -2007,8 +2012,6 @@ class StaticCoin(Entity):
         if self._rawrect.colliderect(self._map.mario.rawrect):
             self._status = Status.DEAD
             self._map.sound.play_sound_asnync(self._map.sound.play_coin)
-            # TODO: Not display Number
-            # self._map.group.add(Number(self.rect.x, self.rect.y, 200))
             self._map.hud.coin += 1
         
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
@@ -2037,6 +2040,8 @@ class GoalFlag(Entity):
                 
                 # Adjust Mario position to the goal pole    
                 self._mario.rawrect.x = self._rawrect.x
+                
+                # TODO: Increase score based on the position that Mario reaches on the pole
         
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
@@ -2247,13 +2252,14 @@ class Number(pygame.sprite.Sprite):
 
 
 class HeadUpDisplay:
-    # TODO: Need to update score, coin, timer values
-     
     def __init__(self, world) -> None:
-        self.__score: int = 0  # temporarily
-        self.__timer: int = 60
+        self.__score: int = 0
+        self.__timer: float = 10.0
         self.__world: str = world
         self.__coin: int = 0
+        
+        stage = self.__world[5:]  # Remove 'WORLD'
+        self.__chars_first = (('MARIO', 30, 10), ('WORLD', 180, 10), (stage, 190, 25), ('TIME', 260, 10))
         
         self.__font = pygame.font.SysFont("Arial", size=18)
         self.surf_hud: pygame.Surface = pygame.Surface((W, H), pygame.SRCALPHA)
@@ -2273,6 +2279,10 @@ class HeadUpDisplay:
     @coin.setter
     def coin(self, value):
         self.__coin = value
+    
+    @property
+    def timer(self):
+        return self.__timer
         
     def __draw_elements(self) -> None:
         """
@@ -2281,11 +2291,10 @@ class HeadUpDisplay:
         # Clear previous text
         self.surf_hud.fill((0, 0, 0, 0))
         
-        stage = self.__world[5:]  # Remove 'WORLD'
-        chars_first = (('MARIO', 30, 10), ('WORLD', 180, 10), (stage, 190, 20), ('TIME', 260, 10))
-        chars_second = [["{:06d}".format(self.__score), 30, 20], [f'C X {self.__coin}', 100, 20], [str(self.__timer), 270, 20]]
+        # TODO: Replace C with Coin image
+        chars_second = [["{:06d}".format(self.__score), 30, 25], [f'C X {self.__coin}', 100, 25], ["{:03d}".format(int(self.__timer)), 270, 25]]
         
-        for char in chars_first:
+        for char in self.__chars_first:
             text_surface = self.__font.render(char[0], True, (255, 255, 255))
             self.surf_hud.blit(text_surface, (char[1], char[2]))
         
@@ -2298,11 +2307,11 @@ class HeadUpDisplay:
         self.__draw_elements()
         
         # Decrease timer
-        self.__timer -= 1
-        if self.__timer == 0:
+        self.__timer -= 0.033
+        if self.__timer <= 0:
             self.__timer = 0
-
-
+            
+            
 def init():
     # Define Sprite group
     group = pygame.sprite.RenderUpdates()
