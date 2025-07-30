@@ -2231,10 +2231,41 @@ class Number(pygame.sprite.Sprite):
         self.__counter += 1     
 
 
+class HeadUpDisplay:
+    # TODO: Need to update score, coin, timer values
+     
+    def __init__(self, world) -> None:
+        self.__score = '000000'  # temporarily
+        self.__timer: int = 400
+        self.__world: str = world
+
+        self.__font = pygame.font.SysFont("Arial", size=14)        
+        self.surf_hud: pygame.Surface = pygame.Surface((W, H), pygame.SRCALPHA)
+    
+    def draw_elements(self) -> None:
+        """
+        Draw elements on the surface for Heads-up display.
+        """
+        stage = self.__world[5:]  # Remove 'WORLD'
+        chars_first = (('MARIO', 30, 10), ('WORLD', 180, 10), (stage, 190, 20), ('TIME', 260, 10))
+        chars_second = [[self.__score, 30, 20], ['C X 00', 100, 20], [str(self.__timer), 270, 20]]
+            
+        for char in chars_first:
+            text_surface = self.__font.render(char[0], True, (255, 255, 255))
+            self.surf_hud.blit(text_surface, (char[1], char[2]))
+        
+        for char in chars_second:
+            text_surface = self.__font.render(char[0], True, (255, 255, 255))
+            self.surf_hud.blit(text_surface, (char[1], char[2]))            
+
+
 def init():
     # Define Sprite group
     group = pygame.sprite.RenderUpdates()
     group_bg = pygame.sprite.RenderUpdates()
+    
+    # HeadUpDisplay class
+    hud = HeadUpDisplay("World1-1")
     
     # Map class
     map = Map(group, group_bg, Sound())
@@ -2248,7 +2279,7 @@ def init():
     # TODO: Ask a player which World the player wants to play
     goal_manager = GoalManager("World1-1", mario, map)
     
-    return group, group_bg, mario, map, goal_manager
+    return group, group_bg, mario, map, goal_manager, hud
 
 
 def main():
@@ -2269,7 +2300,7 @@ def main():
     clock = pygame.time.Clock()
     
     # Initialize sprite
-    group, group_bg, mario, map, goal_manager = init()
+    group, group_bg, mario, map, goal_manager, hud = init()
     
     # Event loop
     running = True
@@ -2303,7 +2334,7 @@ def main():
         # If Mario is dead
         if mario.status == Status.DEAD:
             time.sleep(2)
-            group, group_bg, mario, map, goal_manager = init()
+            group, group_bg, mario, map, goal_manager, hud = init()
             continue 
         
         # Remove DEAD status
@@ -2327,6 +2358,10 @@ def main():
         # Draw the group
         group.draw(win)
         
+        # Draw heads up display
+        hud.draw_elements()
+        win.blit(hud.surf_hud, (0, 0))
+
         # Update the display
         pygame.display.flip()
 
