@@ -2254,7 +2254,7 @@ class Number(pygame.sprite.Sprite):
 class HeadUpDisplay:
     def __init__(self, world) -> None:
         self.__score: int = 0
-        self.__timer: float = 10.0
+        self.__timer: float = 400.0
         self.__world: str = world
         self.__coin: int = 0
         
