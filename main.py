@@ -2340,7 +2340,6 @@ def main():
     
     # TODO: Add a start menu where a player choose a stage
     # TODO: Add a start screen including World 1-1, Mario life stocks before the game starts.
-    # TODO: Add score/timer/coins/World X-X, Mario on the window
         
     # Initialize pygame
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
