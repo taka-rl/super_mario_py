@@ -230,7 +230,7 @@ class Map():
     GOAL_POLE_2 = 0x87  
     GOAL_FLAG = 0x88
     
-    def __init__(self, group, group_bg, sound) -> None:
+    def __init__(self, group, group_bg, sound, hud) -> None:
         # Map index
         self.__map_idx: int = 0
 
@@ -333,6 +333,9 @@ class Map():
         # Set Sound class
         self.__sound = sound
         
+        # Set HeadUpDisplay class
+        self.__hud = hud
+        
         # Draw entity 
         for xidx in range(TILE_X):
             self.__create_entity(xidx)
@@ -365,6 +368,10 @@ class Map():
     @property
     def sound(self):
         return self.__sound
+    
+    @property
+    def hud(self):
+        return self.__hud
     
     @property
     def warp_info(self):
@@ -1295,6 +1302,7 @@ class Mario(pygame.sprite.Sprite):
         self.__right()
     
     def enter_castle(self) -> None:
+        # TODO: Mario doesn't become invisible if it's Fire Mario.
         self.__isinvisible = True
         self.__vx = 0
         
@@ -1428,12 +1436,14 @@ class Entity(pygame.sprite.Sprite):
                     self._mario.arrlies.remove(marioarrly)
                     
                     # Display score for Fira ball
-                    self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))                    
-                
+                    self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))
+                    self._map.hud.score += SCORE_ARRAY[1]
+                    
                 elif isinstance(marioarrly, Koopa):
                     # Display score for Koopa kick
-                    self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[self._mario.continuous_counter]
-                                               if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE))
+                    score = SCORE_ARRAY[self._mario.continuous_counter] if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE
+                    self._map.group.add(Number(self.rect.x, self.rect.y, score))
+                    self._map.hud.score += score
                     self._mario.continuous_counter += 1
                 
                 self._vy = -8
@@ -1460,8 +1470,9 @@ class Entity(pygame.sprite.Sprite):
             self._mario.status = Status.TREADING
             self._mario.vy = -5
             # Display score
-            self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[self._mario.continuous_counter] 
-                                       if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE))                
+            score = SCORE_ARRAY[self._mario.continuous_counter] if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE
+            self._map.group.add(Number(self.rect.x, self.rect.y, score))
+            self._map.hud.score += score
             self._mario.continuous_counter += 1
         else:
             # If Mario is invisible, then return.
@@ -1470,9 +1481,9 @@ class Entity(pygame.sprite.Sprite):
             
             if self._mario.hasstar:
                 self._status = Status.FLYING
-                # Display score for Fira ball
-                self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))                    
-
+                # Display score to be defeated by Star Mario
+                self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))
+                self._map.hud.score += SCORE_ARRAY[1]
                 return
             
             if self._mario.status != Status.TREADING:
@@ -1561,6 +1572,7 @@ class Mushroom(Entity):
                 if self.__isoneup:
                     self._map.sound.play_sound_asnync(self._map.sound.play_oneup)
                     self._map.group.add(Number(self.rect.x, self.rect.y, ONEUP_SCORE))
+                    # TODO: Add 1UP to self._map.hud.value 
                 else:
                     if not self._mario.isfire:                    
                         self._mario.status = Status.GROWING
@@ -1568,6 +1580,7 @@ class Mushroom(Entity):
                         if self.__isflower:
                             self._mario.isfire = True
                     self._map.group.add(Number(self.rect.x, self.rect.y, 1000))
+                    self._map.hud.score += 1000
                 self._status = Status.DEAD
                             
         self.image = self.__imgs[2 if self.__isoneup else 0 if not self._mario.isbig else 1]
@@ -1969,6 +1982,7 @@ class Coin(Entity):
             if self._vy > 10:
                 self._status = Status.DEAD
                 self._map.group.add(Number(self.rect.x, self.rect.y, 200))
+                self._map.hud.score += 200
                 return
             
             # TODO: Coin animation
@@ -2218,45 +2232,65 @@ class Number(pygame.sprite.Sprite):
     def __create_surface(self, score):
         """Generate a surface for score"""
         text_surface = self.__font.render(str(score), True, (255, 255, 255))
-        surface = pygame.Surface(text_surface.get_size(), pygame.SRCALPHA)        
+        surface = pygame.Surface(text_surface.get_size(), pygame.SRCALPHA)
         surface.blit(text_surface, (0, 0))
         return surface
 
     def update(self):
         # Move up
-        self.rect.y -= 1        
+        self.rect.y -= 1
         # Disappear after 1 second
         if self.__counter == 30:
             self.__status = Status.DEAD 
-        self.__counter += 1     
+        self.__counter += 1
 
 
 class HeadUpDisplay:
     # TODO: Need to update score, coin, timer values
      
     def __init__(self, world) -> None:
-        self.__score = '000000'  # temporarily
-        self.__timer: int = 400
+        self.__score: int = 0  # temporarily
+        self.__timer: int = 60
         self.__world: str = world
 
-        self.__font = pygame.font.SysFont("Arial", size=14)        
+        self.__font = pygame.font.SysFont("Arial", size=18)
         self.surf_hud: pygame.Surface = pygame.Surface((W, H), pygame.SRCALPHA)
+        
+    @property
+    def score(self):
+        return self.__score
     
-    def draw_elements(self) -> None:
+    @score.setter
+    def score(self, value):
+        self.__score = value
+    
+    def __draw_elements(self) -> None:
         """
         Draw elements on the surface for Heads-up display.
         """
+        # Clear previous text
+        self.surf_hud.fill((0, 0, 0, 0))
+        
         stage = self.__world[5:]  # Remove 'WORLD'
         chars_first = (('MARIO', 30, 10), ('WORLD', 180, 10), (stage, 190, 20), ('TIME', 260, 10))
-        chars_second = [[self.__score, 30, 20], ['C X 00', 100, 20], [str(self.__timer), 270, 20]]
-            
+        chars_second = [["{:06d}".format(self.__score), 30, 20], ['C X 00', 100, 20], [str(self.__timer), 270, 20]]
+        
         for char in chars_first:
             text_surface = self.__font.render(char[0], True, (255, 255, 255))
             self.surf_hud.blit(text_surface, (char[1], char[2]))
         
         for char in chars_second:
             text_surface = self.__font.render(char[0], True, (255, 255, 255))
-            self.surf_hud.blit(text_surface, (char[1], char[2]))            
+            self.surf_hud.blit(text_surface, (char[1], char[2]))
+    
+    def update(self):
+        # Draw heads-up display on the window
+        self.__draw_elements()
+        
+        # Decrease timer
+        self.__timer -= 1
+        if self.__timer == 0:
+            self.__timer = 0
 
 
 def init():
@@ -2268,11 +2302,11 @@ def init():
     hud = HeadUpDisplay("World1-1")
     
     # Map class
-    map = Map(group, group_bg, Sound())
+    map = Map(group, group_bg, Sound(),hud)
     
     # Mario class
     mario = Mario(map, group)
-        
+    
     # Add mario into the group
     group.add(mario)
     
@@ -2308,15 +2342,15 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
-            
-            # Temporary end when Game is clear
-            if mario.status == Status.CLEAR:
-                running = False
                 
             # Release fire balls
             elif e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_LSHIFT and mario.isfire:
                     mario.fire()
+        
+        # Temporary end when Game is clear
+        if mario.status == Status.CLEAR:
+            running = False
         
         # Update the group_bg
         group_bg.update()
