@@ -569,7 +569,12 @@ class Map():
                     if (y, x) in self.__pushedblocks:
                         ymargin = self.__pushedblocks[(y, x)][1]
                     win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
-    
+        
+        # Draw Heads-up display
+        self.__hud.draw()
+        self.__hud.decrement_timer(self.__mario.status)
+        win.blit(self.__hud.surf_hud, (0, 0))
+        
     def fill(self, win: pygame.display) -> None:
         """Fill the background of the window with the color."""
         win.fill(self.__bg_color[self.__map_idx])
@@ -2331,15 +2336,17 @@ class HeadUpDisplay:
             text_surface = self.__font.render(char[0], True, (255, 255, 255))
             self.surf_hud.blit(text_surface, (char[1], char[2]))
     
-    def update(self):
+    def draw(self):
         # Draw heads-up display on the window
         self.__draw_elements()
-        
-        # Decrease timer
-        self.__timer -= 0.033
-        if self.__timer <= 0:
-            self.__timer = 0
             
+    def decrement_timer(self, status: int):
+        if status != Status.GOAL:     
+            # Decrease timer
+            self.__timer -= 0.033
+            if self.__timer <= 0:
+                self.__timer = 0
+
             
 def init():
     # Define Sprite group
@@ -2350,7 +2357,7 @@ def init():
     hud = HeadUpDisplay("World1-1")
     
     # Map class
-    map = Map(group, group_bg, Sound(),hud)
+    map = Map(group, group_bg, Sound(), hud)
     
     # Mario class
     mario = Mario(map, group)
@@ -2438,10 +2445,6 @@ def main():
         
         # Draw the group
         group.draw(win)
-        
-        # Draw heads up display
-        hud.update()
-        win.blit(hud.surf_hud, (0, 0))
 
         # Update the display
         pygame.display.flip()
