@@ -1,5 +1,7 @@
-# Super Mario style 2D game with Python and Pygame
-This repository is a Super Mario style 2D game, using Python and Pygame. 
+# Super Mario style 2D game
+## Motivation
+I wanted to challege creating a game like Super Mario and deepen the understanding of Object Oriented Programming skills and knowledge and Python through this complicated development used multiple objects.
+
 
 ## Environment Description
 ### Display 
@@ -14,6 +16,7 @@ Pixel size is 20x20.
 | space | jump |
 | left shift | dash |
 | left shift | fire ball |
+| pause | p |
 
 ### Images
 Images are stored in [here](https://github.com/taka-rl/super_mario_py/tree/main/img).  
@@ -41,5 +44,6 @@ On MacOS type: `pip3 install -r requirements.txt`
 3. Run `main.py`
 
 ## Future Developments
+- [ ] Fix bugs and improve this project
 - [ ] Introduce Reinforcement learning
 - [ ] Add different stages
