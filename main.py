@@ -81,6 +81,7 @@ class GoalManager:
         self.__mario = mario
         self.__castle_flag = None
         self.__fireworks: list[Fireworks] = None
+        self.__num_fireworks: int = 0
         
     @property
     def phase(self):
@@ -123,32 +124,25 @@ class GoalManager:
             self.__castle_flag.rise()
         
         elif self.__phase == GoalStatus.FIREWORKS:
-
-            # TODO: Thu number of fireworks depends on timer
-            # TODO: Increase score based on the number of fireworks
             if self.__counter == 81:
-                fireworks = []
-                for locs in self.FIREWORKS_LOC:
-                    fireworks.append(Fireworks(locs[0], locs[1], 0, self.__mario, self.__map, self))
-                self.__fireworks = fireworks
-            
-            if self.__counter == self.FIREWORKS_TIMING[0]:
-                self.__map.group.add(self.__fireworks[0])
-
-            if self.__counter == self.FIREWORKS_TIMING[1]:
-                self.__map.group.add(self.__fireworks[1])
-
-            if self.__counter == self.FIREWORKS_TIMING[2]:
-                self.__map.group.add(self.__fireworks[2])
-
-            if self.__counter == self.FIREWORKS_TIMING[3]:
-                self.__map.group.add(self.__fireworks[3])
-            
-            if self.__counter == self.FIREWORKS_TIMING[4]:
-                self.__map.group.add(self.__fireworks[4])
-
-            if self.__counter == self.FIREWORKS_TIMING[5]:
-                self.__map.group.add(self.__fireworks[5])
+                # Get the first digit of timer
+                first_digit = int(str(int(self.__map.hud.timer))[-1])
+                
+                # fireworks launches if the first digit of timer is 1 or 3 or 6
+                if first_digit in [1, 3, 6]:
+                    fireworks = [None] * first_digit
+                    for i in range(0, first_digit):
+                        fireworks[i] = Fireworks(self.FIREWORKS_LOC[i][0], self.FIREWORKS_LOC[i][1], 
+                                                 0, self.__mario, self.__map, self)
+                    self.__fireworks = fireworks
+            else:
+                # Fireworks lauch unless fireworks is none
+                if self.__fireworks:
+                    if self.__num_fireworks < len(self.__fireworks):
+                        if self.__counter == self.FIREWORKS_TIMING[self.__num_fireworks]:
+                            self.__map.group.add(self.__fireworks[self.__num_fireworks])
+                            self.__map.hud.score += 500
+                            self.__num_fireworks += 1
 
         elif self.__phase == GoalStatus.DONE:
             self.__isactive = False
@@ -166,7 +160,7 @@ class GoalManager:
             if phase_info['start'] <= self.__counter <= phase_info['end']:
                 self.__phase = phase_info['phase']
                 return
-                
+            
     @property
     def isactive(self):
         return self.__isactive
