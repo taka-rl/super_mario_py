@@ -1971,6 +1971,7 @@ class Coin(Entity):
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):
                 self._map.sound.play_sound_asnync(self._map.sound.play_coin)
+                self._map.hud.coin += 1
                 self._status = Status.FLYING
                 self._vy = -15
                 self._rawrect.y -= 20
