@@ -31,6 +31,7 @@ class GoalStatus(Enum):
     MARIO_TURN = auto()
     MARIO_WALK = auto()
     MARIO_ENTER_CASTLE = auto()
+    SCORE_CALCULATION = auto()
     CASTLE_FLAG_RISE = auto()
     FIREWORKS = auto()
     DONE = auto()
@@ -42,9 +43,10 @@ GOAL_ANIMATION_SCRIPTS: dict = {
         {"phase": GoalStatus.MARIO_TURN,          "start": 50, "end": 50},
         {"phase": GoalStatus.MARIO_WALK,          "start": 51, "end": 68},
         {"phase": GoalStatus.MARIO_ENTER_CASTLE,  "start": 69, "end": 70},
-        {"phase": GoalStatus.CASTLE_FLAG_RISE,    "start": 71, "end": 80},
-        {"phase": GoalStatus.FIREWORKS,           "start": 81, "end": 117,},
-        {"phase": GoalStatus.DONE,                "start": 118, "end": 118},
+        {"phase": GoalStatus.SCORE_CALCULATION,   "start": 71, "end": 71},
+        {"phase": GoalStatus.CASTLE_FLAG_RISE,    "start": 72, "end": 81},
+        {"phase": GoalStatus.FIREWORKS,           "start": 82, "end": 118,},
+        {"phase": GoalStatus.DONE,                "start": 119, "end": 119},
     ],
     # Other Worlds in the future
 }
@@ -119,6 +121,11 @@ class GoalManager:
         
         elif self.__phase == GoalStatus.MARIO_ENTER_CASTLE:
             self.__mario.enter_castle()
+        
+        elif self.__phase == GoalStatus.SCORE_CALCULATION:
+            # Return until the calculation ends
+            if not self.__map.hud.add_timer_score():
+                return
         
         elif self.__phase == GoalStatus.CASTLE_FLAG_RISE:
             self.__castle_flag.rise()
@@ -942,8 +949,8 @@ class Mario(pygame.sprite.Sprite):
         if self.__status == Status.DEAD:
             pass
         
-        # When timer is 0, game ends
-        if self.__map.hud.timer == 0:
+        # When timer is 0, game ends except game clear
+        if self.__map.hud.timer == 0 and not self.__status in [Status.GOAL, Status.CLEAR]:
             self.__status = Status.DEADING
             
         if self.__status == Status.DEADING:
@@ -2341,6 +2348,17 @@ class HeadUpDisplay:
             self.__timer -= 0.033
             if self.__timer <= 0:
                 self.__timer = 0
+    
+    def add_timer_score(self) -> bool:
+        """Add 100 score per a second at the goal."""
+        if self.__timer > 0:
+            self.__score += 100
+            self.__timer -= 1
+            return False
+        
+        elif self.__timer <= 0:
+            self.__timer = 0
+            return True
 
             
 def init():
