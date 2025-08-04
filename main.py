@@ -64,7 +64,7 @@ class GoalManager:
         (4110, 100)
     )
     
-    FIREWORKS_TIMING: tuple = (82, 87, 92, 97, 102, 107)
+    FIREWORKS_TIMING: tuple = (83, 88, 93, 98, 103, 108)
     
     # To make sure if there is a bug/ unnecessary process/code, variables and so on....
     # Add TODO for the future improvements
@@ -103,7 +103,7 @@ class GoalManager:
     
     @fireworks.setter
     def fireworks(self, value):
-        self.__fireworks = value   
+        self.__fireworks = value
     
     def update(self) -> None:
         
@@ -124,16 +124,16 @@ class GoalManager:
         
         elif self.__phase == GoalStatus.SCORE_CALCULATION:
             # Return until the calculation ends
-            if not self.__map.hud.add_timer_score():
+            if not self.__map.add_timer_score():
                 return
         
         elif self.__phase == GoalStatus.CASTLE_FLAG_RISE:
             self.__castle_flag.rise()
         
         elif self.__phase == GoalStatus.FIREWORKS:
-            if self.__counter == 81:
+            if self.__counter == 82:
                 # Get the first digit of timer
-                first_digit = int(str(int(self.__map.hud.timer))[-1])
+                first_digit = int(str(self.__map.goal_time)[-1])
                 
                 # fireworks launches if the first digit of timer is 1 or 3 or 6
                 if first_digit in [1, 3, 6]:
@@ -148,7 +148,7 @@ class GoalManager:
                     if self.__num_fireworks < len(self.__fireworks):
                         if self.__counter == self.FIREWORKS_TIMING[self.__num_fireworks]:
                             self.__map.group.add(self.__fireworks[self.__num_fireworks])
-                            self.__map.hud.score += 500
+                            self.__map.add_score(500)
                             self.__num_fireworks += 1
 
         elif self.__phase == GoalStatus.DONE:
@@ -228,7 +228,7 @@ class Map():
     GOAL_POLE_2 = 0x87  
     GOAL_FLAG = 0x88
     
-    def __init__(self, group, group_bg, sound, hud) -> None:
+    def __init__(self, group, group_bg, sound, hud, world) -> None:
         # Map index
         self.__map_idx: int = 0
 
@@ -333,6 +333,12 @@ class Map():
         
         # Set HeadUpDisplay class
         self.__hud = hud
+        self.__score: int = 0
+        self.__coin: int = 0
+        self.__timer: float = 400
+        self.__world: str = world
+        
+        self.__goal_time: int = None
         
         # Draw entity 
         for xidx in range(TILE_X):
@@ -370,6 +376,26 @@ class Map():
     @property
     def hud(self):
         return self.__hud
+    
+    @property
+    def score(self):
+        return self.__score
+    
+    @property
+    def coin(self):
+        return self.__coin
+    
+    @property
+    def timer(self):
+        return self.__timer
+    
+    @property
+    def goal_time(self):
+        return self.__goal_time
+    
+    @goal_time.setter
+    def goal_time(self, value):
+        self.__goal_time = value
     
     @property
     def warp_info(self):
@@ -495,7 +521,7 @@ class Map():
 
                 if dte == 9:  # Castle Flag
                     self.__group_bg.add(CastleFlag(x, yidx * 20, 2, self.__mario, self, self.__goal_manager))
-                    self.set_entitydata(xidx, yidx, 0)   
+                    self.set_entitydata(xidx, yidx, 0)
 
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
@@ -572,9 +598,8 @@ class Map():
                     win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
         
         # Draw Heads-up display
-        self.__hud.draw()
-        self.__hud.decrement_timer(self.__mario.status)
-        win.blit(self.__hud.surf_hud, (0, 0))
+        self.__hud.draw(win, self.__score, self.__timer, self.__coin, self.__world)
+        self.decrement_timer(self.__mario.status)
         
     def fill(self, win: pygame.display) -> None:
         """Fill the background of the window with the color."""
@@ -732,6 +757,32 @@ class Map():
         for xidx in range(self.__nowx // 20, self.__nowx // 20 + TILE_X):
             self.__create_entity(xidx)
 
+    def add_score(self, value) -> None:
+        """Add score"""
+        self.__score += value
+        
+    def add_coin(self) -> None:
+        """Increment a coin"""
+        self.__coin += 1
+    
+    def decrement_timer(self, status: int) -> None:
+        """Decrease timer"""
+        if status != Status.GOAL:     
+            # Decrease timer
+            self.__timer -= 0.033
+            if self.__timer <= 0:
+                self.__timer = 0
+    
+    def add_timer_score(self) -> bool:
+        """Add 100 score per a second at the goal."""
+        if self.__timer > 0:
+            self.add_score(100)
+            self.__timer -= 1
+            return False
+        
+        elif self.__timer <= 0:
+            self.__timer = 0
+            return True
 
 class Mario(pygame.sprite.Sprite):
     """Mario class"""
@@ -950,7 +1001,7 @@ class Mario(pygame.sprite.Sprite):
             pass
         
         # When timer is 0, game ends except game clear
-        if self.__map.hud.timer == 0 and not self.__status in [Status.GOAL, Status.CLEAR]:
+        if self.__map.timer == 0 and not self.__status in [Status.GOAL, Status.CLEAR]:
             self.__status = Status.DEADING
             
         if self.__status == Status.DEADING:
@@ -1442,13 +1493,13 @@ class Entity(pygame.sprite.Sprite):
                     
                     # Display score for Fira ball
                     self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))
-                    self._map.hud.score += SCORE_ARRAY[1]
+                    self._map.add_score(SCORE_ARRAY[1])
                     
                 elif isinstance(marioarrly, Koopa):
                     # Display score for Koopa kick
                     score = SCORE_ARRAY[self._mario.continuous_counter] if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE
                     self._map.group.add(Number(self.rect.x, self.rect.y, score))
-                    self._map.hud.score += score
+                    self._map.add_score(score)
                     self._mario.continuous_counter += 1
                 
                 self._vy = -8
@@ -1477,7 +1528,7 @@ class Entity(pygame.sprite.Sprite):
             # Display score
             score = SCORE_ARRAY[self._mario.continuous_counter] if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE
             self._map.group.add(Number(self.rect.x, self.rect.y, score))
-            self._map.hud.score += score
+            self._map.add_score(score)
             self._mario.continuous_counter += 1
         else:
             # If Mario is invisible, then return.
@@ -1488,7 +1539,7 @@ class Entity(pygame.sprite.Sprite):
                 self._status = Status.FLYING
                 # Display score to be defeated by Star Mario
                 self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))
-                self._map.hud.score += SCORE_ARRAY[1]
+                self._map.add_score(SCORE_ARRAY[1])
                 return
             
             if self._mario.status != Status.TREADING:
@@ -1577,7 +1628,7 @@ class Mushroom(Entity):
                 if self.__isoneup:
                     self._map.sound.play_sound_asnync(self._map.sound.play_oneup)
                     self._map.group.add(Number(self.rect.x, self.rect.y, ONEUP_SCORE))
-                    # TODO: Add 1UP to self._map.hud.value 
+                    # TODO: Add 1UP to self._map.value 
                 else:
                     if not self._mario.isfire:                    
                         self._mario.status = Status.GROWING
@@ -1585,8 +1636,8 @@ class Mushroom(Entity):
                         if self.__isflower:
                             self._mario.isfire = True
                     self._map.group.add(Number(self.rect.x, self.rect.y, 1000))
-                    self._map.hud.score += 1000
-                self._status = Status.DEAD
+                    self._map.add_score(1000)
+                    self._status = Status.DEAD
                             
         self.image = self.__imgs[2 if self.__isoneup else 0 if not self._mario.isbig else 1]
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
@@ -1972,7 +2023,7 @@ class Coin(Entity):
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):
                 self._map.sound.play_sound_asnync(self._map.sound.play_coin)
-                self._map.hud.coin += 1
+                self._map.add_coin()
                 self._status = Status.FLYING
                 self._vy = -15
                 self._rawrect.y -= 20
@@ -1988,7 +2039,7 @@ class Coin(Entity):
             if self._vy > 10:
                 self._status = Status.DEAD
                 self._map.group.add(Number(self.rect.x, self.rect.y, 200))
-                self._map.hud.score += 200
+                self._map.add_score(200)
                 return
             
             # TODO: Coin animation
@@ -2013,7 +2064,7 @@ class StaticCoin(Entity):
         if self._rawrect.colliderect(self._map.mario.rawrect):
             self._status = Status.DEAD
             self._map.sound.play_sound_asnync(self._map.sound.play_coin)
-            self._map.hud.coin += 1
+            self._map.add_coin()
         
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
@@ -2060,6 +2111,10 @@ class GoalFlag(Entity):
                 score_number = Number(self._mario.rawrect.x + 20, GOAL_BOTTOM_Y, SCORE_ARRAY[score_idx], self._map)
                 score_number.status = Status.GOAL
                 self._map.group.add(score_number)
+                self._map.add_score(SCORE_ARRAY[score_idx])
+                
+                # Set timer to goal time
+                self._map.goal_time = int(self._map.timer)
                    
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
 
@@ -2288,77 +2343,36 @@ class Number(pygame.sprite.Sprite):
 
 
 class HeadUpDisplay:
-    def __init__(self, world) -> None:
-        self.__score: int = 0
-        self.__timer: float = 400.0
-        self.__world: str = world
-        self.__coin: int = 0
-        
-        stage = self.__world[5:]  # Remove 'WORLD'
-        self.__chars_first = (('MARIO', 30, 10), ('WORLD', 180, 10), (stage, 190, 25), ('TIME', 260, 10))
-        
+    def __init__(self) -> None:
         self.__font = pygame.font.SysFont("Arial", size=18)
-        self.surf_hud: pygame.Surface = pygame.Surface((W, H), pygame.SRCALPHA)
         
-    @property
-    def score(self):
-        return self.__score
-    
-    @score.setter
-    def score(self, value):
-        self.__score = value
-    
-    @property
-    def coin(self):
-        return self.__coin
-    
-    @coin.setter
-    def coin(self, value):
-        self.__coin = value
-    
-    @property
-    def timer(self):
-        return self.__timer
-        
-    def __draw_elements(self) -> None:
+    def __create_text_surface(self, word: str, char_color=(255, 255, 255)) -> pygame.font:
         """
-        Draw elements on the surface for Heads-up display.
-        """
-        # Clear previous text
-        self.surf_hud.fill((0, 0, 0, 0))
+        Create a text surface.
+        Args:
+            chars (str): Strings to be displayed for the text surface
+            char_color (tuple): String color is white as default
+                    
+        Returns:
+            pygame.font: text surface        
         
-        # TODO: Replace C with Coin image
-        chars_second = [["{:06d}".format(self.__score), 30, 25], [f'C X {self.__coin}', 100, 25], ["{:03d}".format(int(self.__timer)), 270, 25]]
+        """ 
+        return self.__font.render(word, True, char_color)
         
-        for char in self.__chars_first:
-            text_surface = self.__font.render(char[0], True, (255, 255, 255))
-            self.surf_hud.blit(text_surface, (char[1], char[2]))
-        
-        for char in chars_second:
-            text_surface = self.__font.render(char[0], True, (255, 255, 255))
-            self.surf_hud.blit(text_surface, (char[1], char[2]))
+    def __display_word(self, win, word: str, x: int, y: int) -> None:
+        """Display chars in the window."""
+        text_surface = self.__create_text_surface(word)
+        win.blit(text_surface, (x, y))
     
-    def draw(self):
+    def draw(self, win, score: int, timer: float, coin: int, world: str):
         # Draw heads-up display on the window
-        self.__draw_elements()
-            
-    def decrement_timer(self, status: int):
-        if status != Status.GOAL:     
-            # Decrease timer
-            self.__timer -= 0.033
-            if self.__timer <= 0:
-                self.__timer = 0
-    
-    def add_timer_score(self) -> bool:
-        """Add 100 score per a second at the goal."""
-        if self.__timer > 0:
-            self.__score += 100
-            self.__timer -= 1
-            return False
-        
-        elif self.__timer <= 0:
-            self.__timer = 0
-            return True
+        self.__display_word(win, 'MARIO', 30, 10)
+        self.__display_word(win, 'WORLD', 180, 10)
+        self.__display_word(win, world[5:], 190, 25)
+        self.__display_word(win, 'TIME', 260, 10)
+        self.__display_word(win, '{:06d}'.format(score), 30, 25)
+        self.__display_word(win, 'C x ' + '{:02d}'.format(coin), 100, 25)
+        self.__display_word(win, "{:03d}".format(int(timer)), 270, 25)
 
             
 def init():
@@ -2367,10 +2381,10 @@ def init():
     group_bg = pygame.sprite.RenderUpdates()
     
     # HeadUpDisplay class
-    hud = HeadUpDisplay("World1-1")
+    hud = HeadUpDisplay()
     
     # Map class
-    map = Map(group, group_bg, Sound(), hud)
+    map = Map(group, group_bg, Sound(), hud, "World1-1")
     
     # Mario class
     mario = Mario(map, group)
@@ -2415,10 +2429,6 @@ def main():
                 if e.key == pygame.K_LSHIFT and mario.isfire:
                     mario.fire()
         
-        # Temporary end when Game is clear
-        if mario.status == Status.CLEAR:
-            running = False
-        
         # Update the group_bg
         group_bg.update()
         
@@ -2431,6 +2441,10 @@ def main():
                 goal_manager.isactive = True
            
             goal_manager.update()
+
+        # Temporary end when Game is clear
+        if mario.status == Status.CLEAR:
+            running = False
          
         # If Mario is dead
         if mario.status == Status.DEAD:
