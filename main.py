@@ -23,6 +23,7 @@ class Status(Enum):
     GOAL = auto()
     CLEAR = auto()
     PAUSE = auto()
+    OPENING = auto()
 
 
 class GoalStatus(Enum):
@@ -340,6 +341,8 @@ class Map():
         
         self.__goal_time: int = None
         
+        self.__life_stocks: int = 3
+        
         # Draw entity 
         for xidx in range(TILE_X):
             self.__create_entity(xidx)
@@ -525,6 +528,7 @@ class Map():
 
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
+        TODO: Update the docstring
         Draw the visible area of the game map on the screen based on Mario's current position.
     
         The function determines which tiles are visible in the viewport by calculating the appropriate
@@ -551,55 +555,63 @@ class Map():
         Returns:
             None
         """
-        margin = 0
-        
-        # Mario at the left
-        if rect.x <= self.NOMOVE_X + self.__nowx:
-            startx = self.__nowx // 20
-            margin = self.__nowx % 20
-        
-        # TODO: Mario isn't drawn in the window correctly. -1 might cause this situation.
-        # Mario at the mostright
-        elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
-            startx = len(self.__data[self.__map_idx][0]) - TILE_X - 1
-            margin = 0
+        # TODO: As Mario shows up, consider ways not to to draw Mario in OPENING status.
+        if self.__mario.status == Status.OPENING:
+            win.fill(self.__bg_color[1])
+            self.__hud.draw_game_start(win, self.__world, self.__life_stocks, self.__mario.image)
             
         else:
-            # Normal scrolling
-            startx = rect.x // 20 - self.NOMOVE_X // 20
-            margin = rect.x % 20
-
-        # Horizontal offset in Mario's position
-        self.__drawmargin = -startx * 20 -margin
-        # Update X coordinate on the left edge of the map
-        self.__nowx = startx * 20
+            margin = 0
         
-        # Entities appear
-        self.__create_entity(startx + TILE_X)
+            # Mario at the left
+            if rect.x <= self.NOMOVE_X + self.__nowx:
+                startx = self.__nowx // 20
+                margin = self.__nowx % 20
+            
+            # TODO: Mario isn't drawn in the window correctly. -1 might cause this situation.
+            # Mario at the mostright
+            elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
+                startx = len(self.__data[self.__map_idx][0]) - TILE_X - 1
+                margin = 0
+                
+            else:
+                # Normal scrolling
+                startx = rect.x // 20 - self.NOMOVE_X // 20
+                margin = rect.x % 20
 
-        # pushed block
-        delkeys = []
-        for key in self.__pushedblocks:
-            blockydata = (self.__pushedblocks[key][0] + 1, self.__pushedblocks[key][1] + 1 + self.__pushedblocks[key][0] + 1)
-            self.__pushedblocks[key] = blockydata
-            if self.__pushedblocks[key][0] >= self.BLOCK_VY:
-                delkeys.append(key)
-        for key in delkeys:
-            del self.__pushedblocks[key]
-        
-        # Draw a map
-        for y in range(TILE_Y):
-            for x in range(startx, startx + TILE_X + 1):
-                map_num = self.get_mapdata(x, y)
-                if map_num > 0 and map_num != self.BLOCK_INVISIBLE:
-                    ymargin = 0
-                    if (y, x) in self.__pushedblocks:
-                        ymargin = self.__pushedblocks[(y, x)][1]
-                    win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
+            # Horizontal offset in Mario's position
+            self.__drawmargin = -startx * 20 -margin
+            # Update X coordinate on the left edge of the map
+            self.__nowx = startx * 20
+            
+            # Entities appear
+            self.__create_entity(startx + TILE_X)
+
+            # pushed block
+            delkeys = []
+            for key in self.__pushedblocks:
+                blockydata = (self.__pushedblocks[key][0] + 1, self.__pushedblocks[key][1] + 1 + self.__pushedblocks[key][0] + 1)
+                self.__pushedblocks[key] = blockydata
+                if self.__pushedblocks[key][0] >= self.BLOCK_VY:
+                    delkeys.append(key)
+            for key in delkeys:
+                del self.__pushedblocks[key]
+            
+            # Draw a map
+            for y in range(TILE_Y):
+                for x in range(startx, startx + TILE_X + 1):
+                    map_num = self.get_mapdata(x, y)
+                    if map_num > 0 and map_num != self.BLOCK_INVISIBLE:
+                        ymargin = 0
+                        if (y, x) in self.__pushedblocks:
+                            ymargin = self.__pushedblocks[(y, x)][1]
+                        win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
+            
+            # Decrement timer
+            self.decrement_timer(self.__mario.status)
         
         # Draw Heads-up display
         self.__hud.draw(win, self.__score, self.__timer, self.__coin, self.__world)
-        self.decrement_timer(self.__mario.status)
         
     def fill(self, win: pygame.display) -> None:
         """Fill the background of the window with the color."""
@@ -783,6 +795,14 @@ class Map():
         elif self.__timer <= 0:
             self.__timer = 0
             return True
+    
+    def decrement_life_stocks(self):
+        """Decrement life stocks and change Mario status to GAMEOVER if the life stock becomes zero."""
+        if self.__life_stocks == 0:
+            # Change Mario status to GAMEOVER
+            pass
+                
+        self.__life_stocks -= 1
 
 class Mario(pygame.sprite.Sprite):
     """Mario class"""
@@ -821,7 +841,7 @@ class Mario(pygame.sprite.Sprite):
         self.__on_ground: bool = False
 
         # Status
-        self.__status = Status.NORMAL
+        self.__status = Status.OPENING
         
         # Array for Koopa kick/fire ball
         self._arrlies: list = []
@@ -999,6 +1019,16 @@ class Mario(pygame.sprite.Sprite):
     def update(self):
         if self.__status == Status.DEAD:
             pass
+        
+        # Draw game start
+        if self.__status == Status.OPENING:
+            self.__game_start()
+            return
+        
+        # Draw game over
+        # if self.__status == Status.GAMEOVER:
+        #     pass
+        #     return
         
         # When timer is 0, game ends except game clear
         if self.__map.timer == 0 and not self.__status in [Status.GOAL, Status.CLEAR]:
@@ -1249,8 +1279,10 @@ class Mario(pygame.sprite.Sprite):
         
         if self.__rawrect.y > H + 20:
             self.__status = Status.DEAD
+            
+            # Decrement life stocks
+            self.__map.decrement_life_stocks()
             return
-         
         self.__animecounter += 1
     
     def __growing(self):
@@ -1427,7 +1459,15 @@ class Mario(pygame.sprite.Sprite):
                 self.__rawrect.y -= 2           
 
             self.__warpcounter += 1
-    
+
+    def __game_start(self) -> None:
+        if self.__animecounter >= 60:
+            self.__status = Status.NORMAL
+            self.__animecounter = 0
+            return
+        
+        self.__animecounter += 1
+
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
         pygame.sprite.Sprite.__init__(self)
@@ -2359,12 +2399,12 @@ class HeadUpDisplay:
         """ 
         return self.__font.render(word, True, char_color)
         
-    def __display_word(self, win, word: str, x: int, y: int) -> None:
+    def __display_word(self, win: pygame.display, word: str, x: int, y: int) -> None:
         """Display chars in the window."""
         text_surface = self.__create_text_surface(word)
         win.blit(text_surface, (x, y))
     
-    def draw(self, win, score: int, timer: float, coin: int, world: str):
+    def draw(self, win: pygame.display, score: int, timer: float, coin: int, world: str):
         # Draw heads-up display on the window
         self.__display_word(win, 'MARIO', 30, 10)
         self.__display_word(win, 'WORLD', 180, 10)
@@ -2373,6 +2413,17 @@ class HeadUpDisplay:
         self.__display_word(win, '{:06d}'.format(score), 30, 25)
         self.__display_word(win, 'C x ' + '{:02d}'.format(coin), 100, 25)
         self.__display_word(win, "{:03d}".format(int(timer)), 270, 25)
+    
+    def draw_game_start(self, win: pygame.display, world: str, life_stocks: int, mario_image: pygame.image):
+        """Draw game start on the window before game starts."""
+        # WORLD X-X
+        self.__display_word(win, world[:5], 130, 110)
+        self.__display_word(win, world[5:], 170, 110)
+        
+        # Mario image x life stocks
+        win.blit(mario_image, (130, 140))
+        self.__display_word(win, ' x ', 160, 140)
+        self.__display_word(win, str(life_stocks), 180, 140)
 
             
 def init():
