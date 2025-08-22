@@ -23,6 +23,7 @@ class Status(Enum):
     GOAL = auto()
     CLEAR = auto()
     PAUSE = auto()
+    INIT = auto()
     OPENING = auto()
     GAMEOVER = auto()
 
@@ -243,7 +244,63 @@ class Map():
             0: {(59, 8): (1, 1, 1, 1, 0), (60, 8): (1, 1, 1, 1, 0), (59, 7): (1, 1, 1, 1, 0), (60, 7): (1, 1, 1, 1, 0)}, 
             1: {(12, 11): (0, 165, 10, 2, 3), (12, 10): (0, 165, 10, 2, 3)}
             }
+                
+        pipe_1, pipe_2 = pygame.image.load('./img/pipe_1.jpg'), pygame.image.load('./img/pipe_2.jpg')
+        castle_2 = pygame.image.load('./img/castle_2.jpg')
+        block_ground = pygame.image.load('./img/ground.jpg')
+        self.__imgs: dict = {
+            self.BLOCK_GROUND: (block_ground, pygame.image.load('./img/ground_sub.jpg')),
+            self.BLOCK_NORMAL: (pygame.image.load('./img/block.jpg'), pygame.image.load('./img/block_sub.jpg')),
+            self.BLOCK_QUESTION: pygame.image.load('./img/question_block.jpg'),
+            self.BLOCK_PANEL: pygame.image.load('./img/panel.jpg'),
+            self.PIPE_1: pipe_1,
+            self.PIPE_2: pipe_2,
+            self.PIPE_3: pygame.image.load('./img/pipe_3.jpg'),
+            self.PIPE_4: pygame.image.load('./img/pipe_4.jpg'),
+            self.BLOCK_STAIRS: pygame.image.load('./img/stairs_block.jpg'),
+            self.BLOCK_STAR: pygame.image.load('./img/block.jpg'),
+            self.PIPE_5: pygame.transform.rotate(pipe_1, 90),
+            self.PIPE_6: pygame.transform.rotate(pipe_2, 90),
+            self.PIPE_7: pygame.image.load('./img/pipe_5.jpg'),
+            self.PIPE_8: pygame.image.load('./img/pipe_6.jpg'),
+            self.CASTLE_1: pygame.image.load('./img/castle_1.jpg'),
+            self.CASTLE_2: castle_2,
+            self.CASTLE_3: pygame.transform.rotate(castle_2, 180),
+            self.CASTLE_4: pygame.image.load('./img/castle_4.jpg'),
+            self.CASTLE_5: pygame.image.load('./img/castle_5.jpg'),
+            self.CASTLE_6: block_ground,
+            self.GOAL_POLE_1: pygame.image.load('./img/goal_post_1.jpg'),
+            self.GOAL_POLE_2: pygame.image.load('./img/goal_post_2.jpg'),
+            }
         
+        # Mario info
+        self.__mario = None
+        
+        self.__goal_manager = None
+        
+        # Sprite groups
+        self.__group = group
+        self.__group_bg = group_bg
+        
+        # Set Sound class
+        self.__sound = sound
+        
+        # Set HeadUpDisplay class
+        self.__hud = hud
+        self.__score: int = 0
+        self.__coin: int = 0
+        self.__world: str = world
+        self.__goal_time: int = None
+        self.__life_stocks: int = 3
+        
+        # Common initialization
+        self.__common_init()
+        
+        # Draw entity 
+        for xidx in range(TILE_X):
+            self.__create_entity(xidx)
+
+    def __common_init(self) -> None:
         # Define map
         self.__data = [
             [
@@ -283,35 +340,7 @@ class Map():
                 [0x0002, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000],
             ]
         ]
-        
-        pipe_1, pipe_2 = pygame.image.load('./img/pipe_1.jpg'), pygame.image.load('./img/pipe_2.jpg')
-        castle_2 = pygame.image.load('./img/castle_2.jpg')
-        block_ground = pygame.image.load('./img/ground.jpg')
-        self.__imgs: dict = {
-            self.BLOCK_GROUND: (block_ground, pygame.image.load('./img/ground_sub.jpg')),
-            self.BLOCK_NORMAL: (pygame.image.load('./img/block.jpg'), pygame.image.load('./img/block_sub.jpg')),
-            self.BLOCK_QUESTION: pygame.image.load('./img/question_block.jpg'),
-            self.BLOCK_PANEL: pygame.image.load('./img/panel.jpg'),
-            self.PIPE_1: pipe_1,
-            self.PIPE_2: pipe_2,
-            self.PIPE_3: pygame.image.load('./img/pipe_3.jpg'),
-            self.PIPE_4: pygame.image.load('./img/pipe_4.jpg'),
-            self.BLOCK_STAIRS: pygame.image.load('./img/stairs_block.jpg'),
-            self.BLOCK_STAR: pygame.image.load('./img/block.jpg'),
-            self.PIPE_5: pygame.transform.rotate(pipe_1, 90),
-            self.PIPE_6: pygame.transform.rotate(pipe_2, 90),
-            self.PIPE_7: pygame.image.load('./img/pipe_5.jpg'),
-            self.PIPE_8: pygame.image.load('./img/pipe_6.jpg'),
-            self.CASTLE_1: pygame.image.load('./img/castle_1.jpg'),
-            self.CASTLE_2: castle_2,
-            self.CASTLE_3: pygame.transform.rotate(castle_2, 180),
-            self.CASTLE_4: pygame.image.load('./img/castle_4.jpg'),
-            self.CASTLE_5: pygame.image.load('./img/castle_5.jpg'),
-            self.CASTLE_6: block_ground,
-            self.GOAL_POLE_1: pygame.image.load('./img/goal_post_1.jpg'),
-            self.GOAL_POLE_2: pygame.image.load('./img/goal_post_2.jpg'),
-            }
-        
+    
         # Map shifts relative to Mario's position
         self.__drawmargin: int = 0
         
@@ -321,32 +350,13 @@ class Map():
         # Array for pushed blocks
         self.__pushedblocks: dict = {}
         
-        # Mario info
-        self.__mario = None
-        
-        self.__goal_manager = None
-        
-        # Sprite groups
-        self.__group = group
-        self.__group_bg = group_bg
-        
-        # Set Sound class
-        self.__sound = sound
-        
-        # Set HeadUpDisplay class
-        self.__hud = hud
-        self.__score: int = 0
-        self.__coin: int = 0
+        # Timer
         self.__timer: float = 400
-        self.__world: str = world
-        
-        self.__goal_time: int = None
-        
-        self.__life_stocks: int = 3
-        
-        # Draw entity 
-        for xidx in range(TILE_X):
-            self.__create_entity(xidx)
+
+    def init_dead(self) -> pygame.sprite:
+        self.__common_init()
+        self.__group, self.__group_bg = pygame.sprite.RenderUpdates(), pygame.sprite.RenderUpdates()
+        return self.__group, self.__group_bg
     
     @property
     def mario(self):
@@ -560,7 +570,7 @@ class Map():
         if self.__mario.status == Status.OPENING:
             win.fill(self.__bg_color[1])
             self.__hud.draw_game_start(win, self.__world, self.__life_stocks, self.__mario.image)
-            
+        
         elif self.__mario.status == Status.GAMEOVER:
             win.fill(self.__bg_color[1])
             self.__hud.draw_game_over(win)
@@ -807,7 +817,7 @@ class Map():
         if self.__life_stocks == 0:
             # Change Mario status to GAMEOVER
             self.__mario.status = Status.GAMEOVER
-                
+            
 
 class Mario(pygame.sprite.Sprite):
     """Mario class"""
@@ -821,9 +831,50 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
-    def __init__(self, map, group):
+    def __init__(self, map):
         pygame.sprite.Sprite.__init__(self)
         
+        # Load mario images
+        self.__imgs: list = [
+            pygame.image.load('./img/mario_1.jpg'),
+            pygame.image.load('./img/mario_2.jpg'),
+            pygame.image.load('./img/mario_3.jpg'),
+            pygame.image.load('./img/mario_death.jpg'),
+            pygame.image.load('./img/mario_jump.jpg'),
+            pygame.image.load('./img/mario_middle.jpg'),
+            pygame.image.load('./img/mario_big_1.jpg'),
+            pygame.image.load('./img/mario_big_2.jpg'),
+            pygame.image.load('./img/mario_big_3.jpg'),
+            pygame.image.load('./img/mario_big_jump.jpg'),
+            pygame.image.load('./img/mario_fire_1.jpg'),
+            pygame.image.load('./img/mario_fire_2.jpg'),
+            pygame.image.load('./img/mario_fire_3.jpg'),
+            pygame.image.load('./img/mario_fire_jump.jpg'),
+            pygame.image.load('./img/mario_sit.jpg'),
+            pygame.image.load('./img/mario_fire_sit.jpg'),
+            # TODO: Add images of falling down to the goal pole for the goal animation
+            ]
+        
+        self.image = self.__imgs[0]
+        
+        # The coordinate for map and the location of Mario are different.
+        # Mario location coordinate        
+        self.__rawrect = pygame.Rect(30, 220, 20, 20)
+        # Mario coordinate for Map
+        self.rect = self.__rawrect
+        
+        # Get a map
+        self.__map: Map = map
+
+        # Set Mario to Map
+        self.__map.mario = self
+        
+        # Common initialization
+        self.__common_init()
+    
+    def __common_init(self):
+        self.image = self.__imgs[0]
+
         # Flag for Mario direction
         self.__isleft: bool = False
         
@@ -879,45 +930,15 @@ class Mario(pygame.sprite.Sprite):
         
         # Sit Mario
         self.__issit: bool = False
-        
-        # Load mario images
-        self.__imgs: list = [
-            pygame.image.load('./img/mario_1.jpg'),
-            pygame.image.load('./img/mario_2.jpg'),
-            pygame.image.load('./img/mario_3.jpg'),
-            pygame.image.load('./img/mario_death.jpg'),
-            pygame.image.load('./img/mario_jump.jpg'),
-            pygame.image.load('./img/mario_middle.jpg'),
-            pygame.image.load('./img/mario_big_1.jpg'),
-            pygame.image.load('./img/mario_big_2.jpg'),
-            pygame.image.load('./img/mario_big_3.jpg'),
-            pygame.image.load('./img/mario_big_jump.jpg'),
-            pygame.image.load('./img/mario_fire_1.jpg'),
-            pygame.image.load('./img/mario_fire_2.jpg'),
-            pygame.image.load('./img/mario_fire_3.jpg'),
-            pygame.image.load('./img/mario_fire_jump.jpg'),
-            pygame.image.load('./img/mario_sit.jpg'),
-            pygame.image.load('./img/mario_fire_sit.jpg'),
-            # TODO: Add images of falling down to the goal pole for the goal animation
-            ]
-        
-        self.image = self.__imgs[0]
-        
-        # The coordinate for map and the location of Mario are different.
-        # Mario location coordinate        
-        self.__rawrect = pygame.Rect(30, 220, 20, 20)
-        # Mario coordinate for Map
-        self.rect = self.__rawrect
-        
-        # Get a map
-        self.__map: Map = map
-
-        # Set Mario to Map
-        self.__map.mario = self
-        
-        # Set a group for Sprite
+    
+    def init_dead(self) -> pygame.sprite:
+        """Initialize when Mario is dead."""
+        group, group_bg = self.__map.init_dead()
         self.__group = group
-        
+        self.__rawrect = pygame.Rect(30, 220, 20, 20)
+        self.__common_init()
+        return group, group_bg
+    
     @property
     def vy(self):
         return self.__vy
@@ -985,6 +1006,9 @@ class Mario(pygame.sprite.Sprite):
     @continuous_counter.setter
     def continuous_counter(self, value):
         self.__continuous_counter = value
+    
+    def draw(self, win):
+        win.blit(self.image, self.rect)
     
     def __change_pixel(self, n, image):
         pixels = pygame.surfarray.pixels3d(image)
@@ -1472,7 +1496,7 @@ class Mario(pygame.sprite.Sprite):
             return
         
         self.__animecounter += 1
-
+    
     def __game_over(self) -> None:
         if self.__animecounter >= 180:
            self.__animecounter = 0
@@ -2456,10 +2480,7 @@ def init():
     map = Map(group, group_bg, Sound(), hud, "World1-1")
     
     # Mario class
-    mario = Mario(map, group)
-    
-    # Add mario into the group
-    group.add(mario)
+    mario = Mario(map)
     
     # TODO: Ask a player which World the player wants to play
     goal_manager = GoalManager("World1-1", mario, map)
@@ -2504,6 +2525,9 @@ def main():
         # Update the group
         group.update()
         
+        # Update Mario
+        mario.update()
+        
         # Goal animation
         if mario.status == Status.GOAL:
             if not goal_manager.isactive:
@@ -2515,11 +2539,24 @@ def main():
         if mario.status == Status.CLEAR:
             running = False
          
-        # If Mario is dead
-        if mario.status == Status.DEAD:
+        # Game begins!
+        if mario.status == Status.INIT:
             time.sleep(2)
             group, group_bg, mario, map, goal_manager, hud = init()
+            
+            # Change to OPENING status
+            mario.status = Status.OPENING
             continue 
+        
+        # Mario is dead and the life stocks is not 0
+        elif mario.status == Status.DEAD:
+            group, group_bg = mario.init_dead()
+            continue
+        
+        # The life stocks is 0
+        elif mario.status == Status.GAMEOVER:
+            group.empty()
+            group_bg.empty()
         
         # Remove DEAD status
         for entity in group.sprites():
@@ -2541,6 +2578,9 @@ def main():
         
         # Draw the group
         group.draw(win)
+        
+        # Draw Mario
+        mario.draw(win)
 
         # Update the display
         pygame.display.flip()
