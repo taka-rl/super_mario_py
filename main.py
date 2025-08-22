@@ -24,6 +24,7 @@ class Status(Enum):
     CLEAR = auto()
     PAUSE = auto()
     OPENING = auto()
+    GAMEOVER = auto()
 
 
 class GoalStatus(Enum):
@@ -798,11 +799,11 @@ class Map():
     
     def decrement_life_stocks(self):
         """Decrement life stocks and change Mario status to GAMEOVER if the life stock becomes zero."""
+        self.__life_stocks -= 1
         if self.__life_stocks == 0:
             # Change Mario status to GAMEOVER
-            pass
+            self.__mario.status = Status.GAMEOVER
                 
-        self.__life_stocks -= 1
 
 class Mario(pygame.sprite.Sprite):
     """Mario class"""
@@ -1026,9 +1027,9 @@ class Mario(pygame.sprite.Sprite):
             return
         
         # Draw game over
-        # if self.__status == Status.GAMEOVER:
-        #     pass
-        #     return
+        if self.__status == Status.GAMEOVER:
+            self.__game_over()
+            return
         
         # When timer is 0, game ends except game clear
         if self.__map.timer == 0 and not self.__status in [Status.GOAL, Status.CLEAR]:
@@ -1467,6 +1468,15 @@ class Mario(pygame.sprite.Sprite):
             return
         
         self.__animecounter += 1
+
+    def __game_over(self) -> None:
+        if self.__animecounter >= 180:
+           self.__animecounter = 0
+           self.__status = Status.INIT
+           return
+        
+        self.__animecounter += 1
+
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, dir, mario, map):
@@ -2424,6 +2434,10 @@ class HeadUpDisplay:
         win.blit(mario_image, (130, 140))
         self.__display_word(win, ' x ', 160, 140)
         self.__display_word(win, str(life_stocks), 180, 140)
+
+    def draw_game_over(self, win: pygame.display):
+        """Draw game over on the window."""
+        self.__display_word(win, 'GAMEOVER', 120, 140)
 
             
 def init():
