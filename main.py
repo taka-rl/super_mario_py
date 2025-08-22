@@ -561,6 +561,10 @@ class Map():
             win.fill(self.__bg_color[1])
             self.__hud.draw_game_start(win, self.__world, self.__life_stocks, self.__mario.image)
             
+        elif self.__mario.status == Status.GAMEOVER:
+            win.fill(self.__bg_color[1])
+            self.__hud.draw_game_over(win)
+            
         else:
             margin = 0
         
