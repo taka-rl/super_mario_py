@@ -1,6 +1,5 @@
 import pygame
 from enum import Enum, auto
-import time
 import numpy as np
 import threading
 import platform
@@ -2473,11 +2472,8 @@ def init():
     group = pygame.sprite.RenderUpdates()
     group_bg = pygame.sprite.RenderUpdates()
     
-    # HeadUpDisplay class
-    hud = HeadUpDisplay()
-    
     # Map class
-    map = Map(group, group_bg, Sound(), hud, "World1-1")
+    map = Map(group, group_bg, Sound(), HeadUpDisplay(), "World1-1")
     
     # Mario class
     mario = Mario(map)
@@ -2485,7 +2481,7 @@ def init():
     # TODO: Ask a player which World the player wants to play
     goal_manager = GoalManager("World1-1", mario, map)
     
-    return group, group_bg, mario, map, goal_manager, hud
+    return group, group_bg, mario, map, goal_manager
 
 
 def main():
@@ -2505,7 +2501,7 @@ def main():
     clock = pygame.time.Clock()
     
     # Initialize sprite
-    group, group_bg, mario, map, goal_manager, hud = init()
+    group, group_bg, mario, map, goal_manager = init()
     
     # Event loop
     running = True
@@ -2541,8 +2537,7 @@ def main():
          
         # Game begins!
         if mario.status == Status.INIT:
-            time.sleep(2)
-            group, group_bg, mario, map, goal_manager, hud = init()
+            group, group_bg, mario, map, goal_manager = init()
             
             # Change to OPENING status
             mario.status = Status.OPENING
