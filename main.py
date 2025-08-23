@@ -2534,13 +2534,11 @@ def main():
         # Temporary end when Game is clear
         if mario.status == Status.CLEAR:
             running = False
+            continue
          
-        # Game begins!
+        # Game begins again!
         if mario.status == Status.INIT:
             group, group_bg, mario, map, goal_manager = init()
-            
-            # Change to OPENING status
-            mario.status = Status.OPENING
             continue 
         
         # Mario is dead and the life stocks is not 0
