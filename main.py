@@ -567,11 +567,9 @@ class Map():
         """
         # TODO: As Mario shows up, consider ways not to to draw Mario in OPENING status.
         if self.__mario.status == Status.OPENING:
-            win.fill(self.__bg_color[1])
             self.__hud.draw_game_start(win, self.__world, self.__life_stocks, self.__mario.image)
         
         elif self.__mario.status == Status.GAMEOVER:
-            win.fill(self.__bg_color[1])
             self.__hud.draw_game_over(win)
             
         else:
@@ -629,7 +627,10 @@ class Map():
         
     def fill(self, win: pygame.display) -> None:
         """Fill the background of the window with the color."""
-        win.fill(self.__bg_color[self.__map_idx])
+        if self.__mario.status in [Status.OPENING, Status.GAMEOVER]:
+            win.fill(self.__bg_color[1])
+        else:
+            win.fill(self.__bg_color[self.__map_idx])
     
     def __get_img(self, map_num: int) -> pygame.Surface:
         """Get an image"""
@@ -1050,6 +1051,8 @@ class Mario(pygame.sprite.Sprite):
         
         # Draw game start
         if self.__status == Status.OPENING:
+            # Put the mario at the center of the game start window
+            self.rect = pygame.Rect(130, 140, 20, 20)
             self.__game_start()
             return
         
@@ -2455,10 +2458,9 @@ class HeadUpDisplay:
         """Draw game start on the window before game starts."""
         # WORLD X-X
         self.__display_word(win, world[:5], 130, 110)
-        self.__display_word(win, world[5:], 170, 110)
+        self.__display_word(win, world[5:], 180, 110)
         
         # Mario image x life stocks
-        win.blit(mario_image, (130, 140))
         self.__display_word(win, ' x ', 160, 140)
         self.__display_word(win, str(life_stocks), 180, 140)
 
