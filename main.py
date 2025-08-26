@@ -565,7 +565,6 @@ class Map():
         Returns:
             None
         """
-        # TODO: As Mario shows up, consider ways not to to draw Mario in OPENING status.
         if self.__mario.status == Status.OPENING:
             self.__hud.draw_game_start(win, self.__world, self.__life_stocks, self.__mario.image)
         
@@ -1122,6 +1121,9 @@ class Mario(pygame.sprite.Sprite):
                 if keys[pygame.K_RIGHT]:
                     self.__right()
                     
+                    # Warp
+                    self.warp(keys)
+                    
                 if keys[pygame.K_LEFT]:
                     self.__left()
             
@@ -1148,10 +1150,6 @@ class Mario(pygame.sprite.Sprite):
                 if self.__issit and self.__isbig:
                     self.__rawrect.height = 40
                 self.__issit = False
-            
-            if keys[pygame.K_RIGHT]:
-                # warp
-                self.warp(keys)
             
             # Game is paused
             # TODO: Add a message like "PAUSE" on the window visually
@@ -1452,7 +1450,10 @@ class Mario(pygame.sprite.Sprite):
         # Ensure about the warp location and key input
         if (xidx, yidx) in self.__map.warp_info:
             self.__next_data = self.__map.warp_info[(xidx, yidx)]
-            if keys[pygame.K_DOWN] or keys[pygame.K_RIGHT]:
+            # Make sure if the key input matches or not
+            if self.__next_data[3] == 1 and keys[pygame.K_DOWN]:
+                self.__status = Status.ENTERING
+            if  self.__next_data[3] == 2 and keys[pygame.K_RIGHT]:
                 self.__status = Status.ENTERING
             
     def __warping(self, is_entering: bool) -> None:
@@ -2490,7 +2491,6 @@ def main():
     """main function"""
     
     # TODO: Add a start menu where a player choose a stage
-    # TODO: Add a start screen including World 1-1, Mario life stocks before the game starts.
         
     # Initialize pygame
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
