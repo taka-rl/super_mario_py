@@ -2455,7 +2455,7 @@ class HeadUpDisplay:
         self.__display_word(win, 'C x ' + '{:02d}'.format(coin), 100, 25)
         self.__display_word(win, "{:03d}".format(int(timer)), 270, 25)
     
-    def draw_game_start(self, win: pygame.display, world: str, life_stocks: int, mario_image: pygame.image):
+    def draw_game_start(self, win: pygame.display, world: str, life_stocks: int):
         """Draw game start on the window before game starts."""
         # WORLD X-X
         self.__display_word(win, world[:5], 130, 110)
