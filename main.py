@@ -566,7 +566,7 @@ class Map():
             None
         """
         if self.__mario.status == Status.OPENING:
-            self.__hud.draw_game_start(win, self.__world, self.__life_stocks, self.__mario.image)
+            self.__hud.draw_game_start(win, self.__world, self.__life_stocks)
         
         elif self.__mario.status == Status.GAMEOVER:
             self.__hud.draw_game_over(win)
