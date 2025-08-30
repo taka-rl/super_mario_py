@@ -1709,6 +1709,7 @@ class Mushroom(Entity):
                 if self.__isoneup:
                     self._map.sound.play_sound_asnync(self._map.sound.play_oneup)
                     self._map.group.add(Number(self.rect.x, self.rect.y, ONEUP_SCORE))
+                    self._status = Status.DEAD
                     # TODO: Add 1UP to self._map.value 
                 else:
                     if not self._mario.isfire:                    
