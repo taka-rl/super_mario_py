@@ -830,7 +830,7 @@ class Mario(pygame.sprite.Sprite):
     WALK_ANIME_FIRE_IDX = [10, 10, 11, 11, 12, 12]
     MAX_SPEED_X: int = 5
     ACC_SPEED_X: float = 0.25
-    DASH_SPPED_X: int = 8
+    DASH_SPEED_X: int = 8
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
@@ -1236,7 +1236,7 @@ class Mario(pygame.sprite.Sprite):
                 self.__vx = (self.__vx + self.ACC_SPEED_X) if self.__vx < self.MAX_SPEED_X else self.MAX_SPEED_X
         else:
             # Dash
-            self.__vx = (self.__vx + self.ACC_SPEED_X) if self.__vx < self.DASH_SPPED_X else self.DASH_SPPED_X
+            self.__vx = (self.__vx + self.ACC_SPEED_X) if self.__vx < self.DASH_SPEED_X else self.DASH_SPEED_X
         
         # Cancel law of inertia when changing the direction.
         if self.__isleft:
@@ -1254,7 +1254,7 @@ class Mario(pygame.sprite.Sprite):
                 self.__vx = (self.__vx - self.ACC_SPEED_X) if self.__vx > -1 * self.MAX_SPEED_X else -1 * self.MAX_SPEED_X
         else:
             # Dash
-            self.__vx = (self.__vx - self.ACC_SPEED_X) if self.__vx > -1 *  self.DASH_SPPED_X else -1 * self.DASH_SPPED_X
+            self.__vx = (self.__vx - self.ACC_SPEED_X) if self.__vx > -1 *  self.DASH_SPEED_X else -1 * self.DASH_SPEED_X
         
         # Cancel law of inertia when changing the direction.
         if not self.__isleft:
