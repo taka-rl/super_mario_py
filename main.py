@@ -830,7 +830,7 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
-    def __init__(self, map):
+    def __init__(self, map, group):
         pygame.sprite.Sprite.__init__(self)
         
         # Load mario images
@@ -867,6 +867,9 @@ class Mario(pygame.sprite.Sprite):
 
         # Set Mario to Map
         self.__map.mario = self
+
+        # Set a group for Sprite
+        self.__group = group
         
         # Common initialization
         self.__common_init()
@@ -2480,7 +2483,7 @@ def init():
     map = Map(group, group_bg, Sound(), HeadUpDisplay(), "World1-1")
     
     # Mario class
-    mario = Mario(map)
+    mario = Mario(map, group)
     
     # TODO: Ask a player which World the player wants to play
     goal_manager = GoalManager("World1-1", mario, map)
