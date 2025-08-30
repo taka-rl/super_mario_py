@@ -1184,7 +1184,7 @@ class Mario(pygame.sprite.Sprite):
                     self.__continuous_counter = 0
                         
                 else:
-                    self._vy = 1
+                    self.__vy = 1
             
             # End invisible state
             if self.__isinvisible:
