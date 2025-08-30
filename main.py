@@ -820,7 +820,11 @@ class Map():
         if self.__life_stocks == 0:
             # Change Mario status to GAMEOVER
             self.__mario.status = Status.GAMEOVER
-            
+    
+    def increment_life_stocks(self) -> None:
+        """Increment life stocks when it get a 1 up mushroom."""
+        self.__life_stocks += 1
+        
 
 class Mario(pygame.sprite.Sprite):
     """Mario class"""
@@ -1080,6 +1084,10 @@ class Mario(pygame.sprite.Sprite):
         # Fall handling
         if self.__rawrect.y > H:
             self.__status = Status.DEAD
+            
+            # Decrement life stocks
+            self.__map.decrement_life_stocks()
+            return
         
         # Mario gets a mushroom
         if self.__status == Status.GROWING:            
@@ -1706,7 +1714,10 @@ class Mushroom(Entity):
                     self._map.sound.play_sound_asnync(self._map.sound.play_oneup)
                     self._map.group.add(Number(self.rect.x, self.rect.y, ONEUP_SCORE))
                     self._status = Status.DEAD
-                    # TODO: Add 1UP to self._map.value 
+                    # increment life stocks
+                    self._map.increment_life_stocks()
+                    # TODO: Add 1UP to self._map.value
+
                 else:
                     if not self._mario.isfire:                    
                         self._mario.status = Status.GROWING
