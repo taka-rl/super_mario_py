@@ -1212,7 +1212,7 @@ class Mario(pygame.sprite.Sprite):
                 # Set invisible Mario
                 self.image.set_alpha(128)
         else:
-            self.image.set_alpha(256)
+            self.image.set_alpha(255)
                 
         # Update rect for Splite
         self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
@@ -1666,7 +1666,7 @@ class Mushroom(Entity):
         elif self._status == Status.TREADING:
             self._walkidx += 1
             if self._walkidx == 4:
-                self.image.set_alpha(256)
+                self.image.set_alpha(255)
                 
             if self._walkidx <= 15:
                 self._rawrect.y -= 1
@@ -1973,7 +1973,7 @@ class Star(Entity):
         elif self._status == Status.TREADING:
             self._walkidx += 1
             if self._walkidx == 4:
-                self.image.set_alpha(256)
+                self.image.set_alpha(255)
             if self._walkidx <= 15:
                 self._rawrect.y -= 1
             if self._walkidx == 18:
@@ -2111,7 +2111,7 @@ class Coin(Entity):
         
         elif self._status == Status.FLYING:
             # Reset the invisible and coin appears
-            self.image.set_alpha(256)
+            self.image.set_alpha(255)
             self._vy += 2
             self._rawrect.y += self._vy
             if self._vy > 10:
