@@ -570,8 +570,14 @@ class Map():
         
         elif self.__mario.status == Status.GAMEOVER:
             self.__hud.draw_game_over(win)
-            
+
         else:
+            if self.__mario.status == Status.PAUSE:
+                self.__hud.draw_pause(win)
+
+            else:  # If not paused, decrement timer
+                self.decrement_timer(self.__mario.status)
+            
             margin = 0
         
             # Mario at the left
@@ -617,9 +623,7 @@ class Map():
                         if (y, x) in self.__pushedblocks:
                             ymargin = self.__pushedblocks[(y, x)][1]
                         win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
-            
-            # Decrement timer
-            self.decrement_timer(self.__mario.status)
+
         
         # Draw Heads-up display
         self.__hud.draw(win, self.__score, self.__timer, self.__coin, self.__world)
@@ -1099,9 +1103,6 @@ class Mario(pygame.sprite.Sprite):
         # Game is paused
         # "p" is pushed -> Mario status changes from NORMAL to PAUSE and vice versa
         if self.__status == Status.PAUSE:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_p]:
-                self.__status = Status.NORMAL
             self.image = self.__get_image()
             self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
@@ -1153,15 +1154,7 @@ class Mario(pygame.sprite.Sprite):
                 if self.__issit and self.__isbig:
                     self.__rawrect.height = 40
                 self.__issit = False
-            
-            # Game is paused
-            # TODO: Add a message like "PAUSE" on the window visually
-            if keys[pygame.K_p]:
-                self.__status = Status.PAUSE
-                self.image = self.__get_image()
-                self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
-                return
-                
+
             # Dash with left shift
             self.__isdash = keys[pygame.K_LSHIFT]
             
@@ -2472,6 +2465,10 @@ class HeadUpDisplay:
     def draw_game_over(self, win: pygame.display):
         """Draw game over on the window."""
         self.__display_word(win, 'GAMEOVER', 120, 140)
+    
+    def draw_pause(self, win: pygame.display) -> None:
+        """Draw Pause on the window"""
+        self.__display_word(win, 'PAUSE', 120, 140)
 
             
 def init():
@@ -2515,11 +2512,17 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 running = False
-                
-            # Release fire balls
+
             elif e.type == pygame.KEYDOWN:
+                # Release a fire ball
                 if e.key == pygame.K_LSHIFT and mario.isfire:
                     mario.fire()
+
+                # Game is paused when "p" is pushed
+                elif e.key == pygame.K_p and mario.status == Status.NORMAL:
+                    mario.status = Status.PAUSE
+                elif e.key == pygame.K_p and mario.status == Status.PAUSE:
+                    mario.status = Status.NORMAL
         
         # Update the group_bg
         group_bg.update()
