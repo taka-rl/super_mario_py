@@ -1267,7 +1267,7 @@ class Mario(pygame.sprite.Sprite):
     def __jump(self):
         # If Mario is on ground, he can jump
         if self.__on_ground:
-            if abs(self.__vx) == self.DASH_SPPED_X:
+            if abs(self.__vx) == self.DASH_SPEED_X:
                 # Dash jump
                 self.__vy -= self.DASH_JUMP_Y
             else:
