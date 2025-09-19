@@ -1538,6 +1538,7 @@ class Entity(pygame.sprite.Sprite):
         
     def kickHit(self) -> None:
         """
+        TODO: Update Docstring and modify the function name
         Judge if Koopa kick hits or not. If it hits, the status is changed to FLYING.
         """
         # Koopa kick flying
@@ -2025,16 +2026,22 @@ class Fire(Entity):
             # X axle collision check
             if self._map.chk_collision(self._rawrect):
                 self._status = Status.DEAD
+                if self in self._mario.arrlies:
+                    self._mario.arrlies.remove(self)
                 return
             
             # Disappear fire balls when hitting walls/pipes
             if self._rawrect.x < self._map.nowx or self._rawrect.x > self._map.nowx + W:
                 self._status = Status.DEAD
+                if self in self._mario.arrlies:
+                    self._mario.arrlies.remove(self)
                 return
             
             # Disappear fire balls for fall handing
             if self._rawrect.y > H:
                 self._status = Status.DEAD
+                if self in self._mario.arrlies:
+                    self._mario.arrlies.remove(self)
                 return
 
             # Y axle move
