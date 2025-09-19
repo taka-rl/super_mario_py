@@ -490,51 +490,42 @@ class Map():
     def __create_entity(self, xidx: int) -> None:
         """
         Create entity objects based on the map data.
+
+        The function scans a vertical column of tiles at the specified x-index (xidx) across all y-indices (yidx).
+        For each tile in that column, it checks the upper 8 bits of the tile's data to determine if an entity should be created.
+        If an entity is created, the corresponding map data is cleared (set to 0) to prevent duplicate creation.
         
         Args:
             xidx (int): X axle on the map data
         """
-        
+        # Extract the upper 8 bits for the entire column at xidx
         entity_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx]) for yidx in range(TILE_X)]
         x = xidx * 20
         
+        # Scan through each tile in the column
         for yidx, dte in enumerate(entity_col):
-            if dte != 0:
-                if dte == 1:
-                    self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
+            if dte == 0:
+                continue
+            if dte == 1:
+                self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
+            elif dte == 2:
+                self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self)) 
+            elif dte == 3:  # Mushroom
+                self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))  
+            elif dte == 4:  # Star
+                self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
+            elif dte == 5:  # Coin
+                self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))  
+            elif dte == 6:  # 1 UP mushroom
+                self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
+            elif dte == 7:  # Static Coin
+                self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))  
+            elif dte == 8:  # Goal Flag
+                self.__group.add(GoalFlag(x + 10, yidx * 20, 2, self.__mario, self))
+            elif dte == 9:  # Castle Flag
+                self.__group_bg.add(CastleFlag(x, yidx * 20, 2, self.__mario, self, self.__goal_manager))
 
-                if dte == 2:
-                    self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 3:  # Mushroom
-                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 4:  # Star
-                    self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-
-                if dte == 5:  # Coin
-                    self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 6:  # 1 UP mushroom
-                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 7:  # Static Coin
-                    self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 8:  # Goal Flag
-                    self.__group.add(GoalFlag(x + 10, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-
-                if dte == 9:  # Castle Flag
-                    self.__group_bg.add(CastleFlag(x, yidx * 20, 2, self.__mario, self, self.__goal_manager))
-                    self.set_entitydata(xidx, yidx, 0)
+            self.set_entitydata(xidx, yidx, 0)
 
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
