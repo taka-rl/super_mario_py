@@ -529,30 +529,17 @@ class Map():
 
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
-        TODO: Update the docstring
-        Draw the visible area of the game map on the screen based on Mario's current position.
-    
-        The function determines which tiles are visible in the viewport by calculating the appropriate
-        starting position and adjusting for Mario's horizontal movement. Only the visible tiles are drawn 
-        to improve performance by avoiding unnecessary rendering of off-screen tiles.
-            
-        The startx variable is calculated based on Mario’s current x-position (rect.x), 
-        ensuring that the map moves in sync with Mario. If Mario is far enough along the x-axis, 
-        the map will start scrolling to the left to keep Mario in view.
+        Draw the visible area of the game map, entities, and HUD on the screen based on Mario's current position.
 
-        The margin is used to adjust for the sub-tile movement 
-        when the x position of Mario isn't exactly divisible by the tile size (20 pixels). 
-        This margin value shifts the map so that Mario’s position remains correct in the game world.
+        This method determines which tiles and entities are visible in the current viewport by calculating the starting
+        tile index and horizontal margin based on Mario's position. It handles map scrolling, entity creation, pushed block
+        animation, and draws all visible map tiles, background entities, and foreground entities. It also draws the HUD and
+        special overlays (game start, pause, game over) depending on Mario's status.
 
-        So, the purpose of __drawmargin is to handle the adjustment needed 
-        when the map shifts relative to Mario’s position.
+        Parameters:
+            win (pygame.display): The Pygame display surface to draw the map and entities onto.
+            rect (pygame.rect): The rectangle representing Mario's current position, used to determine the visible portion of the map.
 
-        Args:
-            win (pygame.display): Map window
-            rect (pygame.rect): 
-                The rectangle representing Mario's current position. 
-                This is used to calculate the portion of the map that should be displayed.
-        
         Returns:
             None
         """
@@ -633,10 +620,12 @@ class Map():
             img = img[0 if self.__map_idx == 0 else 1]
         return img
 
-    def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> bool:
+    def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> tuple[int, int] | bool:
         """
         Check for collision between a given rectangular area (rect) and the tiles in the game map. 
         The function checks the 2x2(small Mario) or 2x3(big Mario) tiles surrounding the rectangle.
+        If a collision is detected with a pushable block, the function handles the logic for pushing the block.
+        If Mario collides with an invisible block, the function returns False to indicate no collision.
     
         Args:
             rect (pygame.rect): Targeted rect to be checked collision
@@ -713,7 +702,7 @@ class Map():
                     return False
                                 
             return (yidx + y, xidx + x)
-        return None
+        return False
 
     def get_drawx(self, rect: pygame.rect) -> int:
         """X coordinate to draw Mario on the map"""
@@ -1124,9 +1113,6 @@ class Mario(pygame.sprite.Sprite):
                 if keys[pygame.K_RIGHT]:
                     self.__right()
                     
-                    # Warp
-                    self.warp(keys)
-                    
                 if keys[pygame.K_LEFT]:
                     self.__left()
             
@@ -1146,9 +1132,6 @@ class Mario(pygame.sprite.Sprite):
                 if not self.__issit and self.__isbig:
                     self.__rawrect.height = 30
                     self.__issit = True
-                
-                # warp
-                self.warp(keys)
             else:
                 if self.__issit and self.__isbig:
                     self.__rawrect.height = 40
@@ -1160,6 +1143,9 @@ class Mario(pygame.sprite.Sprite):
             if self.__vx != 0:
                 if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or keys[pygame.K_DOWN]:
                     self.__stop()
+            
+            # Warp
+            self.warp(keys)
                         
             # Move for Y axle
             # if not self.__on_ground:
