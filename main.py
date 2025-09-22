@@ -490,78 +490,56 @@ class Map():
     def __create_entity(self, xidx: int) -> None:
         """
         Create entity objects based on the map data.
+
+        The function scans a vertical column of tiles at the specified x-index (xidx) across all y-indices (yidx).
+        For each tile in that column, it checks the upper 8 bits of the tile's data to determine if an entity should be created.
+        If an entity is created, the corresponding map data is cleared (set to 0) to prevent duplicate creation.
         
         Args:
             xidx (int): X axle on the map data
         """
-        
+        # Extract the upper 8 bits for the entire column at xidx
         entity_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx]) for yidx in range(TILE_X)]
         x = xidx * 20
         
+        # Scan through each tile in the column
         for yidx, dte in enumerate(entity_col):
-            if dte != 0:
-                if dte == 1:
-                    self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
+            if dte == 0:
+                continue
+            if dte == 1:
+                self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
+            elif dte == 2:
+                self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self)) 
+            elif dte == 3:  # Mushroom
+                self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))  
+            elif dte == 4:  # Star
+                self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
+            elif dte == 5:  # Coin
+                self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))  
+            elif dte == 6:  # 1 UP mushroom
+                self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
+            elif dte == 7:  # Static Coin
+                self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))  
+            elif dte == 8:  # Goal Flag
+                self.__group.add(GoalFlag(x + 10, yidx * 20, 2, self.__mario, self))
+            elif dte == 9:  # Castle Flag
+                self.__group_bg.add(CastleFlag(x, yidx * 20, 2, self.__mario, self, self.__goal_manager))
 
-                if dte == 2:
-                    self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 3:  # Mushroom
-                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 4:  # Star
-                    self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-
-                if dte == 5:  # Coin
-                    self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 6:  # 1 UP mushroom
-                    self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 7:  # Static Coin
-                    self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-                
-                if dte == 8:  # Goal Flag
-                    self.__group.add(GoalFlag(x + 10, yidx * 20, 2, self.__mario, self))
-                    self.set_entitydata(xidx, yidx, 0)
-
-                if dte == 9:  # Castle Flag
-                    self.__group_bg.add(CastleFlag(x, yidx * 20, 2, self.__mario, self, self.__goal_manager))
-                    self.set_entitydata(xidx, yidx, 0)
+            self.set_entitydata(xidx, yidx, 0)
 
     def draw(self, win: pygame.display, rect: pygame.rect) -> None:
         """
-        TODO: Update the docstring
-        Draw the visible area of the game map on the screen based on Mario's current position.
-    
-        The function determines which tiles are visible in the viewport by calculating the appropriate
-        starting position and adjusting for Mario's horizontal movement. Only the visible tiles are drawn 
-        to improve performance by avoiding unnecessary rendering of off-screen tiles.
-            
-        The startx variable is calculated based on Mario’s current x-position (rect.x), 
-        ensuring that the map moves in sync with Mario. If Mario is far enough along the x-axis, 
-        the map will start scrolling to the left to keep Mario in view.
+        Draw the visible area of the game map, entities, and HUD on the screen based on Mario's current position.
 
-        The margin is used to adjust for the sub-tile movement 
-        when the x position of Mario isn't exactly divisible by the tile size (20 pixels). 
-        This margin value shifts the map so that Mario’s position remains correct in the game world.
+        This method determines which tiles and entities are visible in the current viewport by calculating the starting
+        tile index and horizontal margin based on Mario's position. It handles map scrolling, entity creation, pushed block
+        animation, and draws all visible map tiles, background entities, and foreground entities. It also draws the HUD and
+        special overlays (game start, pause, game over) depending on Mario's status.
 
-        So, the purpose of __drawmargin is to handle the adjustment needed 
-        when the map shifts relative to Mario’s position.
+        Parameters:
+            win (pygame.display): The Pygame display surface to draw the map and entities onto.
+            rect (pygame.rect): The rectangle representing Mario's current position, used to determine the visible portion of the map.
 
-        Args:
-            win (pygame.display): Map window
-            rect (pygame.rect): 
-                The rectangle representing Mario's current position. 
-                This is used to calculate the portion of the map that should be displayed.
-        
         Returns:
             None
         """
@@ -585,7 +563,6 @@ class Map():
                 startx = self.__nowx // 20
                 margin = self.__nowx % 20
             
-            # TODO: Mario isn't drawn in the window correctly. -1 might cause this situation.
             # Mario at the mostright
             elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
                 startx = len(self.__data[self.__map_idx][0]) - TILE_X - 1
@@ -642,10 +619,12 @@ class Map():
             img = img[0 if self.__map_idx == 0 else 1]
         return img
 
-    def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> bool:
+    def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> tuple[int, int] | bool:
         """
         Check for collision between a given rectangular area (rect) and the tiles in the game map. 
         The function checks the 2x2(small Mario) or 2x3(big Mario) tiles surrounding the rectangle.
+        If a collision is detected with a pushable block, the function handles the logic for pushing the block.
+        If Mario collides with an invisible block, the function returns False to indicate no collision.
     
         Args:
             rect (pygame.rect): Targeted rect to be checked collision
@@ -722,7 +701,7 @@ class Map():
                     return False
                                 
             return (yidx + y, xidx + x)
-        return None
+        return False
 
     def get_drawx(self, rect: pygame.rect) -> int:
         """X coordinate to draw Mario on the map"""
@@ -731,9 +710,8 @@ class Map():
             x = rect.x - self.__nowx
         
         # Mario at the mostright
-        elif rect.x >= (len(self.__data[self.__map_idx][0]) - (TILE_X - self.NOMOVE_X // 20)) * 20:
-            # TODO: Consider not adding +20 to offset
-            x = rect.x - (len(self.__data[self.__map_idx][0]) - (TILE_X - self.NOMOVE_X // 20)) * 20 + self.NOMOVE_X + 20
+        elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
+            x = rect.x - (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20 + self.NOMOVE_X
         
         else:
             # Keep Mario at the center
@@ -1133,9 +1111,6 @@ class Mario(pygame.sprite.Sprite):
                 if keys[pygame.K_RIGHT]:
                     self.__right()
                     
-                    # Warp
-                    self.warp(keys)
-                    
                 if keys[pygame.K_LEFT]:
                     self.__left()
             
@@ -1155,9 +1130,6 @@ class Mario(pygame.sprite.Sprite):
                 if not self.__issit and self.__isbig:
                     self.__rawrect.height = 30
                     self.__issit = True
-                
-                # warp
-                self.warp(keys)
             else:
                 if self.__issit and self.__isbig:
                     self.__rawrect.height = 40
@@ -1169,6 +1141,9 @@ class Mario(pygame.sprite.Sprite):
             if self.__vx != 0:
                 if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or keys[pygame.K_DOWN]:
                     self.__stop()
+            
+            # Warp
+            self.warp(keys)
                         
             # Move for Y axle
             # if not self.__on_ground:
@@ -1561,6 +1536,7 @@ class Entity(pygame.sprite.Sprite):
         
     def kickHit(self) -> None:
         """
+        TODO: Update Docstring and modify the function name
         Judge if Koopa kick hits or not. If it hits, the status is changed to FLYING.
         """
         # Koopa kick flying
@@ -2048,16 +2024,22 @@ class Fire(Entity):
             # X axle collision check
             if self._map.chk_collision(self._rawrect):
                 self._status = Status.DEAD
+                if self in self._mario.arrlies:
+                    self._mario.arrlies.remove(self)
                 return
             
             # Disappear fire balls when hitting walls/pipes
             if self._rawrect.x < self._map.nowx or self._rawrect.x > self._map.nowx + W:
                 self._status = Status.DEAD
+                if self in self._mario.arrlies:
+                    self._mario.arrlies.remove(self)
                 return
             
             # Disappear fire balls for fall handing
             if self._rawrect.y > H:
                 self._status = Status.DEAD
+                if self in self._mario.arrlies:
+                    self._mario.arrlies.remove(self)
                 return
 
             # Y axle move
