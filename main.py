@@ -563,7 +563,6 @@ class Map():
                 startx = self.__nowx // 20
                 margin = self.__nowx % 20
             
-            # TODO: Mario isn't drawn in the window correctly. -1 might cause this situation.
             # Mario at the mostright
             elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
                 startx = len(self.__data[self.__map_idx][0]) - TILE_X - 1
@@ -711,9 +710,8 @@ class Map():
             x = rect.x - self.__nowx
         
         # Mario at the mostright
-        elif rect.x >= (len(self.__data[self.__map_idx][0]) - (TILE_X - self.NOMOVE_X // 20)) * 20:
-            # TODO: Consider not adding +20 to offset
-            x = rect.x - (len(self.__data[self.__map_idx][0]) - (TILE_X - self.NOMOVE_X // 20)) * 20 + self.NOMOVE_X + 20
+        elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
+            x = rect.x - (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20 + self.NOMOVE_X
         
         else:
             # Keep Mario at the center
