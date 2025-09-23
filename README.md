@@ -1,6 +1,44 @@
 # Super Mario style 2D game
-## Motivation
-I wanted to challege creating a game like Super Mario and deepen the understanding of Object Oriented Programming skills and knowledge and Python through this complicated development used multiple objects.
+
+
+## Folder structure
+
+    ├─ img                           # pixel images for the project
+    ├─ src
+    │  └─ game                       # Python package root 
+    │     ├─ entities                # All in-game actors (Sprite) 
+    │     │  ├─ __init__.py
+    │     │  ├─ entity.py            # Entity class
+    │     │  ├─ mario.py             # Mario class
+    │     │  ├─ mushroom.py          # Mushroom class
+    │     │  ├─ koopa.py             # Koopa class 
+    │     │  ├─ goomba.py            # Goomba class
+    │     │  ├─ broken_block.py      # BrokenBlock class
+    │     │  ├─ star.py              # Star class
+    │     │  ├─ fire.py              # Fire class
+    │     │  ├─ coin.py              # Coin class
+    │     │  ├─ static_coin.py       # StaticCoin class
+    │     │  ├─ goal_flag.py         # GoalFlag class
+    │     │  └─ castle_flag.py       # CastleFlag class
+    │     ├─ levels
+    │     │  ├─ __init__.py
+    │     │  ├─ map.py               # Map class
+    │     │  ├─ goal_manager.py      # GoalManager class
+    │     │  └─ world1_1.py          # World 1-1 map data
+    │     ├─ systems                
+    │     │  ├─ __init__.py 
+    │     │  ├─ sound.py             # Sound class
+    │     │  ├─ hud.py               # HeadUpDisplay class
+    │     │  └─ number.py            # Number class
+    │     ├─ core
+    │     │  ├─ __init__.py
+    │     │  ├─ state.py             # Status and GoalStatus classes
+    │     │  └─ settings.py          # constants & tunables
+    │     ├─ main.py                 # Main game loop
+    │     └─ __init__.py
+    ├── .gitignore                             
+    ├── README.md                    # Project documentation
+    └── requirements.txt             # Required dependencies
 
 
 ## Environment Description
@@ -44,6 +82,7 @@ On MacOS type: `pip3 install -r requirements.txt`
 3. Run `main.py`
 
 ## Future Developments
-- [ ] Fix bugs and improve this project
 - [ ] Introduce Reinforcement learning
 - [ ] Add different stages
+- [ ] Fix bugs and improve this project
+- [ ] Update import methods with Protocols, Registry/Factory
