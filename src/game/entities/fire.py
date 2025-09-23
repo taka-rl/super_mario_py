@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
 from core.state import Status
-from core.settings import W, H
+from core.settings import W, H, SMALL_TILE_SIZE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -18,7 +18,7 @@ class Fire(Entity):
         ]
         self.image = self._imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 10, 10)
+        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):

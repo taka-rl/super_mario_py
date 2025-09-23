@@ -1,11 +1,12 @@
 import pygame
+from core.settings import WHITE
 
 
 class HeadUpDisplay:
     def __init__(self) -> None:
         self.__font = pygame.font.SysFont("Arial", size=18)
         
-    def __create_text_surface(self, word: str, char_color=(255, 255, 255)) -> pygame.font:
+    def __create_text_surface(self, word: str, char_color=WHITE) -> pygame.font:
         """
         Create a text surface.
         Args:

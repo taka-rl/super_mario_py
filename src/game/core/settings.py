@@ -5,6 +5,15 @@ W, H = 320, 270
 # Number of tiles
 TILE_X, TILE_Y = 16, 14
 
+# Tile size
+TILE_SIZE: int = 20
+SMALL_TILE_SIZE: int = 10
+
+# Color
+BLUE = (135, 206, 235)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
 # Array for socre
 SCORE_ARRAY: list[int] = [100, 200, 400, 500, 800, 1000, 2000, 4000, 5000, 8000]
 ONEUP_SCORE: str = '1UP'

@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from core.state import Status
+from core.settings import TILE_SIZE
 from levels.goal_manager import GoalManager
 from entities.entity import Entity
 
@@ -16,7 +17,7 @@ class CastleFlag(Entity):
         self.__imgs: list = [pygame.image.load('./img/castle_flag.jpg')]
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 20, 20)
+        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
                 
         self.__goal_manager = goal_manager
         self.__goal_manager.castle_flag = self

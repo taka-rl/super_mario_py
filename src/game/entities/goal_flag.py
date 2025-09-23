@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from core.state import Status
-from core.settings import GOAL_FALL_SPEED, GOAL_BOTTOM_Y, SCORE_ARRAY
+from core.settings import GOAL_FALL_SPEED, GOAL_BOTTOM_Y, SCORE_ARRAY, TILE_SIZE
 from systems.number import Number
 from entities.entity import Entity
 
@@ -18,7 +18,7 @@ class GoalFlag(Entity):
         self.__imgs: list = [pygame.image.load('./img/goal_flag.jpg')]
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 20, 20)
+        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -29,7 +29,7 @@ class GoalFlag(Entity):
             
         else:
             # Collision check with Mario
-            if pygame.Rect(self._rawrect.x + 20, self._rawrect.y, self._rawrect.width, self.HEIGHT_RANGE).colliderect(self._mario.rawrect):
+            if pygame.Rect(self._rawrect.x + TILE_SIZE, self._rawrect.y, self._rawrect.width, self.HEIGHT_RANGE).colliderect(self._mario.rawrect):
                 self._status = Status.GOAL
                 self._mario.status = Status.GOAL
                 
@@ -51,7 +51,7 @@ class GoalFlag(Entity):
                     score_idx = 0  # 100
                 
                 # Score shows up next to the bottom of the goal pole
-                score_number = Number(self._mario.rawrect.x + 20, GOAL_BOTTOM_Y, SCORE_ARRAY[score_idx], self._map)
+                score_number = Number(self._mario.rawrect.x + TILE_SIZE, GOAL_BOTTOM_Y, SCORE_ARRAY[score_idx], self._map)
                 score_number.status = Status.GOAL
                 self._map.group.add(score_number)
                 self._map.add_score(SCORE_ARRAY[score_idx])

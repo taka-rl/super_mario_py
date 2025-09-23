@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
 from core.state import Status, GoalStatus
+from core.settings import SMALL_TILE_SIZE
 
 if TYPE_CHECKING:
     from levels.map import Map
@@ -15,7 +16,7 @@ class Fireworks(Entity):
         self._imgs: list = [pygame.image.load('./img/explode.jpg')]
         self.image = self._imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 10, 10)
+        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         
         self.__goal_manager: GoalManager = goal_manager
         self.__goal_manager.fireworks = self

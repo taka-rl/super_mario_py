@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
 from core.state import Status
+from core.settings import TILE_SIZE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -14,7 +15,7 @@ class Star(Entity):
         self.__imgs: list = [pygame.image.load('./img/star.jpg')]
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 20, 20)
+        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -23,7 +24,7 @@ class Star(Entity):
             return
         
         if self._status == Status.NORMAL:
-            x, y = self._rawrect.x // 20, self._rawrect.y // 20
+            x, y = self._rawrect.x // TILE_SIZE, self._rawrect.y // TILE_SIZE
             
             if self._map.ispushedblock((y, x)):
                 self._status = Status.TREADING
@@ -43,7 +44,7 @@ class Star(Entity):
             
              # X axle collision check
             if self._map.chk_collision(self._rawrect):
-                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+                self._rawrect.x = (self._rawrect.x // TILE_SIZE + (1 if self._dir < 0 else 0)) * TILE_SIZE
                 self._dir *= -1
 
             # Y axle move
@@ -52,7 +53,7 @@ class Star(Entity):
                 
             # Y axle collision check
             if self._map.chk_collision(self._rawrect):
-                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                self._rawrect.y = (self._rawrect.y // TILE_SIZE + (1 if self._vy < 0 else 0)) * TILE_SIZE
                                 
                 if self._vy > 0:
                     self._vy = -10

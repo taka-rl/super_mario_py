@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
 from core.state import Status
-from core.settings import H
+from core.settings import H, TILE_SIZE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -57,7 +57,7 @@ class Goomba(Entity):
             
             # X axle collision check
             if self._map.chk_collision(self._rawrect):
-                self._rawrect.x = (self._rawrect.x // 20 + (1 if self._dir < 0 else 0)) * 20
+                self._rawrect.x = (self._rawrect.x // TILE_SIZE + (1 if self._dir < 0 else 0)) * TILE_SIZE
                 self._dir *= -1
                     
             # Y axle move
@@ -66,7 +66,7 @@ class Goomba(Entity):
                 
             # Y axle collision check
             if yx := self._map.chk_collision(self._rawrect):
-                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                self._rawrect.y = (self._rawrect.y // TILE_SIZE + (1 if self._vy < 0 else 0)) * TILE_SIZE
                 # If a block is pushedW
                 if self._map.ispushedblock(yx):
                     self._status = Status.FLYING

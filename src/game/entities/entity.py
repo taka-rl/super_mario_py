@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from core.state import Status
-from core.settings import H, SCORE_ARRAY, ONEUP_SCORE
+from core.settings import H, SCORE_ARRAY, ONEUP_SCORE, TILE_SIZE
 from systems.number import Number
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ class Entity(pygame.sprite.Sprite):
                 
         # The coordinate for map and the location of Mario are different.
         # Entity location coordinate        
-        self._rawrect = pygame.Rect(x, y, 20, 20)
+        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         # Entity coordinate for Map
         self.rect = self._rawrect
         

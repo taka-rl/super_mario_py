@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
 from core.state import Status
+from core.settings import TILE_SIZE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -17,7 +18,7 @@ class StaticCoin(Entity):
         ]
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 20, 20)
+        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):

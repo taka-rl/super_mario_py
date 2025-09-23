@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from core.state import Status
+from core.settings import TILE_SIZE
 from systems.number import Number
 from entities.entity import Entity
 
@@ -18,7 +19,7 @@ class Coin(Entity):
         ]
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 20, 20)
+        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -27,7 +28,7 @@ class Coin(Entity):
             return
         
         if self._status == Status.NORMAL:
-            x, y = self._rawrect.x // 20, self._rawrect.y // 20
+            x, y = self._rawrect.x // TILE_SIZE, self._rawrect.y // TILE_SIZE
             
             # Block with coins is pushed
             if self._map.ispushedblock((y, x)):

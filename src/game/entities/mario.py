@@ -1,7 +1,7 @@
 import pygame
 from entities.fire import Fire
 from core.state import Status
-from core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y
+from core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE
 from levels.map import Map
 
 
@@ -45,7 +45,7 @@ class Mario(pygame.sprite.Sprite):
         
         # The coordinate for map and the location of Mario are different.
         # Mario location coordinate        
-        self.__rawrect = pygame.Rect(30, 220, 20, 20)
+        self.__rawrect = pygame.Rect(30, 220, TILE_SIZE, TILE_SIZE)
         # Mario coordinate for Map
         self.rect = self.__rawrect
         
@@ -124,7 +124,7 @@ class Mario(pygame.sprite.Sprite):
         """Initialize when Mario is dead."""
         group, group_bg = self.__map.init_dead()
         self.__group = group
-        self.__rawrect = pygame.Rect(30, 220, 20, 20)
+        self.__rawrect = pygame.Rect(30, 220, TILE_SIZE, TILE_SIZE)
         self.__common_init()
         return group, group_bg
     
@@ -241,7 +241,7 @@ class Mario(pygame.sprite.Sprite):
         # Draw game start
         if self.__status == Status.OPENING:
             # Put the mario at the center of the game start window
-            self.rect = pygame.Rect(130, 140, 20, 20)
+            self.rect = pygame.Rect(130, 140, TILE_SIZE, TILE_SIZE)
             self.__game_start()
             return
         
@@ -355,7 +355,7 @@ class Mario(pygame.sprite.Sprite):
             if self.__map.chk_collision(self.__rawrect, is_mario=True):
                 # If Mario is moving upward, it lets him go downward
                 # vy is bigger than 0 -> 1 to go upward
-                self.__rawrect.y = ((self.__rawrect.y // 20 + (1 if self.__vy < 0 else 0)) * 20)
+                self.__rawrect.y = ((self.__rawrect.y // TILE_SIZE + (1 if self.__vy < 0 else 0)) * TILE_SIZE)
                 
                 # Adjustment when Mario is sitting
                 self.__rawrect.y += 10 if self.__issit else 0
@@ -410,7 +410,7 @@ class Mario(pygame.sprite.Sprite):
         
         # Collision check
         if self.__map.chk_collision(self.__rawrect):
-            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20     
+            self.__rawrect.x = (self.__rawrect.x // TILE_SIZE + (1 if self.__isleft else 0)) * TILE_SIZE     
     
     def __right(self):
         if not self.__isdash:
@@ -476,7 +476,7 @@ class Mario(pygame.sprite.Sprite):
         
         # Collision check to prevent going into blocks by inertia 
         if self.__map.chk_collision(self.__rawrect):
-            self.__rawrect.x = (self.__rawrect.x // 20 + (1 if self.__isleft else 0)) * 20
+            self.__rawrect.x = (self.__rawrect.x // TILE_SIZE + (1 if self.__isleft else 0)) * TILE_SIZE
     
     def __deading(self):
         if self.__animecounter == 0:
@@ -486,7 +486,7 @@ class Mario(pygame.sprite.Sprite):
             self.__vy += 1
             self.__rawrect.y += self.__vy
         
-        if self.__rawrect.y > H + 20:
+        if self.__rawrect.y > H + TILE_SIZE:
             self.__status = Status.DEAD
             
             # Decrement life stocks
@@ -506,36 +506,36 @@ class Mario(pygame.sprite.Sprite):
         else:
             if self.__growcounter == 0:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= 20
+                self.__rawrect.y -= TILE_SIZE
             
             elif self.__growcounter == 6:
                 self.image = self.__imgs[5]
                 
             elif self.__growcounter == 8:
                 self.image = self.__imgs[0]
-                self.__rawrect.y += 20
+                self.__rawrect.y += TILE_SIZE
                         
             elif self.__growcounter == 10:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= 20
+                self.__rawrect.y -= TILE_SIZE
                         
             elif self.__growcounter == 12:
                 self.image = self.__imgs[5]
                 
             elif self.__growcounter == 14:
                 self.image = self.__imgs[0]
-                self.__rawrect.y += 20
+                self.__rawrect.y += TILE_SIZE
                         
             elif self.__growcounter == 16:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= 20
+                self.__rawrect.y -= TILE_SIZE
                 
             elif self.__growcounter == 18:
                 self.image = self.__imgs[5]
 
             elif self.__growcounter == 20:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= 20  # to offset +=10
+                self.__rawrect.y -= TILE_SIZE  # to offset +=10
                 self.__rawrect.height = 40
                 self.__isbig = True
                 self.__status = Status.NORMAL
@@ -547,7 +547,7 @@ class Mario(pygame.sprite.Sprite):
     def __shrinking(self):
         if self.__growcounter == 0:
             self.image = self.__imgs[0]
-            self.__rawrect.y += 20
+            self.__rawrect.y += TILE_SIZE
         
         elif self.__growcounter == 6:
             self.image = self.__imgs[5]
@@ -573,7 +573,7 @@ class Mario(pygame.sprite.Sprite):
         elif self.__growcounter == 20:
             self.image = self.__imgs[0]
             # self.__rawrect.y += 20  # to offset +=10
-            self.__rawrect.height = 20
+            self.__rawrect.height = TILE_SIZE
             self.__isbig = False
             self.__status = Status.NORMAL
             # Initialize counter
@@ -584,12 +584,12 @@ class Mario(pygame.sprite.Sprite):
     
     def slide_down_pole(self):
         self.__rawrect.y += GOAL_FALL_SPEED
-        if self.__rawrect.y > GOAL_BOTTOM_Y - (20 if self.__isbig else 0):
-            self.__rawrect.y = GOAL_BOTTOM_Y - (20 if self.__isbig else 0)
+        if self.__rawrect.y > GOAL_BOTTOM_Y - (TILE_SIZE if self.__isbig else 0):
+            self.__rawrect.y = GOAL_BOTTOM_Y - (TILE_SIZE if self.__isbig else 0)
     
     def change_side(self) -> None:
         self.__rawrect.x += 40
-        self.__rawrect.y = 240 - (20 if self.__isbig else 0)
+        self.__rawrect.y = 240 - (TILE_SIZE if self.__isbig else 0)
 
         # for walk animation
         self.__walkidx = 0
@@ -625,7 +625,7 @@ class Mario(pygame.sprite.Sprite):
         """Proceed with the necessary processes for warp if the conditions are met."""
 
         # Get the current location
-        xidx, yidx = self.__rawrect.x // 20, self.__rawrect.y // 20
+        xidx, yidx = self.__rawrect.x // TILE_SIZE, self.__rawrect.y // TILE_SIZE
 
         # Ensure about the warp location and key input
         if (xidx, yidx) in self.__map.warp_info:
@@ -647,8 +647,8 @@ class Mario(pygame.sprite.Sprite):
             self.__warpcounter = 0
             self.__vx = 0
             self.__vy = 0
-            self.__rawrect.x = self.__next_data[1] * 20
-            self.__rawrect.y = (self.__next_data[2] * 20) - (20 if not is_entering and self.__isbig else 0)
+            self.__rawrect.x = self.__next_data[1] * TILE_SIZE
+            self.__rawrect.y = (self.__next_data[2] * TILE_SIZE) - (TILE_SIZE if not is_entering and self.__isbig else 0)
             self.__map.change_map(self.__next_data)
             if self.__status == Status.APPEARING:
                 self.__status = Status.NORMAL

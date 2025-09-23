@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 import pygame
-from core.settings import TILE_X, TILE_Y
+from core.settings import TILE_X, TILE_Y, TILE_SIZE, BLUE, BLACK
 from core.state import Status
 from levels.world1_1 import LEVEL as LEVEL_1_1
 from entities.coin import Coin
@@ -60,7 +60,7 @@ class Map():
         self.__map_idx: int = 0
 
         # Background color
-        self.__bg_color = ((135, 206, 235), (0, 0, 0))
+        self.__bg_color = (BLUE, BLACK)
 
         # Warp infomation (xidx, yidx): (map_idx, xidx, yidx, direction to enter) 
         # direction(0: None, 1: down, 2: right, 3: top, 4: left) 
@@ -305,30 +305,30 @@ class Map():
         """
         # Extract the upper 8 bits for the entire column at xidx
         entity_col = [self.get_upper(self.__data[self.__map_idx][yidx][xidx]) for yidx in range(TILE_X)]
-        x = xidx * 20
+        x = xidx * TILE_SIZE
         
         # Scan through each tile in the column
         for yidx, dte in enumerate(entity_col):
             if dte == 0:
                 continue
             if dte == 1:
-                self.__group.add(Goomba(x, yidx * 20, -2, self.__mario, self))
+                self.__group.add(Goomba(x, yidx * TILE_SIZE, -2, self.__mario, self))
             elif dte == 2:
-                self.__group.add(Koopa(x, yidx * 20, -2, self.__mario, self)) 
+                self.__group.add(Koopa(x, yidx * TILE_SIZE, -2, self.__mario, self)) 
             elif dte == 3:  # Mushroom
-                self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=False))  
+                self.__group_bg.add(Mushroom(x, yidx * TILE_SIZE, 2, self.__mario, self, oneup=False))  
             elif dte == 4:  # Star
-                self.__group_bg.add(Star(x, yidx * 20, 2, self.__mario, self))
+                self.__group_bg.add(Star(x, yidx * TILE_SIZE, 2, self.__mario, self))
             elif dte == 5:  # Coin
-                self.__group_bg.add(Coin(x, yidx * 20, 2, self.__mario, self))  
+                self.__group_bg.add(Coin(x, yidx * TILE_SIZE, 2, self.__mario, self))  
             elif dte == 6:  # 1 UP mushroom
-                self.__group_bg.add(Mushroom(x, yidx * 20, 2, self.__mario, self, oneup=True))
+                self.__group_bg.add(Mushroom(x, yidx * TILE_SIZE, 2, self.__mario, self, oneup=True))
             elif dte == 7:  # Static Coin
-                self.__group.add(StaticCoin(x, yidx * 20, 2, self.__mario, self))  
+                self.__group.add(StaticCoin(x, yidx * TILE_SIZE, 2, self.__mario, self))  
             elif dte == 8:  # Goal Flag
-                self.__group.add(GoalFlag(x + 10, yidx * 20, 2, self.__mario, self))
+                self.__group.add(GoalFlag(x + 10, yidx * TILE_SIZE, 2, self.__mario, self))
             elif dte == 9:  # Castle Flag
-                self.__group_bg.add(CastleFlag(x, yidx * 20, 2, self.__mario, self, self.__goal_manager))
+                self.__group_bg.add(CastleFlag(x, yidx * TILE_SIZE, 2, self.__mario, self, self.__goal_manager))
 
             self.set_entitydata(xidx, yidx, 0)
 
@@ -365,23 +365,23 @@ class Map():
         
             # Mario at the left
             if rect.x <= self.NOMOVE_X + self.__nowx:
-                startx = self.__nowx // 20
-                margin = self.__nowx % 20
+                startx = self.__nowx // TILE_SIZE
+                margin = self.__nowx % TILE_SIZE
             
             # Mario at the mostright
-            elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
+            elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // TILE_SIZE)) * TILE_SIZE:
                 startx = len(self.__data[self.__map_idx][0]) - TILE_X - 1
                 margin = 0
                 
             else:
                 # Normal scrolling
-                startx = rect.x // 20 - self.NOMOVE_X // 20
-                margin = rect.x % 20
+                startx = rect.x // TILE_SIZE - self.NOMOVE_X // TILE_SIZE
+                margin = rect.x % TILE_SIZE
 
             # Horizontal offset in Mario's position
-            self.__drawmargin = -startx * 20 -margin
+            self.__drawmargin = -startx * TILE_SIZE -margin
             # Update X coordinate on the left edge of the map
-            self.__nowx = startx * 20
+            self.__nowx = startx * TILE_SIZE
             
             # Entities appear
             self.__create_entity(startx + TILE_X)
@@ -404,7 +404,7 @@ class Map():
                         ymargin = 0
                         if (y, x) in self.__pushedblocks:
                             ymargin = self.__pushedblocks[(y, x)][1]
-                        win.blit(self.__get_img(map_num), ((x - startx) * 20 - margin, y * 20 + ymargin))
+                        win.blit(self.__get_img(map_num), ((x - startx) * TILE_SIZE - margin, y * TILE_SIZE + ymargin))
 
         
         # Draw Heads-up display
@@ -439,14 +439,14 @@ class Map():
         """
     
         # Convert the top-left position of the rectangle to the corresponding tile indices
-        xidx, yidx = rect.x // 20, rect.y // 20  
+        xidx, yidx = rect.x // TILE_SIZE, rect.y // TILE_SIZE  
         
         # Check the 2x2 or 2x3 grid of tiles surrounding the rectangle's top-left corner
-        for y in range(2 if rect.height == 20 else 3):
+        for y in range(2 if rect.height == TILE_SIZE else 3):
             # Get Mario's both side of rect
             hitleft, hitright = False, False
-            blockrectL = pygame.Rect(xidx * 20, (yidx + y) * 20, 20, 20)
-            blockrectR = pygame.Rect((xidx + 1) * 20, (yidx + y) * 20, 20, 20)
+            blockrectL = pygame.Rect(xidx * TILE_SIZE, (yidx + y) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+            blockrectR = pygame.Rect((xidx + 1) * TILE_SIZE, (yidx + y) * TILE_SIZE, TILE_SIZE, TILE_SIZE)
             
             # Prevent list index out of range
             if (yidx + y) >= len(self.__data[self.__map_idx]) or (xidx + 1) >= len(self.__data[self.__map_idx][0]):
@@ -489,7 +489,7 @@ class Map():
                             self.set_mapdata(xidx + x, yidx + y, 0)
                             
                             # Add animation for a crushed block
-                            bx, by = (xidx + x) * 20, (yidx + y) * 20
+                            bx, by = (xidx + x) * TILE_SIZE, (yidx + y) * TILE_SIZE
                             self.__group.add(BrokenBlock(bx, by, 3, -5, self.__mario, self))
                             self.__group.add(BrokenBlock(bx, by, -3, -5, self.__mario, self))
                             self.__group.add(BrokenBlock(bx, by, 3, 5, self.__mario, self))
@@ -515,8 +515,8 @@ class Map():
             x = rect.x - self.__nowx
         
         # Mario at the mostright
-        elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
-            x = rect.x - (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20 + self.NOMOVE_X
+        elif rect.x >= (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // TILE_SIZE)) * TILE_SIZE:
+            x = rect.x - (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // TILE_SIZE)) * TILE_SIZE + self.NOMOVE_X
         
         else:
             # Keep Mario at the center
@@ -551,14 +551,14 @@ class Map():
 
         map_idx, xidx = next_mapdata[:2]
         self.__map_idx = map_idx
-        self.__nowx = xidx * 20 - self.NOMOVE_X
+        self.__nowx = xidx * TILE_SIZE - self.NOMOVE_X
 
         if self.__nowx < 0:
             self.__nowx = 0
         
         # Mario at the right
-        elif self.__nowx > (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20:
-            self.__nowx = (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // 20)) * 20
+        elif self.__nowx > (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // TILE_SIZE)) * TILE_SIZE:
+            self.__nowx = (len(self.__data[self.__map_idx][0]) - 1 - (TILE_X - self.NOMOVE_X // TILE_SIZE)) * TILE_SIZE
 
         # Delete entities
         for entity in self.__group.sprites():
@@ -569,7 +569,7 @@ class Map():
             entity.status = Status.DEAD
         
         # Draw entity
-        for xidx in range(self.__nowx // 20, self.__nowx // 20 + TILE_X):
+        for xidx in range(self.__nowx // TILE_SIZE, self.__nowx // TILE_SIZE + TILE_X):
             self.__create_entity(xidx)
 
     def add_score(self, value) -> None:

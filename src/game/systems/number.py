@@ -1,6 +1,6 @@
 import pygame
 from core.state import Status
-from core.settings import GOAL_FALL_SPEED
+from core.settings import GOAL_FALL_SPEED, WHITE
 
 
 class Number(pygame.sprite.Sprite):   
@@ -31,7 +31,7 @@ class Number(pygame.sprite.Sprite):
         
     def __create_surface(self, score):
         """Generate a surface for score"""
-        text_surface = self.__font.render(str(score), True, (255, 255, 255))
+        text_surface = self.__font.render(str(score), True, WHITE)
         surface = pygame.Surface(text_surface.get_size(), pygame.SRCALPHA)
         surface.blit(text_surface, (0, 0))
         return surface

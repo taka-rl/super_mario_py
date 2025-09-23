@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
+from core.settings import SMALL_TILE_SIZE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -13,7 +14,7 @@ class BrokenBlock(Entity):
         self.__imgs: list = [pygame.image.load('./img/crushed_block.jpg')]
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, 10, 10)
+        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
         self._vy = vy
         
