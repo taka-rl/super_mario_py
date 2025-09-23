@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 import pygame
 from core.settings import TILE_X, TILE_Y
 from core.state import Status
@@ -123,10 +123,27 @@ class Map():
         # Draw entity 
         for xidx in range(TILE_X):
             self.__create_entity(xidx)
+    
+    @staticmethod
+    def fresh_map(level_tmpl: Sequence[Sequence[Sequence[int]]]) -> list[list[list[int]]]:
+        """
+        Copy a 3D structure: layers x rows x cols.
+        TODO: Consider cases where the level_tmpl is not a 3D structure.
+        Args:
+            level_tmpl (Sequence[Sequence[Sequence[int]]]): A 3D tuple-of-tuples (layers x rows x cols)
+        Returns:
+            list[list[list[int]]]: A 3D list-of-lists (layers x rows x cols)
+        """
+        
+        def fresh_grid(tmpl: Sequence[Sequence[int]]) -> list[list[int]]:
+            """Copy a 2D tuple-of-tuples (rows x cols) into a list-of-lists"""
+            return [list(row) for row in tmpl]
+        
+        return [fresh_grid(layer) for layer in level_tmpl]
 
     def __common_init(self) -> None:
         # Define map
-        self.__data = LEVEL_1_1.copy()
+        self.__data = self.fresh_map(LEVEL_1_1)
     
         # Map shifts relative to Mario's position
         self.__drawmargin: int = 0
