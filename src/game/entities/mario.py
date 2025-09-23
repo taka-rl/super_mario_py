@@ -1,7 +1,7 @@
 import pygame
 from entities.fire import Fire
 from core.state import Status
-from core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE
+from core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE, SMALL_TILE_SIZE
 from levels.map import Map
 
 
@@ -358,7 +358,7 @@ class Mario(pygame.sprite.Sprite):
                 self.__rawrect.y = ((self.__rawrect.y // TILE_SIZE + (1 if self.__vy < 0 else 0)) * TILE_SIZE)
                 
                 # Adjustment when Mario is sitting
-                self.__rawrect.y += 10 if self.__issit else 0
+                self.__rawrect.y += SMALL_TILE_SIZE if self.__issit else 0
                 
                 if self.__vy > 0:
                     self.__on_ground = True
@@ -614,7 +614,7 @@ class Mario(pygame.sprite.Sprite):
             return
         
         # Create and add Fire ojects
-        fire = Fire(self.__rawrect.x, self.__rawrect.y + 10, -5 if self.__isleft else 5, self, self.__map)
+        fire = Fire(self.__rawrect.x, self.__rawrect.y + SMALL_TILE_SIZE, -5 if self.__isleft else 5, self, self.__map)
         self.__group.add(fire)
         self.__map.sound.play_sound_asnync(self.__map.sound.play_fire)
         

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
 from core.state import Status
-from core.settings import W, H, SMALL_TILE_SIZE
+from core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -57,7 +57,7 @@ class Fire(Entity):
             
             # Y axle collision check
             if self._map.chk_collision(self._rawrect):
-                self._rawrect.y = (self._rawrect.y // 20 + (1 if self._vy < 0 else 0)) * 20
+                self._rawrect.y = (self._rawrect.y // TILE_SIZE + (1 if self._vy < 0 else 0)) * TILE_SIZE
                                     
                 if self._vy > 0:
                     self._vy = -5

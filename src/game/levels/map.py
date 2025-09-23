@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 import pygame
-from core.settings import TILE_X, TILE_Y, TILE_SIZE, BLUE, BLACK
+from core.settings import TILE_X, TILE_Y, TILE_SIZE, SMALL_TILE_SIZE, BLUE, BLACK
 from core.state import Status
 from levels.world1_1 import LEVEL as LEVEL_1_1
 from entities.coin import Coin
@@ -326,7 +326,7 @@ class Map():
             elif dte == 7:  # Static Coin
                 self.__group.add(StaticCoin(x, yidx * TILE_SIZE, 2, self.__mario, self))  
             elif dte == 8:  # Goal Flag
-                self.__group.add(GoalFlag(x + 10, yidx * TILE_SIZE, 2, self.__mario, self))
+                self.__group.add(GoalFlag(x + SMALL_TILE_SIZE, yidx * TILE_SIZE, 2, self.__mario, self))
             elif dte == 9:  # Castle Flag
                 self.__group_bg.add(CastleFlag(x, yidx * TILE_SIZE, 2, self.__mario, self, self.__goal_manager))
 
@@ -483,7 +483,7 @@ class Map():
                 if (map_id in self.PUSHED_BLOCKS and rect.y > blockrect.y and self.__mario.vy < 0 and
                     rect.centery - blockrect.centery > 5):
                     
-                    if abs(blockrect.centerx - rect.centerx) < 10:
+                    if abs(blockrect.centerx - rect.centerx) < SMALL_TILE_SIZE:
                         # Crush a block
                         if map_id == self.BLOCK_NORMAL and self.__mario.isbig:
                             self.set_mapdata(xidx + x, yidx + y, 0)

@@ -36,7 +36,7 @@ class Coin(Entity):
                 self._map.add_coin()
                 self._status = Status.FLYING
                 self._vy = -15
-                self._rawrect.y -= 20
+                self._rawrect.y -= TILE_SIZE
                 return
             # Coin is invisible
             self.image.set_alpha(0)
