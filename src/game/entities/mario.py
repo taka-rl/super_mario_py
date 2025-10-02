@@ -375,6 +375,9 @@ class Mario(pygame.sprite.Sprite):
                 self.__invisiblecounter -= 1
                 if self.__invisiblecounter == 0:
                     self.__isinvisible = False
+                    # Change hasstar from True to False when star ends
+                    if self.__hasstar:
+                        self.__hasstar = False
                     # initialization
                     self.__invisiblecounter = 90
             
