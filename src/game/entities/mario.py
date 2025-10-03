@@ -509,6 +509,7 @@ class Mario(pygame.sprite.Sprite):
         else:
             if self.__growcounter == 0:
                 self.image = self.__imgs[6]
+                # Adust y location
                 self.__rawrect.y -= TILE_SIZE
             
             elif self.__growcounter == 6:
@@ -516,40 +517,37 @@ class Mario(pygame.sprite.Sprite):
                 
             elif self.__growcounter == 8:
                 self.image = self.__imgs[0]
-                self.__rawrect.y += TILE_SIZE
                         
             elif self.__growcounter == 10:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= TILE_SIZE
                         
             elif self.__growcounter == 12:
                 self.image = self.__imgs[5]
                 
             elif self.__growcounter == 14:
                 self.image = self.__imgs[0]
-                self.__rawrect.y += TILE_SIZE
                         
             elif self.__growcounter == 16:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= TILE_SIZE
                 
             elif self.__growcounter == 18:
                 self.image = self.__imgs[5]
 
             elif self.__growcounter == 20:
                 self.image = self.__imgs[6]
-                self.__rawrect.y -= TILE_SIZE  # to offset +=10
                 self.__rawrect.height = 40
                 self.__isbig = True
                 self.__status = Status.NORMAL
                 # Initialize counter
                 self.__growcounter = 0
-                        
+                return                   
+        
         self.__growcounter += 1
     
     def __shrinking(self):
         if self.__growcounter == 0:
             self.image = self.__imgs[0]
+            # Adust y location
             self.__rawrect.y += TILE_SIZE
         
         elif self.__growcounter == 6:
@@ -575,14 +573,14 @@ class Mario(pygame.sprite.Sprite):
 
         elif self.__growcounter == 20:
             self.image = self.__imgs[0]
-            # self.__rawrect.y += 20  # to offset +=10
             self.__rawrect.height = TILE_SIZE
             self.__isbig = False
             self.__status = Status.NORMAL
             # Initialize counter
             self.__growcounter = 0
-            
             self.__isinvisible = True
+            return
+        
         self.__growcounter += 1
     
     def slide_down_pole(self):
