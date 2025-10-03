@@ -74,14 +74,19 @@ class Mushroom(Entity):
                 self._rawrect.y += self._vy
                     
                 # Y axle collision check
-                if self._map.chk_collision(self._rawrect):
+                if yx := self._map.chk_collision(self._rawrect):
                     self._rawrect.y = (self._rawrect.y // TILE_SIZE + (1 if self._vy < 0 else 0)) * TILE_SIZE
-                                    
-                    if self._vy > 0:
-                        self._vy = 0
+                    
+                    # If a block is pushed
+                    if self._map.ispushedblock(yx):
+                        self._dir = 2 if self._rawrect.centerx > yx[1] * TILE_SIZE else -2
+                        self._vy = -8
                     else:
-                        # jump
-                        self._vy = 1
+                        if self._vy > 0:
+                            self._vy = 0
+                        else:
+                            # jump
+                            self._vy = 1
             
             # Collision check with Mario
             if self._rawrect.colliderect(self._mario.rawrect):
