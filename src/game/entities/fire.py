@@ -2,8 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
+from systems.number import Number
 from core.state import Status
-from core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE
+from core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE, SCORE_ARRAY
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -79,3 +80,24 @@ class Fire(Entity):
             self._collapsecount += 1
             
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+
+    def on_projectile_contact(self, enemy: Entity) -> None:
+        """
+        Respond to hitting an enemy as a fireball.
+        
+        Marks this fireball as dying, removes it from Mario's active projectiles,
+        and awards the base fireball score at the enemy's position.
+
+        Args:
+            enemy: The entity that was struck (already entering knockback).
+        
+        Returns:
+            None
+        """
+        self._status = Status.DEADING
+        self._mario.arrlies.remove(self)
+        
+        # Display score for Fira ball
+        self._map.group.add(Number(enemy.rect.x, enemy.rect.y, SCORE_ARRAY[1]))
+        self._map.add_score(SCORE_ARRAY[1])
+        

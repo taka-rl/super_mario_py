@@ -2,8 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
 from entities.entity import Entity
+from systems.number import Number
 from core.state import Status
-from core.settings import TILE_SIZE
+from core.settings import TILE_SIZE, SCORE_ARRAY, ONEUP_SCORE
 
 if TYPE_CHECKING:
     from entities.mario import Mario
@@ -63,7 +64,7 @@ class Koopa(Entity):
         
         if self._status == Status.NORMAL:
             # Koopa kick flying
-            super().kickHit()
+            super().handle_projectile_contact()
 
         if self._status == Status.NORMAL or self._status == Status.SLIDING:
             # X axle move
@@ -132,3 +133,23 @@ class Koopa(Entity):
                                     
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+
+    def on_projectile_contact(self, enemy: Entity) -> None:
+        """
+        Award combo score when this kicked shell hits an enemy.
+
+        Uses Mario's combo counter to compute the score, spawns a popup at the
+        enemy's position, increments the counter for chaining, and leaves the
+        shell physics unchanged.
+
+        Args:
+            enemy: The entity that was struck.
+            
+        Returns:
+            None
+        """
+        score = SCORE_ARRAY[self._mario.continuous_counter] if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE
+        self._map.group.add(Number(enemy.rect.x, enemy.rect.y, score))
+        self._map.add_score(score)
+        self._mario.continuous_counter += 1
+        

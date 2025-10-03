@@ -95,7 +95,7 @@ class Goomba(Entity):
                 super()._handle_mario_hit()
             
             # Koopa kick flying
-            super().kickHit()
+            super().handle_projectile_contact()
         
         # Update rect for Splite
         self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)

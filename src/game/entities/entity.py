@@ -57,12 +57,20 @@ class Entity(pygame.sprite.Sprite):
     def dir(self):
         return self._dir
         
-    def kickHit(self) -> None:
+    def handle_projectile_contact(self) -> None:
         """
-        TODO: Update Docstring and modify the function name
-        Judge if Koopa kick hits or not. If it hits, the status is changed to FLYING.
+        Resolve collision with any Mario-owned projectile-like object.
+        
+        Iterate over 'mario.arriles including fireballs and koopa kicked).
+        If one overlaps this entity, puts this entity into a Flying state, 
+        chooses a horizontal direction away from the hitter, 
+        and applies an upward impulse. 
+        If the hitter implements 'on_projectile_contact' function, 
+        delegate post-hit effects to it.
+        
+        Returns:
+            None
         """
-        from entities.fire import Fire
         # Koopa kick flying
         for marioarrly in self._mario.arrlies:
             if self._rawrect.colliderect(marioarrly.rawrect):
@@ -70,24 +78,11 @@ class Entity(pygame.sprite.Sprite):
                     
                 # Decide the direction to fly
                 self._dir = 3 if self._rawrect.centerx > marioarrly.rawrect.centerx else -3
-                
-                # Remove a fire ball
-                if isinstance(marioarrly, Fire):
-                    marioarrly.status = Status.DEADING
-                    self._mario.arrlies.remove(marioarrly)
-                    
-                    # Display score for Fira ball
-                    self._map.group.add(Number(self.rect.x, self.rect.y, SCORE_ARRAY[1]))
-                    self._map.add_score(SCORE_ARRAY[1])
-                    
-                elif isinstance(marioarrly, Koopa):
-                    # Display score for Koopa kick
-                    score = SCORE_ARRAY[self._mario.continuous_counter] if not self._mario.continuous_counter >= len(SCORE_ARRAY) else ONEUP_SCORE
-                    self._map.group.add(Number(self.rect.x, self.rect.y, score))
-                    self._map.add_score(score)
-                    self._mario.continuous_counter += 1
-                
                 self._vy = -8
+                
+                # Execute on_projectile_contact function derived from Koopa and Fire objects
+                if hasattr(marioarrly, 'on_projectile_contact'):
+                    marioarrly.on_projectile_contact(self)
     
     def flying(self) -> None:
         """
