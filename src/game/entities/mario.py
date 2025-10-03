@@ -650,8 +650,12 @@ class Mario(pygame.sprite.Sprite):
             self.__warpcounter = 0
             self.__vx = 0
             self.__vy = 0
+            
+            # Adjust x,y location when showing up from the pipe
             self.__rawrect.x = self.__next_data[1] * TILE_SIZE
-            self.__rawrect.y = (self.__next_data[2] * TILE_SIZE) - (TILE_SIZE if not is_entering and self.__isbig else 0)
+            if not is_entering:
+                self.__rawrect.y = (self.__next_data[2] * TILE_SIZE) - (TILE_SIZE if self.__isbig else 0)
+                    
             self.__map.change_map(self.__next_data)
             if self.__status == Status.APPEARING:
                 self.__status = Status.NORMAL
