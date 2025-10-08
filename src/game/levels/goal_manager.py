@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from entities.fireworks import Fireworks
-from core.state import Status, GoalStatus
+from game.entities.fireworks import Fireworks
+from game.core.state import Status, GoalStatus
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 GOAL_ANIMATION_SCRIPTS: dict = {

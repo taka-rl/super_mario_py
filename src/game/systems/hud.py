@@ -1,5 +1,5 @@
 import pygame
-from core.settings import WHITE
+from game.core.settings import WHITE
 
 
 class HeadUpDisplay:

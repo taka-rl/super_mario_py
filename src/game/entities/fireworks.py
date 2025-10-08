@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from core.state import Status, GoalStatus
-from core.settings import SMALL_TILE_SIZE
+from game.entities.entity import Entity
+from game.core.state import Status, GoalStatus
+from game.core.settings import SMALL_TILE_SIZE
 
 if TYPE_CHECKING:
-    from levels.map import Map
-    from levels.goal_manager import GoalManager
-    from entities.mario import Mario
+    from game.levels.map import Map
+    from game.levels.goal_manager import GoalManager
+    from game.entities.mario import Mario
 
 
 class Fireworks(Entity):    

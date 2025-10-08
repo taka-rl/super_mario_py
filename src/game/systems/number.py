@@ -1,6 +1,6 @@
 import pygame
-from core.state import Status
-from core.settings import GOAL_FALL_SPEED, WHITE
+from game.core.state import Status
+from game.core.settings import GOAL_FALL_SPEED, WHITE
 
 
 class Number(pygame.sprite.Sprite):   
