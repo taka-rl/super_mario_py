@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "super-mario-py"
+version = "0.1.0"
+description = "A Super Mario style 2D game in Pygame"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pygame>=2.5",
+  "psutil>=5.9",
+  "numpy>=2.2.6",
+]
+
+# Run as a command, e.g. `mario` (no more `python -m ...`)
+[project.scripts]
+mario = "game.main:main"
+mario-perf = "game.main:measure_main"
+
+# Tell setuptools your code lives under src/
+[tool.setuptools.packages.find]
+where = ["src"]
