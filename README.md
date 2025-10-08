@@ -5,44 +5,46 @@ https://github.com/user-attachments/assets/a9a437cd-e64d-40d6-b692-2929143e825a
 
 
 ## Folder structure
-
-
-
-    ├─ img                           # pixel images for the project
+    ├─ img                           # pixel images used by the game
+    ├─ logs                          # mesurement csv files     
     ├─ src
-    │  └─ game                       # Python package root 
-    │     ├─ entities                # All in-game actors (Sprite) 
-    │     │  ├─ __init__.py
-    │     │  ├─ entity.py            # Entity class
-    │     │  ├─ mario.py             # Mario class
-    │     │  ├─ mushroom.py          # Mushroom class
-    │     │  ├─ koopa.py             # Koopa class 
-    │     │  ├─ goomba.py            # Goomba class
-    │     │  ├─ broken_block.py      # BrokenBlock class
-    │     │  ├─ star.py              # Star class
-    │     │  ├─ fire.py              # Fire class
-    │     │  ├─ coin.py              # Coin class
-    │     │  ├─ static_coin.py       # StaticCoin class
-    │     │  ├─ goal_flag.py         # GoalFlag class
-    │     │  └─ castle_flag.py       # CastleFlag class
-    │     ├─ levels
-    │     │  ├─ __init__.py
-    │     │  ├─ map.py               # Map class
-    │     │  ├─ goal_manager.py      # GoalManager class
-    │     │  └─ world1_1.py          # World 1-1 map data
-    │     ├─ systems                
-    │     │  ├─ __init__.py 
-    │     │  ├─ sound.py             # Sound class
-    │     │  ├─ hud.py               # HeadUpDisplay class
-    │     │  └─ number.py            # Number class
-    │     ├─ core
-    │     │  ├─ __init__.py
-    │     │  ├─ state.py             # Status and GoalStatus classes
-    │     │  └─ settings.py          # constants & tunables
-    │     ├─ main.py                 # Main game loop
-    │     └─ __init__.py
+    │  ├─ game                       # Python package root 
+    │  │  ├─ entities                # All in-game actors (Sprite) 
+    │  │  │  ├─ __init__.py
+    │  │  │  ├─ entity.py            # Entity class
+    │  │  │  ├─ mario.py             # Mario class
+    │  │  │  ├─ mushroom.py          # Mushroom class
+    │  │  │  ├─ koopa.py             # Koopa class 
+    │  │  │  ├─ goomba.py            # Goomba class
+    │  │  │  ├─ broken_block.py      # BrokenBlock class
+    │  │  │  ├─ star.py              # Star class
+    │  │  │  ├─ fire.py              # Fire class
+    │  │  │  ├─ coin.py              # Coin class
+    │  │  │  ├─ static_coin.py       # StaticCoin class
+    │  │  │  ├─ goal_flag.py         # GoalFlag class
+    │  │  │  └─ castle_flag.py       # CastleFlag class
+    │  │  ├─ levels
+    │  │  │  ├─ __init__.py
+    │  │  │  ├─ map.py               # Map class
+    │  │  │  ├─ goal_manager.py      # GoalManager class
+    │  │  │  └─ world1_1.py          # World 1-1 map data
+    │  │  ├─ systems                
+    │  │  │  ├─ __init__.py 
+    │  │  │  ├─ sound.py             # Sound class
+    │  │  │  ├─ hud.py               # HeadUpDisplay class
+    │  │  │  └─ number.py            # Number class
+    │  │  ├─ core
+    │  │  │  ├─ __init__.py
+    │  │  │  ├─ state.py             # Status and GoalStatus classes
+    │  │  │  └─ settings.py          # constants & tunables
+    │  │  ├─ main.py                 # Main game loop
+    │  │  └─ __init__.py
+    │  └─ tools                      # dev/diagnostic helpers (not core gameplay)
+    │     ├─ __init__.py
+    │     └─ metrics.py              # PerfMonitor, NullMonitor, PerfCSVLogger, NullCSVLogger
     ├── .gitignore                             
     ├── README.md                    # Project documentation
+    ├── pyproject.toml               # Config file
     └── requirements.txt             # Required dependencies
 
 
@@ -53,7 +55,7 @@ Pixel size is 20x20.
 
 ### Key inputs
 |Keys|Description|
-| - | - |
+|---------|-----------|
 | move | arrows |
 | crouch | down arrow |
 | space | jump |
@@ -80,11 +82,29 @@ I built this [map creator](https://github.com/taka-rl/map_creator) as a support 
 ## Get started
 1. Clone this project: `git clone https://github.com/taka-rl/super_mario_py.git`
 
-2. Run the following command to install libraries:  
-On Windows type: `python -m pip install -r requirements.txt`
-On MacOS type: `pip3 install -r requirements.txt`
+2. Install dependencies (choose one approach):
+   - **Editable install with CLI entry points (recommended):**
+     ```
+     pip install -e .
+     ```
+   - **Plain requirements (no CLI commands):**
+     ```
+     python -m pip install -r requirements.txt
+     ```
+   *(Keep only one of these methods in the project long-term to avoid drift.)*
 
-3. Run `main.py`
+3. Run from source or via CLI:  
+    - **From source (no install):**  
+    ```
+    python -m game.main
+    python -m game.main --perf --perf-csv logs/perf.csv
+    ```
+    - **After editable install:**  
+    ```
+    mario
+    mario-perf --fps 30 --perf-csv logs/perf.csv
+    ```
+
 
 ## Future Developments
 - [ ] Introduce Reinforcement learning
