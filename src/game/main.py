@@ -147,6 +147,8 @@ def measure_main(args=None) -> None:
         args.perf = True  # force perf mode for mario-perf
 
     from tools.metrics import PerfMonitor, PerfCSVLogger
+    import time
+    
 
     # Initialize pygame
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
@@ -166,8 +168,23 @@ def measure_main(args=None) -> None:
     monitor = PerfMonitor(sample_hz=2.0)                       # CPU/RSS every ~0.5s, FPS (EMA)
     logger = PerfCSVLogger(args.perf_csv, sample_sec=1.0)     # CSV row per second
     
-    # Initialize sprite
+    # --- Measure the initialization phase ---
+    phase = "init_startup"
+    t0 = time.perf_counter()
     group, group_bg, mario, map, goal_manager = init()
+    init_ms = (time.perf_counter() - t0) * 1000.0
+    
+    # mark init done
+    extra = {}
+    if callable(cache_stats_fn):
+        cc, cb = cache_stats_fn()
+        extra["cache_count"] = cc
+        extra["cache_mb"] = (cb / (1024*1024)) if cb else None
+    extra["init_ms"] = init_ms
+    logger.event("init_done", monitor, phase=phase, extra=extra)
+    
+    # Switch to play phase
+    phase = "play"
     
     # Event loop
     running = True
@@ -186,9 +203,6 @@ def measure_main(args=None) -> None:
                     mario.status = Status.PAUSE
                 elif e.key == pygame.K_p and mario.status == Status.PAUSE:
                     mario.status = Status.NORMAL
-
-        # Frame timing at the START
-        dt = clock.tick(args.fps) / 1000.0
 
         # Updates
         group_bg.update()
@@ -209,12 +223,40 @@ def measure_main(args=None) -> None:
          
         # Game begins again!
         if mario.status == Status.INIT:
+            # --- Measure the gameover phase ---
+            phase = "gameover"
+            t1 = time.perf_counter()
             group, group_bg, mario, map, goal_manager = init()
+            gameover_ms = (time.perf_counter() - t1) * 1000.0
+
+            extra = {"gameover_ms": gameover_ms}
+            if callable(cache_stats_fn):
+                cc, cb = cache_stats_fn()
+                extra["cache_count"] = cc
+                extra["cache_mb"] = (cb / (1024*1024)) if cb else None
+            logger.event("gameover_done", monitor, phase=phase, extra=extra)
+
+            phase = "play"
+            
             continue 
         
         # Mario is dead and the life stocks is not 0
         elif mario.status == Status.DEAD:
+            # --- Measure the reset phase ---
+            phase = "reset"
+            t1 = time.perf_counter()
             group, group_bg = mario.init_dead()
+            reset_ms = (time.perf_counter() - t1) * 1000.0
+
+            extra = {"reset_ms": reset_ms}
+            if callable(cache_stats_fn):
+                cc, cb = cache_stats_fn()
+                extra["cache_count"] = cc
+                extra["cache_mb"] = (cb / (1024*1024)) if cb else None
+            logger.event("reset_done", monitor, phase=phase, extra=extra)
+
+            phase = "play"
+        
             continue
         
         # The life stocks is 0
@@ -238,19 +280,18 @@ def measure_main(args=None) -> None:
         group.draw(win)
         mario.draw(win)
 
-        # Perf instrumentation
+        # --- Measure regular periodic perf row (every 1s) ---
+        dt = clock.tick(args.fps) / 1000.0
         monitor.tick(dt)
-        extra = cache_str_fn() if callable(cache_str_fn) else ""
-        monitor.draw_overlay(win, extra=extra)
-        logger.maybe_write(
-            monitor,
-            cache_stats=cache_stats_fn if callable(cache_stats_fn) else None,
-        )
+        monitor.draw_overlay(win, extra=cache_str_fn() if callable(cache_str_fn) else "")
+        logger.maybe_write(monitor, phase=phase,
+                           cache_stats=cache_stats_fn if callable(cache_stats_fn) else None)
         
         # Update the display
         pygame.display.flip()
 
     # End pygame
+    logger.close()
     pygame.quit()
 
 
