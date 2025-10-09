@@ -10,9 +10,6 @@ import pygame
 import psutil
 
 
-# ----------------------------
-# Perf monitor (FPS/CPU/RSS)
-# ----------------------------
 class PerfMonitor:
     """
     Sampling-based performance monitor.
@@ -97,9 +94,6 @@ class NullMonitor:
     rss_mb = 0.0
 
 
-# ----------------------------
-# CSV logger
-# ----------------------------
 class PerfCSVLogger:
     """
     Periodically writes perf rows (and one-off events) to CSV.
