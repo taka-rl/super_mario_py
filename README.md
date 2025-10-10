@@ -41,7 +41,17 @@ https://github.com/user-attachments/assets/a9a437cd-e64d-40d6-b692-2929143e825a
     │  │  └─ __init__.py
     │  └─ tools                      # dev/diagnostic helpers (not core gameplay)
     │     ├─ __init__.py
-    │     └─ metrics.py              # PerfMonitor, NullMonitor, PerfCSVLogger, NullCSVLogger
+    │     ├─ metrics.py              # PerfMonitor, NullMonitor, PerfCSVLogger, NullCSVLogger
+    │     └─ measurements
+    │        ├─ __init__.py
+    │        ├─ analysis             # Plotting and comparisons
+    │        │  ├─ __init__.py
+    │        │  ├─ compare_perf.py   # Result comparisons
+    │        │  └─ plot_perf.py      # Plotting
+    │        └─ scenarios            # Create inputs for the measurements
+    │           ├─ __init__.py
+    │           ├─ XXX.py            # InputRecorder, InputReplayer
+    │           └─ XXX.py            # InputScript
     ├── .gitignore                             
     ├── README.md                    # Project documentation
     ├── pyproject.toml               # Config file
@@ -87,6 +97,7 @@ I built this [map creator](https://github.com/taka-rl/map_creator) as a support 
      ```
      pip install -e .
      ```
+
    - **Plain requirements (no CLI commands):**
      ```
      python -m pip install -r requirements.txt
