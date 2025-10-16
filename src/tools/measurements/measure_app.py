@@ -20,12 +20,26 @@ class MeasureGameApp(GameApp):
         self._logger = logger
         self._cache_stats_fn = cache_stats_fn
         self._phase = "play"
+        self._scenario: int = 1
         
+        # Measure the init phase
+        self._logger.event(f"S{self._scenario}_start", self._monitor, phase=f"S{self._scenario}_start", extra=None)
         t0 = time.perf_counter()
         super().__init__(win, clock)
         self._init_ms = (time.perf_counter() - t0) * 1000.0
 
     def _extra(self, **extra):
+        """
+        Helper to add cache stats to extra dict.
+        The updated extra dict with cache stats added if available. 
+        Keys added: "cache_count", "cache_mb"
+        
+        Args:
+            extra: dict
+            Additional fields to add to the logged row.
+        Returns:
+            dict
+        """
         if callable(self._cache_stats_fn):
             count, bytes_ = self._cache_stats_fn()
             extra.setdefault("cache_count", count)
@@ -83,6 +97,9 @@ class MeasureGameApp(GameApp):
         # Temporary end when Game is clear
         if self._mario.status == Status.CLEAR:
             self.running = False
+            
+            # Mark scenario 
+            self._logger.event(f"S{self._scenario}_end_Game_clear", self._monitor, phase=f"S{self._scenario}_end_Game_clear", extra=None)
             return
          
         # Game begins again!
@@ -98,10 +115,12 @@ class MeasureGameApp(GameApp):
                 cc, cb = self._cache_stats_fn()
                 extra["cache_count"] = cc
                 extra["cache_mb"] = (cb / (1024*1024)) if cb else None
-            self._logger.event("gameover_done", self._monitor, phase=self.phase, extra=extra)
+            
+            # Mark scenario and increment scenario counter
+            self._logger.event(f"S{self._scenario}_end_gameover_done", self._monitor, phase=f"S{self._scenario}_end_gameover_done", extra=extra)
+            self._scenario += 1
 
             self.phase = "play"
-            
             return 
         
         # Mario is dead and the life stocks is not 0
@@ -117,10 +136,12 @@ class MeasureGameApp(GameApp):
                 cc, cb = self._cache_stats_fn()
                 extra["cache_count"] = cc
                 extra["cache_mb"] = (cb / (1024*1024)) if cb else None
-            self._logger.event("reset_done", self._monitor, phase=self.phase, extra=extra)
 
-            self.phase = "play"
-        
+            # Mark scenario and increment scenario counter
+            self._logger.event(f"S{self._scenario}_end_reset_done", self._monitor, phase=f"S{self._scenario}_end_reset_done", extra=extra)
+            self._scenario += 1
+
+            self.phase = "play"        
             return
         
         # The life stocks is 0

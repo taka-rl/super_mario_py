@@ -102,14 +102,8 @@ class PerfCSVLogger:
       init_ms, reset_ms, gameover_ms
     """
 
-    def __init__(
-        self,
-        path: str,
-        sample_sec: float = 1.0,
-        *,
-        append: bool = False,
-        extra_fieldnames: list[str] | None = None,
-    ) -> None:
+    def __init__(self, path: str, sample_sec: float = 1.0, *, append: bool = False,
+                 extra_fieldnames: list[str] | None = None) -> None:
         self._path = path
         self._sample_sec = max(sample_sec, 0.1)
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
@@ -161,14 +155,9 @@ class PerfCSVLogger:
             except Exception:
                 pass
 
-    def maybe_write(
-        self,
-        monitor: PerfMonitor,
-        *,
-        phase: str = "play",
-        cache_stats: Optional[Callable[[], tuple[int, int]]] = None,
-        extra: dict | None = None,
-    ) -> None:
+    def maybe_write(self, monitor: PerfMonitor, *, phase: str = "play",
+                    cache_stats: Optional[Callable[[], tuple[int, int]]] = None,
+                    extra: dict | None = None) -> None:
         """Write a periodic tick row (at most every sample_sec)."""
         now = time.time()
         if now < self._next_write_t:
@@ -185,16 +174,21 @@ class PerfCSVLogger:
         self._writer.writerow(row)
         self._fh.flush()
 
-    def event(
-        self,
-        name: str,
-        monitor: PerfMonitor,
-        *,
-        phase: str = "",
-        cache_stats: Optional[Callable[[], tuple[int, int]]] = None,
-        extra: dict | None = None,
-    ) -> None:
-        """Write a one-off row (e.g., init_done, reset_done, gameover_done)."""
+    def event(self, name: str, monitor: PerfMonitor, *, phase: str = "",
+              cache_stats: Optional[Callable[[], tuple[int, int]]] = None,
+              extra: dict | None = None) -> None:
+        """
+        Write a one-off event row.
+        Args:
+            name: Event name  (e.g., S1_start, init_done, S1_end_reset_done, S1_end_gameover_done). 
+            monitor: PerfMonitor instance to sample fps/cpu/mem from
+            phase: Optional phase name (e.g., "init_startup", "reset", "gameplay")
+            cache_stats: Optional callable to get cache stats (count:int, bytes:int)
+            extra: Optional dict of additional fields to add to the row
+        
+        Returns:
+            None        
+        """
         row = self._row_from_monitor(monitor)
         row["event"] = name
         row["phase"] = phase
