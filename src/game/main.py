@@ -2,134 +2,38 @@ import argparse
 import pygame
 import os
 
-from game.core.state import Status
 from game.core.settings import W, H
-from game.core import assets 
-from game.systems.sound import Sound
-from game.systems.hud import HeadUpDisplay
-from game.entities.mario import Mario
-from game.levels.map import Map
-from game.levels.goal_manager import GoalManager
+from game.core import assets
 
 
-def init():
-    # Define Sprite group
-    group = pygame.sprite.RenderUpdates()
-    group_bg = pygame.sprite.RenderUpdates()
-    
-    # Map class
-    map = Map(group, group_bg, Sound(), HeadUpDisplay(), "World1-1")
-    
-    # Mario class
-    mario = Mario(map, group)
-    
-    # TODO: Ask a player which World the player wants to play
-    goal_manager = GoalManager("World1-1", mario, map)
-    
-    return group, group_bg, mario, map, goal_manager
+def main() -> None:
+    """Main game loop."""
+    from game.app import GameApp
 
-
-def main():
-    """main function"""
-    
-    # TODO: Add a start menu where a player choose a stage
-        
     # Initialize pygame
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
     pygame.init()
-    
-    # Build a display
-    win = pygame.display.set_mode((W, H))
-    
-    # Create clock rate
-    clock = pygame.time.Clock()
-    
-    # Initialize sprite
-    group, group_bg, mario, map, goal_manager = init()
-    
+    win, clock = pygame.display.set_mode((W, H)), pygame.time.Clock()
+
+    # Create GameApp instance
+    game_app = GameApp(win, clock)
+
     # Event loop
-    running = True
-    while running:
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                running = False
+    while game_app.running:
+        # Handle events
+        events = pygame.event.get()
 
-            elif e.type == pygame.KEYDOWN:
-                # Release a fire ball
-                if e.key == pygame.K_LSHIFT and mario.isfire:
-                    mario.fire()
+        # Pass events to game app
+        game_app.event_handle(events)
 
-                # Game is paused when "p" is pushed
-                elif e.key == pygame.K_p and mario.status == Status.NORMAL:
-                    mario.status = Status.PAUSE
-                elif e.key == pygame.K_p and mario.status == Status.PAUSE:
-                    mario.status = Status.NORMAL
-        
-        # Update the group_bg
-        group_bg.update()
-        
-        # Update the group
-        group.update()
-        
-        # Update Mario
-        mario.update()
-        
-        # Goal animation
-        if mario.status == Status.GOAL:
-            if not goal_manager.isactive:
-                goal_manager.isactive = True
-           
-            goal_manager.update()
-
-        # Temporary end when Game is clear
-        if mario.status == Status.CLEAR:
-            running = False
-            continue
-         
-        # Game begins again!
-        if mario.status == Status.INIT:
-            group, group_bg, mario, map, goal_manager = init()
-            continue 
-        
-        # Mario is dead and the life stocks is not 0
-        elif mario.status == Status.DEAD:
-            group, group_bg = mario.init_dead()
-            continue
-        
-        # The life stocks is 0
-        elif mario.status == Status.GAMEOVER:
-            group.empty()
-            group_bg.empty()
-        
-        # Remove DEAD status
-        for entity in group.sprites():
-            if entity.status == Status.DEAD:
-                group.remove(entity)
-        
-        for entity_bg in group_bg.sprites():
-            if entity_bg.status == Status.DEAD:
-                group_bg.remove(entity_bg)
-    
-        # Fill in the background     
-        map.fill(win)
-
-        # Draw the group_bg
-        group_bg.draw(win)
-             
-        # Draw map
-        map.draw(win, mario.rawrect)
-        
-        # Draw the group
-        group.draw(win)
-        
-        # Draw Mario
-        mario.draw(win)
+        # Step the game state
+        game_app.step()
 
         # Update the display
         pygame.display.flip()
 
         # Frame rate
-        clock.tick(30)
+        game_app.tick(30)
     
     # End pygame
     pygame.quit()
@@ -140,159 +44,55 @@ def measure_main(args=None) -> None:
     Measure the main game loop of CPU and memory usages.
     
     args: 
+        argparse.Namespace or None
+        If None, parse from sys.argv.
+        If args.perf_csv is set, log performance data into the specified CSV file
+        If args.replay is set, replay input events from the specified file.
     """
+    from tools.measurements.measure_app import MeasureGameApp
+    from tools.measurements.metrics import PerfMonitor, PerfCSVLogger
 
-    if args is None:
-        args = _parse_args()
-        args.perf = True  # force perf mode for mario-perf
 
-    from tools.metrics import PerfMonitor, PerfCSVLogger
-    import time
-    
+    args = _parse_args() if args is None else args
+    args.perf = True
 
     # Initialize pygame
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=1)
     pygame.init()
-    
-    # Build a display
     win = pygame.display.set_mode((W, H))
     pygame.display.set_caption("Super Mario (Perf Mode)")
-
+    
     # Create clock rate
     clock = pygame.time.Clock()
 
     # Optional cache stat providers from core.assets
     cache_stats_fn = getattr(assets, "cache_stats", None)     # -> (count:int, bytes:int)
-    cache_str_fn   = getattr(assets, "cache_stats_str", None) # -> "cache: 12 | 4.3MB"
-
     monitor = PerfMonitor(sample_hz=2.0)                       # CPU/RSS every ~0.5s, FPS (EMA)
     logger = PerfCSVLogger(args.perf_csv, sample_sec=1.0)     # CSV row per second
     
     # --- Measure the initialization phase ---
-    phase = "init_startup"
-    t0 = time.perf_counter()
-    group, group_bg, mario, map, goal_manager = init()
-    init_ms = (time.perf_counter() - t0) * 1000.0
-    
-    # mark init done
-    extra = {}
-    if callable(cache_stats_fn):
-        cc, cb = cache_stats_fn()
-        extra["cache_count"] = cc
-        extra["cache_mb"] = (cb / (1024*1024)) if cb else None
-    extra["init_ms"] = init_ms
-    logger.event("init_done", monitor, phase=phase, extra=extra)
-    
-    # Switch to play phase
-    phase = "play"
-    
+    measure_app = MeasureGameApp(win, clock, monitor, logger, cache_stats_fn=cache_stats_fn)
+    measure_app.log_init()
+        
     # Event loop
-    running = True
-    while running:
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                running = False
+    while measure_app.running:
+                    
+        # Handle events
+        events = pygame.event.get()
+        measure_app.event_handle(events)
 
-            elif e.type == pygame.KEYDOWN:
-                # Release a fire ball
-                if e.key == pygame.K_LSHIFT and mario.isfire:
-                    mario.fire()
-
-                # Game is paused when "p" is pushed
-                elif e.key == pygame.K_p and mario.status == Status.NORMAL:
-                    mario.status = Status.PAUSE
-                elif e.key == pygame.K_p and mario.status == Status.PAUSE:
-                    mario.status = Status.NORMAL
-
-        # Updates
-        group_bg.update()
-        group.update()
-        mario.update()
-        
-        # Goal animation
-        if mario.status == Status.GOAL:
-            if not goal_manager.isactive:
-                goal_manager.isactive = True
-           
-            goal_manager.update()
-
-        # Temporary end when Game is clear
-        if mario.status == Status.CLEAR:
-            running = False
-            continue
-         
-        # Game begins again!
-        if mario.status == Status.INIT:
-            # --- Measure the gameover phase ---
-            phase = "gameover"
-            t1 = time.perf_counter()
-            group, group_bg, mario, map, goal_manager = init()
-            gameover_ms = (time.perf_counter() - t1) * 1000.0
-
-            extra = {"gameover_ms": gameover_ms}
-            if callable(cache_stats_fn):
-                cc, cb = cache_stats_fn()
-                extra["cache_count"] = cc
-                extra["cache_mb"] = (cb / (1024*1024)) if cb else None
-            logger.event("gameover_done", monitor, phase=phase, extra=extra)
-
-            phase = "play"
-            
-            continue 
-        
-        # Mario is dead and the life stocks is not 0
-        elif mario.status == Status.DEAD:
-            # --- Measure the reset phase ---
-            phase = "reset"
-            t1 = time.perf_counter()
-            group, group_bg = mario.init_dead()
-            reset_ms = (time.perf_counter() - t1) * 1000.0
-
-            extra = {"reset_ms": reset_ms}
-            if callable(cache_stats_fn):
-                cc, cb = cache_stats_fn()
-                extra["cache_count"] = cc
-                extra["cache_mb"] = (cb / (1024*1024)) if cb else None
-            logger.event("reset_done", monitor, phase=phase, extra=extra)
-
-            phase = "play"
-        
-            continue
-        
-        # The life stocks is 0
-        elif mario.status == Status.GAMEOVER:
-            group.empty()
-            group_bg.empty()
-        
-        # Remove DEAD status
-        for entity in group.sprites():
-            if entity.status == Status.DEAD:
-                group.remove(entity)
-        
-        for entity_bg in group_bg.sprites():
-            if entity_bg.status == Status.DEAD:
-                group_bg.remove(entity_bg)
-    
-        # Draw scene
-        map.fill(win)
-        group_bg.draw(win)
-        map.draw(win, mario.rawrect)
-        group.draw(win)
-        mario.draw(win)
+        # Step the game state
+        measure_app.step()
 
         # --- Measure regular periodic perf row (every 1s) ---
-        dt = clock.tick(args.fps) / 1000.0
-        monitor.tick(dt)
-        monitor.draw_overlay(win, extra=cache_str_fn() if callable(cache_str_fn) else "")
-        logger.maybe_write(monitor, phase=phase,
-                           cache_stats=cache_stats_fn if callable(cache_stats_fn) else None)
+        measure_app.measure_regular_step(args.fps)
         
         # Update the display
         pygame.display.flip()
-
+        
     # End pygame
-    logger.close()
     pygame.quit()
+    logger.close()
 
 
 def _parse_args(argv=None):

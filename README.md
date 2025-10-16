@@ -113,8 +113,8 @@ I built this [map creator](https://github.com/taka-rl/map_creator) as a support 
     - **After editable install:**  
     ```
     mario
-    mario-perf --fps 30 --perf-csv logs/perf.csv
-    ```
+    mario-perf --perf-csv logs/perf.csv
+    ```    
 
 
 ## Future Developments
