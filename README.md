@@ -37,11 +37,13 @@ https://github.com/user-attachments/assets/a9a437cd-e64d-40d6-b692-2929143e825a
     │  │  │  ├─ __init__.py
     │  │  │  ├─ state.py             # Status and GoalStatus classes
     │  │  │  └─ settings.py          # constants & tunables
+    │  │  ├─ app.py                  # GameApp class
     │  │  ├─ main.py                 # Main game loop
     │  │  └─ __init__.py
     │  └─ tools                      # dev/diagnostic helpers (not core gameplay)
     │     ├─ __init__.py
     │     ├─ metrics.py              # PerfMonitor, NullMonitor, PerfCSVLogger, NullCSVLogger
+    │     ├─ measure_app.py          # MeasureGameApp    
     │     └─ measurements
     │        ├─ __init__.py
     │        ├─ analysis             # Plotting and comparisons
@@ -109,11 +111,13 @@ I built this [map creator](https://github.com/taka-rl/map_creator) as a support 
     ```
     python -m game.main
     python -m game.main --perf --perf-csv logs/perf.csv
+    python -m tools.measurements.plot_perf logs/perf.csv --out logs/perf_plot.png
     ```
     - **After editable install:**  
     ```
     mario
     mario-perf --perf-csv logs/perf.csv
+    perf-plot logs/perf.csv --out logs/plot.png
     ```    
 
 
