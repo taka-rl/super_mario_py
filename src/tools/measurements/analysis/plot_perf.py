@@ -2,21 +2,26 @@
 Plot a single perf CSV (from PerfCSVLogger).
 
 Usage:
-  python -m tools.plot_perf logs/perf.csv --out logs/perf_plot.png --no-show
+    python -m tools.measurements.plot_perf logs/perf.csv --out logs/perf_plot.png
+    perf-plot logs/perf.csv --out logs/plot.png
 
 Requires:
   matplotlib (pip install matplotlib)
 """
 
-import argparse
-import csv
-import math
-from typing import List, Dict, Tuple, Optional
+import argparse, csv, math
+from typing import List, Dict, Tuple
 
 import matplotlib.pyplot as plt
 
 
 def _to_float(v: str) -> float:
+    """
+    Convert string to float, return NaN if not possible.
+    
+    Returns:
+        float value or NaN
+    """
     if v is None or v == "":
         return math.nan
     try:
@@ -26,12 +31,26 @@ def _to_float(v: str) -> float:
 
 
 def _read_csv(path: str) -> List[Dict[str, str]]:
+    """
+    Read CSV file into list of rows (dict).
+    Each row is a dict of column name to string value.
+    
+    Returns:
+        List of rows (dict)
+    """
     with open(path, newline="") as f:
         r = csv.DictReader(f)
         return list(r)
 
 
 def _extract_series(rows: List[Dict[str, str]], key: str) -> Tuple[list, list]:
+    """
+    Extract (x, y) series for the given key. x is t_rel_s. y is the value for 'key'.
+    Skip rows with non-numeric or missing values. 
+    
+    Returns:
+        (x, y) where x and y are lists of floats.
+    """
     x, y = [], []
     for row in rows:
         t = _to_float(row.get("t_rel_s", ""))  # robust to column order
@@ -44,7 +63,11 @@ def _extract_series(rows: List[Dict[str, str]], key: str) -> Tuple[list, list]:
 
 def _phase_spans(rows: List[Dict[str, str]]) -> List[Tuple[float, float, str]]:
     """
+    Create phase spans from rows. 
     Return [(start_t, end_t, phase), ...] contiguous spans by 'phase'.
+    
+    Returns:
+        List of (start_t, end_t, phase) tuples.
     """
     spans: List[Tuple[float, float, str]] = []
     if not rows:
@@ -68,6 +91,13 @@ def _phase_spans(rows: List[Dict[str, str]]) -> List[Tuple[float, float, str]]:
 
 
 def _event_positions(rows: List[Dict[str, str]]) -> List[Tuple[float, str]]:
+    """
+    Extract event positions from rows. 
+    Return [(t_rel_s, event_name), ...] for rows with non-empty 'event'.
+    
+    Returns:
+        List of (t_rel_s, event_name) tuples.
+    """
     pos = []
     for row in rows:
         name = (row.get("event") or "").strip()

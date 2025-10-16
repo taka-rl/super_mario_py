@@ -19,6 +19,8 @@ dependencies = [
 [project.scripts]
 mario = "game.main:main"
 mario-perf = "game.main:measure_main"
+perf-plot = "tools.measurements.analysis.plot_perf:main"  # Usage: perf-plot logs/perf_before_updates.csv --out logs/before_plot.png
+compare_perf = "tools.measurements.analysis.compare_perf:main"  # Usage: compare-perf logs/perf_before_updates.csv logs/perf_after_updates.csv --out logs/compare_plot.png
 
 # Tell setuptools your code lives under src/
 [tool.setuptools.packages.find]
