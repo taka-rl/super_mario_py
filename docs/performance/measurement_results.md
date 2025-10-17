@@ -13,8 +13,8 @@ Please refer to [this documents](https://www.xxxx/docs/performance/measurement_s
 
 | OS | Python version  | RAM | CPU |
 |---------|----------- | --- | --- |
-| Windows 10 | Python 3.10 | 16GB | 11th Intel Core i-7 - 1165G7 | 
-| Macbook air M2 | Python 3.10 | 16GB | M2 |
+| Windows 10 | Python 3.10.11 | 16GB | 11th Intel Core i-7 - 1165G7 | 
+| Macbook Air M2 | Python 3.10.11 | 16GB | M2 |
 
 ### Code optimaization
 
@@ -29,6 +29,13 @@ pip install -e .
 # Perf run (logs to CSV)
 mario-perf --fps 30 --perf-csv logs/perf_<label>.csv
 # Example labels: before_win, before_mac, after_win, after_mac
+
+# CSV to Plot
+perf-plot logs/perf_<label>.csv --out logs/plot_<label>.png
+
+# Compare results
+
+
 ```
 
 ## Result list
