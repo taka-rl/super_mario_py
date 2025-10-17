@@ -34,3 +34,25 @@ def get_images(paths: tuple[str, ...] | str) -> tuple[pygame.Surface, ...]:
 
 def clear_cache() -> None:
     _CACHE.clear()
+
+
+def cache_stats() -> tuple[int, int]:
+    """
+    Return (count, bytes) for the image cache. Bytes is estimated as pitch * height per surface.
+    pitch is bytes per row allocated in memory and rows are often padded for alignment.
+    As pitch * height can captures real row size including padding, it is the closest estimate to the pixel buffer size. 
+    
+    Returns:
+        tuple[int, int]: (number of cached images, total bytes used)
+    """
+    count = len(_CACHE)
+    # pitch = bytes per row; multiply by height for a better byte estimate
+    bytes_total = 0
+    for surf in _CACHE.values():
+        try:
+            bytes_total += surf.get_pitch() * surf.get_height()
+        except Exception:
+            # very defensive: fall back to bpp * w * h
+            w, h = surf.get_size()
+            bytes_total += (surf.get_bytesize() * w * h)
+    return count, bytes_total
