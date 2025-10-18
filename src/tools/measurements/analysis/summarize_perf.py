@@ -54,7 +54,7 @@ def percentile(values: list, p: int) -> float | None:
     
     - FPS (p1 — worst 1%):
     Higher is better for FPS. Therefore, the 1st percentaile FPS represents the worst 1% of frames-i.e., 
-    how bad things get during the worst 1% of time. Tt’s much more robust than the absolute minimum (which can be a single hiccup).
+    how bad things get during the worst 1% of time. It’s much more robust than the absolute minimum (which can be a single hiccup).
     
     - CPU% (p95):
     The 95th percentile is often used to represent spikes, since higher values are worse for these metrics.
