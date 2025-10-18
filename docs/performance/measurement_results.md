@@ -62,25 +62,28 @@ p95 tells you how high the CPU% gets during the worst 5% of the time.
 ### Measurement csv files
 [perf_before_win.csv](https://www.xxxx/logs/perf_before_win.csv)  
 [perf_before_win.png](https://www.xxxx/logs/perf_before_win.png)  
+[perf_before_mac.csv](https://www.xxxx/logs/perf_before_mac.csv)  
+[perf_before_mac.png](https://www.xxxx/logs/perf_before_mac.png)  
+
  
 ### Steady-state (play phase only)
 
 | Metrics | Before updates on Windows | After updates on Windows | Δ(abs/%) | Before updates on Mac | After updates on Mac | Δ(abs/%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| FPS (median) | 29.721 |
-| FPS (p1 — worst 1%) | 24.353 | 
-| CPU% (median) | 3.000 | 
-| CPU% (p95) | 6.200 |
-| RSS MB (median) | 57.842 | 
-| RSS MB (max) | 59.965 | 
-| samples (play rows) | 178 |
+| FPS (median) | 29.721 | | | 29.426 |
+| FPS (p1 — worst 1%) | 24.353 | | | 24.179 | 
+| CPU% (median) | 3.000 | | | 12.200 | 
+| CPU% (p95) | 6.200 | | | 14.100 |  
+| RSS MB (median) | 57.842 | | | 163.545 |
+| RSS MB (max) | 59.965 | | | 166.068 |
+| samples (play rows) | 178 | | | 181 |
  
 
 ### Phase timings
 | Metrics | Before updates on Windows | After updates on Windows | Δ(abs/%) | Before updates on Mac | After updates on Mac | Δ(abs/%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| init_ms | 112.798 |
-| reset_ms (S1) | 0.116 |
-| reset_ms (S2) | 0.111 |
-| gameover_ms (S3) | 29.971 |
+| init_ms | 112.798 | | | 33.574 |
+| reset_ms (S1) | 0.116 | | | 0.273 |
+| reset_ms (S2) | 0.111 | | | 0.154 |
+| gameover_ms (S3) | 29.971 | | | 17.369 |
 
