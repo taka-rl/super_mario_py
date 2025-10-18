@@ -9,18 +9,21 @@ description = "A Super Mario style 2D game in Pygame"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "pygame>=2.5",
-  "psutil>=5.9",
+  "pygame>=2.6.0",
+  "psutil>=7.1",
   "numpy>=2.2.6",
-  "matplotlib>=3.8",
+  "matplotlib>=3.10",
 ]
 
 # Run as a command, e.g. `mario` (no more `python -m ...`)
 [project.scripts]
 mario = "game.main:main"
-mario-perf = "game.main:measure_main"
-perf-plot = "tools.measurements.analysis.plot_perf:main"  # Usage: perf-plot logs/perf_before_updates.csv --out logs/before_plot.png
-compare_perf = "tools.measurements.analysis.compare_perf:main"  # Usage: compare-perf logs/perf_before_updates.csv logs/perf_after_updates.csv --out logs/compare_plot.png
+mario-perf = "game.main:measure_main" # Usage: mario-perf --fps 30 --perf-csv logs/perf_<label>.csv
+perf-plot = "tools.measurements.analysis.plot_perf:main"  # Usage: perf-plot logs/perf_<label>.csv --out logs/plot_<label>.png
+perf-summarize = "tools.measurements.analysis.summarize_perf:main"  # Usage: perf-summarize logs/perf_<label>.csv
+compare_perf = "tools.measurements.analysis.compare_perf:main"  # Usage: compare-perf logs/perf_<label>.csv logs/perf_<label>.csv --out logs/compare_plot.png
+# Example labels: before_win, before_mac, after_win, after_mac
+
 
 # Tell setuptools your code lives under src/
 [tool.setuptools.packages.find]
