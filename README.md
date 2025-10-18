@@ -110,14 +110,22 @@ I built this [map creator](https://github.com/taka-rl/map_creator) as a support 
     - **From source (no install):**  
     ```
     python -m game.main
+    python -m game.main --perf
     python -m game.main --perf --perf-csv logs/perf.csv
-    python -m tools.measurements.plot_perf logs/perf.csv --out logs/perf_plot.png
+    python -m tools.measurements.analysis.plot_perf logs/perf_<label>.csv --out logs/plot_<label>.png
+    python -m tools.measurements.analysis.summarize_perf.py logs/perf_<label>.csv
+    python -m tools.measurements.analysis.compare_perf.py logs/perf_<label1>.csv logs/perf_<label2>.csv --out logs/compare_plot_<label1>_<label2>.png
+    # Example labels: before_win, before_mac, after_win, after_mac
     ```
     - **After editable install:**  
     ```
     mario
-    mario-perf --perf-csv logs/perf.csv
-    perf-plot logs/perf.csv --out logs/plot.png
+    mario-perf
+    mario-perf --perf-csv logs/perf_<label>.csv
+    perf-plot logs/perf_<label>.csv --out logs/plot_<label>.png
+    perf-summarize logs/perf_<label>.csv
+    compare-perf logs/perf_<label1>.csv logs/perf_<label2>.csv --out logs/compare_plot_<label1>_<label2>.png
+    # Example labels: before_win, before_mac, after_win, after_mac
     ```    
 
 
