@@ -28,10 +28,11 @@ class BrokenBlock(Entity):
         self.__imgs: tuple = self.images()
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
+        self._rawrect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
+        self.rect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         self._vy = vy
         
     def update(self):
         super().flying()
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

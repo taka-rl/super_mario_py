@@ -19,7 +19,7 @@ class Entity(pygame.sprite.Sprite):
         # Entity location coordinate        
         self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         # Entity coordinate for Map
-        self.rect = self._rawrect
+        self.rect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         
         # Get a map
         self._map: Map = map

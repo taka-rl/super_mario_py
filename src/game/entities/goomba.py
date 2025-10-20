@@ -45,7 +45,7 @@ class Goomba(Entity):
         if self._status == Status.DEADING:
             self.image = self.__imgs[1]
             # Update rect for Splite
-            self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+            self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
             self._collapsecount += 1
             if self._collapsecount == 30:
                 self._status = Status.DEAD
@@ -84,7 +84,7 @@ class Goomba(Entity):
                     
                     self.image = pygame.transform.flip(self.__imgs[0], False, True)
                     # Update rect for Splite
-                    self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+                    self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
                     return
                 
                 if self._vy > 0:
@@ -107,4 +107,4 @@ class Goomba(Entity):
             super().handle_projectile_contact()
         
         # Update rect for Splite
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

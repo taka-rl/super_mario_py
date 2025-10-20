@@ -28,8 +28,7 @@ class Star(Entity):
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
         self.__imgs: tuple = self.images()
         self.image = self.__imgs[0].copy()
-          
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
+        
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -85,4 +84,4 @@ class Star(Entity):
                 self._mario.isinvisible = True
                 self._mario.invisiblecounter = 240  # 8 seconds
         
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

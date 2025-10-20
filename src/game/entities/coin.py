@@ -31,8 +31,7 @@ class Coin(Entity):
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
         self.__imgs: tuple = self.images()
         self.image = self.__imgs[0].copy()
-                
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
+        
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -69,4 +68,4 @@ class Coin(Entity):
             # self.image = self.__imgs[self.ANIME_IDX[self._walkidx]]
             # self._walkidx += 1
     
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

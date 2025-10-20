@@ -33,8 +33,6 @@ class Mushroom(Entity):
         self.__imgs: tuple = self.images()
         self.image = self.__imgs[0].copy()
         
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
-        
         self.__isflower: bool = False
         self.__isoneup: bool = oneup
         
@@ -123,5 +121,5 @@ class Mushroom(Entity):
                     self._status = Status.DEAD
                             
         self.image = self.__imgs[2 if self.__isoneup else 0 if not self._mario.isbig else 1]
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
         

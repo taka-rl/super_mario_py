@@ -32,7 +32,6 @@ class StaticCoin(Entity):
         self.__imgs: tuple = self.images()
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -41,4 +40,4 @@ class StaticCoin(Entity):
             self._map.sound.play_sound_asnync(self._map.sound.play_coin)
             self._map.add_coin()
        
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

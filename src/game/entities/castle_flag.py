@@ -30,8 +30,6 @@ class CastleFlag(Entity):
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map, goal_manager: GoalManager):
         self._imgs: tuple = self.images()
         self.image = self._imgs[0].copy()
-        
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
                 
         self.__goal_manager = goal_manager
         self.__goal_manager.castle_flag = self
@@ -45,7 +43,7 @@ class CastleFlag(Entity):
         else:
             # Image is invisible except goal
             self.image.set_alpha(0)   
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
     
     def rise(self):
         # Not execute when its status is not GOAL

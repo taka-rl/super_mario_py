@@ -31,7 +31,6 @@ class GoalFlag(Entity):
         self.__imgs: tuple = self.images()
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -72,4 +71,4 @@ class GoalFlag(Entity):
                 # Set timer to goal time
                 self._map.goal_time = int(self._map.timer)
                    
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

@@ -30,8 +30,6 @@ class Fireworks(Entity):
         self._imgs: tuple = self.images()
         self.image = self._imgs[0].copy()
         
-        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
-        
         self.__goal_manager: GoalManager = goal_manager
         self.__goal_manager.fireworks = self
         self.__counter: int = 0
@@ -55,4 +53,4 @@ class Fireworks(Entity):
                 self.__counter = 0
             self.__counter += 1
             
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

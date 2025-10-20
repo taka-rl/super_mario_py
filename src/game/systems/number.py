@@ -1,7 +1,12 @@
 import pygame
+from typing import TYPE_CHECKING
+
 from game.core.state import Status
 from game.core.settings import GOAL_FALL_SPEED, WHITE
 
+if TYPE_CHECKING:
+    from game.levels.map import Map
+    
 
 class Number(pygame.sprite.Sprite):   
     def __init__(self, x: int, y: int, score: int|str, map=None):
@@ -45,7 +50,7 @@ class Number(pygame.sprite.Sprite):
                 self.__status = Status.DEAD
                 
         if self.__status == Status.GOAL:
-            self.rect = pygame.Rect(self.__map.get_drawxentity(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.topleft = (self.__map.get_drawxentity(self.__rawrect), self.__rawrect.y)
             if self.__counter < 32:
                 self.__rawrect.y -= GOAL_FALL_SPEED
         

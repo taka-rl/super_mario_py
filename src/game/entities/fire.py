@@ -30,8 +30,9 @@ class Fire(Entity):
         self._imgs: tuple = self.images()
         self.image = self._imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
+        self._rawrect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
+        self.rect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
     
     def update(self):
         # Not update if Mario is dead or growing or shrinking or Game is paused
@@ -90,7 +91,7 @@ class Fire(Entity):
             
             self._collapsecount += 1
             
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
 
     def on_projectile_contact(self, enemy: Entity) -> None:
         """
