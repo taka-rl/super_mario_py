@@ -6,7 +6,7 @@ from game.core.settings import W, H
 from game.core import assets
 
 
-def main() -> None:
+def main(args=None) -> None:
     """Main game loop."""
     from game.app import GameApp
 
