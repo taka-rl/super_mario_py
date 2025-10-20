@@ -3,6 +3,7 @@ from game.entities.fire import Fire
 from game.core.state import Status
 from game.core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE, SMALL_TILE_SIZE
 from game.levels.map import Map
+from game.core import assets
 
 
 class Mario(pygame.sprite.Sprite):
@@ -17,31 +18,41 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
+    IMAGE_FILES: tuple[str, ...] = (
+        './img/mario_1.jpg',
+        './img/mario_2.jpg',
+        './img/mario_3.jpg',
+        './img/mario_death.jpg',
+        './img/mario_jump.jpg',
+        './img/mario_middle.jpg',
+        './img/mario_big_1.jpg',
+        './img/mario_big_2.jpg',
+        './img/mario_big_3.jpg',
+        './img/mario_big_jump.jpg',
+        './img/mario_fire_1.jpg',
+        './img/mario_fire_2.jpg',
+        './img/mario_fire_3.jpg',
+        './img/mario_fire_jump.jpg',
+        './img/mario_sit.jpg',
+        './img/mario_fire_sit.jpg'
+        )
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+
     def __init__(self, map: Map, group: pygame.sprite.Group):
         pygame.sprite.Sprite.__init__(self)
         
         # Load mario images
-        self.__imgs: list = [
-            pygame.image.load('./img/mario_1.jpg'),
-            pygame.image.load('./img/mario_2.jpg'),
-            pygame.image.load('./img/mario_3.jpg'),
-            pygame.image.load('./img/mario_death.jpg'),
-            pygame.image.load('./img/mario_jump.jpg'),
-            pygame.image.load('./img/mario_middle.jpg'),
-            pygame.image.load('./img/mario_big_1.jpg'),
-            pygame.image.load('./img/mario_big_2.jpg'),
-            pygame.image.load('./img/mario_big_3.jpg'),
-            pygame.image.load('./img/mario_big_jump.jpg'),
-            pygame.image.load('./img/mario_fire_1.jpg'),
-            pygame.image.load('./img/mario_fire_2.jpg'),
-            pygame.image.load('./img/mario_fire_3.jpg'),
-            pygame.image.load('./img/mario_fire_jump.jpg'),
-            pygame.image.load('./img/mario_sit.jpg'),
-            pygame.image.load('./img/mario_fire_sit.jpg'),
-            # TODO: Add images of falling down to the goal pole for the goal animation
-            ]
-        
-        self.image = self.__imgs[0]
+        self.__imgs: tuple = self.images()
+        self.image = self.__imgs[0].copy()
         
         # The coordinate for map and the location of Mario are different.
         # Mario location coordinate        

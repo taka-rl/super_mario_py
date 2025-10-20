@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Sequence, ClassVar
 import pygame
 from game.core.settings import TILE_X, TILE_Y, TILE_SIZE, SMALL_TILE_SIZE, BLUE, BLACK
 from game.core.state import Status
@@ -13,6 +13,7 @@ from game.entities.star import Star
 from game.entities.goal_flag import GoalFlag
 from game.entities.castle_flag import CastleFlag
 from game.entities.broken_block import BrokenBlock
+from game.core import assets
 
 if TYPE_CHECKING:
     from game.systems.sound import Sound
@@ -55,6 +56,54 @@ class Map():
     GOAL_POLE_2 = 0x87  
     GOAL_FLAG = 0x88
     
+    IMAGE_FILES: ClassVar[dict[int, Sequence[str] | str]] = {
+        BLOCK_GROUND: ('./img/ground.jpg', './img/ground_sub.jpg'),
+        BLOCK_NORMAL: ('./img/block.jpg', './img/block_sub.jpg'),
+        BLOCK_QUESTION: './img/question_block.jpg',
+        BLOCK_PANEL: './img/panel.jpg',
+        PIPE_1: './img/pipe_1.jpg',
+        PIPE_2: './img/pipe_2.jpg',
+        PIPE_3: './img/pipe_3.jpg',
+        PIPE_4: './img/pipe_4.jpg',
+        BLOCK_STAIRS: './img/stairs_block.jpg',
+        BLOCK_STAR: './img/block.jpg',
+        PIPE_7: './img/pipe_5.jpg',
+        PIPE_8: './img/pipe_6.jpg',
+        CASTLE_1: './img/castle_1.jpg',
+        CASTLE_2: './img/castle_2.jpg',
+        CASTLE_4: './img/castle_4.jpg',
+        CASTLE_5: './img/castle_5.jpg',
+        GOAL_POLE_1: './img/goal_post_1.jpg',
+        GOAL_POLE_2: './img/goal_post_2.jpg',
+    }
+    _IMAGES: ClassVar[dict[int, tuple[pygame.Surface, ...]] | None] = None
+
+    @classmethod
+    def images(cls) -> dict[int, tuple[pygame.Surface, ...]]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+
+        if cls._IMAGES is None:
+            imgs: dict[int, tuple[pygame.Surface, ...]] = {}
+
+            for key, val in cls.IMAGE_FILES.items():
+                if isinstance(val, str):
+                    imgs[key] = (assets.get_image(val),)
+                else:
+                    imgs[key] = assets.get_images(tuple(val))
+            
+            # Derive rotated variants
+            imgs[cls.PIPE_5] = (pygame.transform.rotate(imgs[cls.PIPE_1][0], 90),)
+            imgs[cls.PIPE_6] = (pygame.transform.rotate(imgs[cls.PIPE_2][0], 90),)
+            imgs[cls.CASTLE_3] = (pygame.transform.rotate(imgs[cls.CASTLE_2][0], 180),)
+
+            # Reuse ground tile for CASTLE_6
+            imgs[cls.CASTLE_6] = (imgs[cls.BLOCK_GROUND][0])
+
+            cls._IMAGES = imgs
+        return cls._IMAGES
+
     def __init__(self, group: pygame.sprite.Group, group_bg: pygame.sprite.Group, sound: Sound, hud: HeadUpDisplay, world: str) -> None:
         # Map index
         self.__map_idx: int = 0
@@ -69,33 +118,8 @@ class Map():
             1: {(12, 11): (0, 165, 10, 2, 3), (12, 10): (0, 165, 10, 2, 3)}
             }
                 
-        pipe_1, pipe_2 = pygame.image.load('./img/pipe_1.jpg'), pygame.image.load('./img/pipe_2.jpg')
-        castle_2 = pygame.image.load('./img/castle_2.jpg')
-        block_ground = pygame.image.load('./img/ground.jpg')
-        self.__imgs: dict = {
-            self.BLOCK_GROUND: (block_ground, pygame.image.load('./img/ground_sub.jpg')),
-            self.BLOCK_NORMAL: (pygame.image.load('./img/block.jpg'), pygame.image.load('./img/block_sub.jpg')),
-            self.BLOCK_QUESTION: pygame.image.load('./img/question_block.jpg'),
-            self.BLOCK_PANEL: pygame.image.load('./img/panel.jpg'),
-            self.PIPE_1: pipe_1,
-            self.PIPE_2: pipe_2,
-            self.PIPE_3: pygame.image.load('./img/pipe_3.jpg'),
-            self.PIPE_4: pygame.image.load('./img/pipe_4.jpg'),
-            self.BLOCK_STAIRS: pygame.image.load('./img/stairs_block.jpg'),
-            self.BLOCK_STAR: pygame.image.load('./img/block.jpg'),
-            self.PIPE_5: pygame.transform.rotate(pipe_1, 90),
-            self.PIPE_6: pygame.transform.rotate(pipe_2, 90),
-            self.PIPE_7: pygame.image.load('./img/pipe_5.jpg'),
-            self.PIPE_8: pygame.image.load('./img/pipe_6.jpg'),
-            self.CASTLE_1: pygame.image.load('./img/castle_1.jpg'),
-            self.CASTLE_2: castle_2,
-            self.CASTLE_3: pygame.transform.rotate(castle_2, 180),
-            self.CASTLE_4: pygame.image.load('./img/castle_4.jpg'),
-            self.CASTLE_5: pygame.image.load('./img/castle_5.jpg'),
-            self.CASTLE_6: block_ground,
-            self.GOAL_POLE_1: pygame.image.load('./img/goal_post_1.jpg'),
-            self.GOAL_POLE_2: pygame.image.load('./img/goal_post_2.jpg'),
-            }
+        # Prepare images
+        self.__imgs: dict[int, tuple[pygame.Surface, ...]] = self.images()
         
         # Mario info
         self.__mario = None
@@ -421,7 +445,7 @@ class Map():
         """Get an image"""
         img = self.__imgs[map_num]
         if isinstance(img, tuple):
-            img = img[0 if self.__map_idx == 0 else 1]
+            return img[0 if self.__map_idx == 0 else 1] if len(img) > 1 else img[0]
         return img
 
     def chk_collision(self, rect: pygame.rect, is_mario: bool = False) -> tuple[int, int] | bool:

@@ -4,6 +4,7 @@ import pygame
 from game.entities.entity import Entity
 from game.core.state import Status
 from game.core.settings import H, TILE_SIZE
+from game.core import assets
 
 if TYPE_CHECKING:
     from game.entities.mario import Mario
@@ -13,17 +14,25 @@ if TYPE_CHECKING:
 class Goomba(Entity):
     WALK_SPEED = 6
     
+    IMAGE_FILES: tuple[str, ...] = ('./img/goomba.jpg', './img/goomba_death.jpg',)
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+    
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
         # Load goomba images        
-        self.__imgs: list = [
-            pygame.image.load('./img/goomba.jpg'),
-            pygame.image.load('./img/goomba_death.jpg'),
-        ]
+        self.__imgs: tuple = self.images()
 
         self.image = self.__imgs[0]
         super().__init__(x, y, dir, mario, map)
 
-    
     def update(self):
         # Not update if Mario is dead or growing or shrinking or Game is paused
         if self._mario.status in [Status.DEADING, Status.GROWING, Status.SHRINKING, Status.PAUSE]:

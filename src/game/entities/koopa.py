@@ -5,6 +5,7 @@ from game.entities.entity import Entity
 from game.systems.number import Number
 from game.core.state import Status
 from game.core.settings import TILE_SIZE, SCORE_ARRAY, ONEUP_SCORE
+from game.core import assets
 
 if TYPE_CHECKING:
     from game.entities.mario import Mario
@@ -15,15 +16,24 @@ class Koopa(Entity):
     WALK_SPEED = 6
     WALK_ANIME_IDX = [0, 0, 0, 1, 1, 1]
     
-    def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
-            # Load goomba images        
-            self.__imgs: list = [
-                pygame.image.load('./img/Koopa_1.jpg'),
-                pygame.image.load('./img/Koopa_2.jpg'),
-                pygame.image.load('./img/Koopa_death.jpg'),
-                pygame.image.load('./img/Koopa_reborn.jpg'),
-            ]
+    IMAGE_FILES: tuple[str, ...] = ('./img/Koopa_1.jpg',
+                                    './img/Koopa_2.jpg',
+                                    './img/Koopa_death.jpg',
+                                    './img/Koopa_reborn.jpg',
+                                    )
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
 
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+    
+    def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):     
+            self.__imgs: tuple = self.images()
             self.image = self.__imgs[0]
             
             super().__init__(x, y, dir, mario, map)

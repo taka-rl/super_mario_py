@@ -4,6 +4,7 @@ import pygame
 from game.entities.entity import Entity
 from game.core.state import Status, GoalStatus
 from game.core.settings import SMALL_TILE_SIZE
+from game.core import assets
 
 if TYPE_CHECKING:
     from game.levels.map import Map
@@ -12,9 +13,22 @@ if TYPE_CHECKING:
 
 
 class Fireworks(Entity):    
+
+    IMAGE_FILES: tuple[str, ...] = ('./img/explode.jpg',)
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map, goal_manager: GoalManager):
-        self._imgs: list = [pygame.image.load('./img/explode.jpg')]
-        self.image = self._imgs[0]
+        self._imgs: tuple = self.images()
+        self.image = self._imgs[0].copy()
         
         self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         

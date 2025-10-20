@@ -5,6 +5,7 @@ from game.core.state import Status
 from game.core.settings import GOAL_FALL_SPEED, GOAL_BOTTOM_Y, SCORE_ARRAY, TILE_SIZE
 from game.systems.number import Number
 from game.entities.entity import Entity
+from game.core import assets
 
 if TYPE_CHECKING:
     from game.entities.mario import Mario
@@ -14,8 +15,20 @@ if TYPE_CHECKING:
 class GoalFlag(Entity):
     HEIGHT_RANGE: int = 200  # Cover the goal pole from the top to bottom
     
+    IMAGE_FILES: tuple[str, ...] = ('./img/goal_flag.jpg',)
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+    
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
-        self.__imgs: list = [pygame.image.load('./img/goal_flag.jpg')]
+        self.__imgs: tuple = self.images()
         self.image = self.__imgs[0]
         
         self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
