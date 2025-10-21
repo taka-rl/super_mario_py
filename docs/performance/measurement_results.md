@@ -24,8 +24,45 @@ Please refer to [this document](https://www.xxxx/docs/performance/measurement_sc
 | Windows 10 | Python 3.10.11 | 16GB | 11th Intel Core i-7 - 1165G7 | 
 | MacBook Air M2 | Python 3.10.11 | 16GB | M2 |
 
-### Code optimization
+### Code Optimization
 
+1. Introduced a class-level image cache (assets.get_images) so entities reuse the same master Surface objects across instances.  
+Each entity now keeps references to shared, immutable “master” surfaces. When per-instance alpha/transforms are needed we copy (surf.copy()) to avoid mutating the shared surface.
+
+2. Replaced unnecessary pygame.Rect() with rect.topleft, rect.update()
+
+- Benchmark for pygame.Rect() vs rect.update(x,y,w,h) and rect.topleft = (x,y):  
+update() in Mario class in Windows 10  
+Result:
+per call on Windows 10(Mario update()): 0.00360 ms saved (pygame.Rect time - update time = 0.00879 - 0.00519 = 0.00360 ms)  
+Example total:   
+1 episode: 0.00360 ms * 1 entity(Mario) * 3000 times = ~10.8 ms 
+1K episodes: 10.8 ms * 1K = 10800 ms = ~10.8 s  
+100K episodes: 10.8 ms * 100K = 1080000 ms = 1080 s = ~0.3 h
+1M episodes: 10.8 ms * 1M = 10800000 ms = 10800 s = ~3.0 h
+
+- Which one should be used: 
+  - rect.topleft = (x, y) – fastest when size doesn’t change.
+  - rect.update(x, y, w, h) – fastest when position and size change.
+
+```bash
+t0 = time.perf_counter()
+self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+used_rect = (time.perf_counter() - t0) * 1000.0
+
+t2 = time.perf_counter()
+self.rect.update(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+update_rect = (time.perf_counter() - t2) * 1000.0
+
+t3 = time.perf_counter()
+self.rect.topleft = (self.__map.get_drawx(self.__rawrect), self.__rawrect.y)
+topleft_rect = (time.perf_counter() - t3) * 1000.0
+
+print(f"pygame.Rect time: {used_rect} ms, update time: {update_rect} ms, topleft time: {topleft_rect} ms") 
+
+pygame.Rect time: 0.008799999704933725 ms, update time: 0.005199999577598646 ms, topleft time: 0.0037999998312443495 ms
+
+```
 
 ## How to run
 Run the following commands: 
@@ -42,8 +79,6 @@ perf-plot logs/perf_<label>.csv --out logs/plot_<label>.png
 
 # Print data from perf_<label>.csv
 perf-summarize logs/perf_<label>.csv
-
-# Compare results
 
 # Example labels: before_win, before_mac, after_win, after_mac
 ```
