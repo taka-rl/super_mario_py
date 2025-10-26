@@ -1,25 +1,37 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from systems.number import Number
-from core.state import Status
-from core.settings import H, ONEUP_SCORE, TILE_SIZE
+from game.entities.entity import Entity
+from game.systems.number import Number
+from game.core.state import Status
+from game.core.settings import H, ONEUP_SCORE, TILE_SIZE
+from game.core import assets
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
     
 
 class Mushroom(Entity):    
+
+    IMAGE_FILES: tuple[str, ...] = ('./img/kinoko.jpg',
+                                    './img/fireflower.jpg',
+                                    './img/1upkinoko.jpg',
+                                    )
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+     
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map, oneup=False):
-        self.__imgs = [
-            pygame.image.load('./img/kinoko.jpg'),
-            pygame.image.load('./img/fireflower.jpg'),
-            pygame.image.load('./img/1upkinoko.jpg'),
-            ]
-        self.image = self.__imgs[0]
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
+        self.__imgs: tuple = self.images()
+        self.image = self.__imgs[0].copy()
         
         self.__isflower: bool = False
         self.__isoneup: bool = oneup
@@ -109,5 +121,5 @@ class Mushroom(Entity):
                     self._status = Status.DEAD
                             
         self.image = self.__imgs[2 if self.__isoneup else 0 if not self._mario.isbig else 1]
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
         

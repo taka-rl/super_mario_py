@@ -1,26 +1,38 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from systems.number import Number
-from core.state import Status
-from core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE, SCORE_ARRAY
+from game.entities.entity import Entity
+from game.systems.number import Number
+from game.core.state import Status
+from game.core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE, SCORE_ARRAY
+from game.core import assets
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class Fire(Entity):
+
+    IMAGE_FILES: tuple[str] = ('./img/fireball.jpg', './img/explode.jpg',)
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+    
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
-        self._imgs: list = [
-            pygame.image.load('./img/fireball.jpg'),
-            pygame.image.load('./img/explode.jpg'),
-        ]
+        self._imgs: tuple = self.images()
         self.image = self._imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
+        self._rawrect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
+        self.rect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
     
     def update(self):
         # Not update if Mario is dead or growing or shrinking or Game is paused
@@ -79,7 +91,7 @@ class Fire(Entity):
             
             self._collapsecount += 1
             
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
 
     def on_projectile_contact(self, enemy: Entity) -> None:
         """

@@ -1,29 +1,39 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from systems.number import Number
-from core.state import Status
-from core.settings import TILE_SIZE, SCORE_ARRAY, ONEUP_SCORE
+from game.entities.entity import Entity
+from game.systems.number import Number
+from game.core.state import Status
+from game.core.settings import TILE_SIZE, SCORE_ARRAY, ONEUP_SCORE
+from game.core import assets
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class Koopa(Entity):
     WALK_SPEED = 6
     WALK_ANIME_IDX = [0, 0, 0, 1, 1, 1]
     
-    def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
-            # Load goomba images        
-            self.__imgs: list = [
-                pygame.image.load('./img/Koopa_1.jpg'),
-                pygame.image.load('./img/Koopa_2.jpg'),
-                pygame.image.load('./img/Koopa_death.jpg'),
-                pygame.image.load('./img/Koopa_reborn.jpg'),
-            ]
+    IMAGE_FILES: tuple[str, ...] = ('./img/Koopa_1.jpg',
+                                    './img/Koopa_2.jpg',
+                                    './img/Koopa_death.jpg',
+                                    './img/Koopa_reborn.jpg',
+                                    )
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
 
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+    
+    def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):     
+            self.__imgs: tuple = self.images()
             self.image = self.__imgs[0]
             
             super().__init__(x, y, dir, mario, map)
@@ -36,7 +46,7 @@ class Koopa(Entity):
         if self._status == Status.DEADING:
             self.image = self.__imgs[2]
             # Update rect for Splite
-            self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+            self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
             self._collapsecount += 1
             
             if self._collapsecount >= 60:
@@ -90,7 +100,7 @@ class Koopa(Entity):
                     
                     self.image = pygame.transform.flip(self.__imgs[0], False, True)
                     # Update rect for Splite
-                    self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+                    self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
                     return
 
                 if self._vy > 0:
@@ -132,7 +142,7 @@ class Koopa(Entity):
                     super()._handle_mario_hit()
                                     
         # Update rect for Splite
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)
 
     def on_projectile_contact(self, enemy: Entity) -> None:
         """

@@ -1,21 +1,34 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from core.state import Status
-from core.settings import TILE_SIZE
+from game.entities.entity import Entity
+from game.core.state import Status
+from game.core.settings import TILE_SIZE
+from game.core import assets
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class Star(Entity):
+
+    IMAGE_FILES: tuple[str, ...] = ('./img/star.jpg',)
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+    
     def __init__(self, x: int, y: int, dir: int, mario: Mario, map: Map):
-        self.__imgs: list = [pygame.image.load('./img/star.jpg')]
-        self.image = self.__imgs[0]
+        self.__imgs: tuple = self.images()
+        self.image = self.__imgs[0].copy()
         
-        self._rawrect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
     
     def update(self):
@@ -71,4 +84,4 @@ class Star(Entity):
                 self._mario.isinvisible = True
                 self._mario.invisiblecounter = 240  # 8 seconds
         
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

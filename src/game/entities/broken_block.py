@@ -1,23 +1,38 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from core.settings import SMALL_TILE_SIZE
+from game.entities.entity import Entity
+from game.core.settings import SMALL_TILE_SIZE
+from game.core import assets
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class BrokenBlock(Entity):
+
+    IMAGE_FILES: tuple[str, ...] = ('./img/crushed_block.jpg',)
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+
     def __init__(self, x: int, y: int, dir: int , vy: int, mario: Mario, map: Map):
-        self.__imgs: list = [pygame.image.load('./img/crushed_block.jpg')]
+        self.__imgs: tuple = self.images()
         self.image = self.__imgs[0]
         
-        self._rawrect = pygame.Rect(x, y, SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         super().__init__(x, y, dir, mario, map)
+        self._rawrect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
+        self.rect.size = (SMALL_TILE_SIZE, SMALL_TILE_SIZE)
         self._vy = vy
         
     def update(self):
         super().flying()
-        self.rect = pygame.Rect(self._map.get_drawxentity(self._rawrect), self._rawrect.y, self._rawrect.width, self._rawrect.height)
+        self.rect.topleft = (self._map.get_drawxentity(self._rawrect), self._rawrect.y)

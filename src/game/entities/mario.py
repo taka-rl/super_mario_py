@@ -1,8 +1,9 @@
 import pygame
-from entities.fire import Fire
-from core.state import Status
-from core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE, SMALL_TILE_SIZE
-from levels.map import Map
+from game.entities.fire import Fire
+from game.core.state import Status
+from game.core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE, SMALL_TILE_SIZE
+from game.levels.map import Map
+from game.core import assets
 
 
 class Mario(pygame.sprite.Sprite):
@@ -17,37 +18,47 @@ class Mario(pygame.sprite.Sprite):
     MAX_JUMP_Y = 7
     DASH_JUMP_Y = 10
     
+    IMAGE_FILES: tuple[str, ...] = (
+        './img/mario_1.jpg',
+        './img/mario_2.jpg',
+        './img/mario_3.jpg',
+        './img/mario_death.jpg',
+        './img/mario_jump.jpg',
+        './img/mario_middle.jpg',
+        './img/mario_big_1.jpg',
+        './img/mario_big_2.jpg',
+        './img/mario_big_3.jpg',
+        './img/mario_big_jump.jpg',
+        './img/mario_fire_1.jpg',
+        './img/mario_fire_2.jpg',
+        './img/mario_fire_3.jpg',
+        './img/mario_fire_jump.jpg',
+        './img/mario_sit.jpg',
+        './img/mario_fire_sit.jpg'
+        )
+    _IMAGES: tuple[pygame.Surface, ...] | None = None
+
+    @classmethod
+    def images(cls) -> tuple[pygame.Surface, ...]:
+        """
+        Load the images specified in IMAGE_FILES and store them in memory.
+        """
+        if cls._IMAGES is None:
+            cls._IMAGES = assets.get_images(cls.IMAGE_FILES)
+        return cls._IMAGES
+
     def __init__(self, map: Map, group: pygame.sprite.Group):
         pygame.sprite.Sprite.__init__(self)
         
         # Load mario images
-        self.__imgs: list = [
-            pygame.image.load('./img/mario_1.jpg'),
-            pygame.image.load('./img/mario_2.jpg'),
-            pygame.image.load('./img/mario_3.jpg'),
-            pygame.image.load('./img/mario_death.jpg'),
-            pygame.image.load('./img/mario_jump.jpg'),
-            pygame.image.load('./img/mario_middle.jpg'),
-            pygame.image.load('./img/mario_big_1.jpg'),
-            pygame.image.load('./img/mario_big_2.jpg'),
-            pygame.image.load('./img/mario_big_3.jpg'),
-            pygame.image.load('./img/mario_big_jump.jpg'),
-            pygame.image.load('./img/mario_fire_1.jpg'),
-            pygame.image.load('./img/mario_fire_2.jpg'),
-            pygame.image.load('./img/mario_fire_3.jpg'),
-            pygame.image.load('./img/mario_fire_jump.jpg'),
-            pygame.image.load('./img/mario_sit.jpg'),
-            pygame.image.load('./img/mario_fire_sit.jpg'),
-            # TODO: Add images of falling down to the goal pole for the goal animation
-            ]
-        
-        self.image = self.__imgs[0]
+        self.__imgs: tuple = self.images()
+        self.image = self.__imgs[0].copy()
         
         # The coordinate for map and the location of Mario are different.
         # Mario location coordinate        
         self.__rawrect = pygame.Rect(30, 220, TILE_SIZE, TILE_SIZE)
         # Mario coordinate for Map
-        self.rect = self.__rawrect
+        self.rect = pygame.Rect(30, 220, TILE_SIZE, TILE_SIZE)
         
         # Get a map
         self.__map: Map = map
@@ -73,7 +84,7 @@ class Mario(pygame.sprite.Sprite):
         # Y axle move distance
         self.__vy: int = 0
         
-        # X axle move distance 
+        # X axle move distance
         self.__vx: float = 0
         
         # Flag for dash
@@ -241,7 +252,7 @@ class Mario(pygame.sprite.Sprite):
         # Draw game start
         if self.__status == Status.OPENING:
             # Put the mario at the center of the game start window
-            self.rect = pygame.Rect(130, 140, TILE_SIZE, TILE_SIZE)
+            self.rect.topleft = (130, 140)
             self.__game_start()
             return
         
@@ -257,7 +268,7 @@ class Mario(pygame.sprite.Sprite):
         if self.__status == Status.DEADING:
             self.image = self.__imgs[3]
             self.__deading()
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.topleft = (self.__map.get_drawx(self.__rawrect), self.__rawrect.y)
             return
         
         # Fall handling
@@ -271,27 +282,27 @@ class Mario(pygame.sprite.Sprite):
         # Mario gets a mushroom
         if self.__status == Status.GROWING:            
             self.__growing()
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.update(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
         # Mario becomes small
         if self.__status == Status.SHRINKING:
             self.__shrinking()
             self.image.set_alpha(128) 
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.update(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             return
         
         # Warping
         if self.__status in (Status.ENTERING, Status.APPEARING):
             self.__warping(is_entering=True if self.__status == Status.ENTERING else False)
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.topleft = (self.__map.get_drawx(self.__rawrect), self.__rawrect.y)
             return
         
         # Game is paused
         # "p" is pushed -> Mario status changes from NORMAL to PAUSE and vice versa
         if self.__status == Status.PAUSE:
             self.image = self.__get_image()
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.topleft = (self.__map.get_drawx(self.__rawrect), self.__rawrect.y)
             return
             
         # Goal process
@@ -299,7 +310,7 @@ class Mario(pygame.sprite.Sprite):
             # Goal animation does not end
             # if not self.__goal():
             self.image = self.__get_image()
-            self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+            self.rect.topleft = (self.__map.get_drawx(self.__rawrect), self.__rawrect.y)
             return
         
         else:
@@ -402,7 +413,7 @@ class Mario(pygame.sprite.Sprite):
             self.image.set_alpha(255)
                 
         # Update rect for Splite
-        self.rect = pygame.Rect(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
+        self.rect.update(self.__map.get_drawx(self.__rawrect), self.__rawrect.y, self.__rawrect.width, self.__rawrect.height)
             
     def move(self):
         self.__walkidx += 1
