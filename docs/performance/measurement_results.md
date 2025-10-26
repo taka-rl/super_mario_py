@@ -87,6 +87,9 @@ perf-summarize --label "Win • After" logs/perf_after_win*.csv --format md
 perf-summarize --label "Mac • Before" logs/perf_before_mac*.csv --format md
 perf-summarize --label "Mac • After" logs/perf_after_mac*.csv --format md
 
+# Compare the results between before and after
+perf-summarize --compare "Win・Before:logs/perf_<label>*.csv" --compare "Win・After:logs/perf_<label>*.csv" --format md
+
 # Example labels: before_win, before_mac, after_win, after_mac
 ```
 
@@ -106,19 +109,31 @@ p95 tells you how high the CPU% gets during the worst 5% of the time.
 ### Steady-state (play phase only)
 | Metrics | Before updates on Windows | After updates on Windows | Δ(abs/%) | Before updates on Mac | After updates on Mac | Δ(abs/%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| FPS (median) | 29.830 [29.825–29.850] | | | 29.426 |
-| FPS (p1 — worst 1%) | 27.187 [26.790–27.751] | | | 24.179 | 
-| CPU% (median) | 3.000 [3.000–3.100] | | | 12.200 | 
-| CPU% (p95) | 6.200 [6.200–6.200] | | | 14.100 |  
-| RSS MB (median) | 58.622 [58.548–58.651] | | | 163.545 |
-| RSS MB (max) | 60.555 [60.535–60.559] | | | 166.068 |
+| FPS (median) | 29.830 [29.825–29.850] |  29.841 [29.821–29.855] | +0.010 (+0.0%) | 29.426 |
+| FPS (p1 — worst 1%) | 27.187 [26.790–27.751] | 26.949 [26.520–27.030] | -0.238 (-0.9%) | 24.179 | 
+| CPU% (median) | 3.000 [3.000–3.100] | 3.100 [3.000–3.100] | +0.100 (+3.3%) | 12.200 | 
+| CPU% (p95) | 6.200 [6.200–6.200] | 6.200 [6.200–6.200] | +0.000 (+0.0%) | 14.100 |  
+| RSS MB (median) | 58.622 [58.548–58.651] | 58.376 [58.360–58.438] | -0.246 (-0.4%) | 163.545 |
+| RSS MB (max) | 60.555 [60.535–60.559] | 60.178 [60.170–60.285] | -0.377 (-0.6%) | 166.068 |
  
 
 ### Phase timings
 | Metrics | Before updates on Windows | After updates on Windows | Δ(abs/%) | Before updates on Mac | After updates on Mac | Δ(abs/%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| init_ms | 43.350 [43.163–45.285] | | | 33.574 |
-| reset_ms (S1) |0.101 [0.097–0.105] | | | 0.273 |
-| reset_ms (S2) | 0.099 [0.064–0.099] | | | 0.154 |
-| gameover_ms (S3) | 26.618 [23.976–26.653] | | | 17.369 |
+| init_ms | 43.350 [43.163–45.285] | 50.120 [49.657–52.977] | +6.769 (+15.6%) | 33.574 |
+| reset_ms (S1) |0.101 [0.097–0.105] | 0.113 [0.101–0.119] | +0.005 (+5.3%) | 0.273 |
+| reset_ms (S2) | 0.099 [0.064–0.099] | 0.101 [0.098–0.102] | -0.001 (-0.8%) | 0.154 |
+| gameover_ms (S3) | 26.618 [23.976–26.653] | 9.616 [9.205–10.364] | -17.001 (-63.9%) | 17.369 |
+
+
+### Asset cache
+| Metrics | Windows 10 Cache count | Windows 10 Cache MB |
+| --- | --- | --- |
+| after_init | 35.000 [35.000–35.000] | 0.051 [0.051–0.051] |
+| after_S1_reset | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] | 
+| after_S2_reset | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] | 
+| after_S3_gameover | 49.000 [48.000–49.000] | 0.065 [0.065–0.065] |
+
+> **Note:** Some metrics exist only in one condition:
+> - Only in **Win・After**, **Mac・After**: cache.after_S1_reset.cache_mb, cache.after_S2_reset.cache_mb, cache.after_S3_gameover.cache_mb
 
