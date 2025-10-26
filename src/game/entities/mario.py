@@ -1,8 +1,8 @@
 import pygame
-from entities.fire import Fire
-from core.state import Status
-from core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE, SMALL_TILE_SIZE
-from levels.map import Map
+from game.entities.fire import Fire
+from game.core.state import Status
+from game.core.settings import H, GOAL_FALL_SPEED, GOAL_BOTTOM_Y, TILE_SIZE, SMALL_TILE_SIZE
+from game.levels.map import Map
 
 
 class Mario(pygame.sprite.Sprite):

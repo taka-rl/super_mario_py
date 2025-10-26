@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from core.state import Status
-from core.settings import H, SCORE_ARRAY, ONEUP_SCORE, TILE_SIZE
-from systems.number import Number
+from game.core.state import Status
+from game.core.settings import H, SCORE_ARRAY, ONEUP_SCORE, TILE_SIZE
+from game.systems.number import Number
 
 if TYPE_CHECKING:
-    from entities.koopa import Koopa
+    from game.entities.koopa import Koopa
     from game.entities.mario import Mario
     from game.levels.map import Map
 

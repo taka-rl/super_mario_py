@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from systems.number import Number
-from core.state import Status
-from core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE, SCORE_ARRAY
+from game.entities.entity import Entity
+from game.systems.number import Number
+from game.core.state import Status
+from game.core.settings import W, H, SMALL_TILE_SIZE, TILE_SIZE, SCORE_ARRAY
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class Fire(Entity):

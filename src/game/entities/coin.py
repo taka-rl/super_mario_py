@@ -1,14 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from core.state import Status
-from core.settings import TILE_SIZE
-from systems.number import Number
-from entities.entity import Entity
+from game.core.state import Status
+from game.core.settings import TILE_SIZE
+from game.systems.number import Number
+from game.entities.entity import Entity
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class Coin(Entity):

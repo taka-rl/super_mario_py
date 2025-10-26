@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import pygame
-from entities.entity import Entity
-from core.settings import SMALL_TILE_SIZE
+from game.entities.entity import Entity
+from game.core.settings import SMALL_TILE_SIZE
 
 if TYPE_CHECKING:
-    from entities.mario import Mario
-    from levels.map import Map
+    from game.entities.mario import Mario
+    from game.levels.map import Map
 
 
 class BrokenBlock(Entity):

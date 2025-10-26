@@ -1,22 +1,22 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Sequence
 import pygame
-from core.settings import TILE_X, TILE_Y, TILE_SIZE, SMALL_TILE_SIZE, BLUE, BLACK
-from core.state import Status
-from levels.world1_1 import LEVEL as LEVEL_1_1
-from entities.coin import Coin
-from entities.goomba import Goomba
-from entities.koopa import Koopa
-from entities.mushroom import Mushroom
-from entities.static_coin import StaticCoin
-from entities.star import Star
-from entities.goal_flag import GoalFlag
-from entities.castle_flag import CastleFlag
-from entities.broken_block import BrokenBlock
+from game.core.settings import TILE_X, TILE_Y, TILE_SIZE, SMALL_TILE_SIZE, BLUE, BLACK
+from game.core.state import Status
+from game.levels.world1_1 import LEVEL as LEVEL_1_1
+from game.entities.coin import Coin
+from game.entities.goomba import Goomba
+from game.entities.koopa import Koopa
+from game.entities.mushroom import Mushroom
+from game.entities.static_coin import StaticCoin
+from game.entities.star import Star
+from game.entities.goal_flag import GoalFlag
+from game.entities.castle_flag import CastleFlag
+from game.entities.broken_block import BrokenBlock
 
 if TYPE_CHECKING:
-    from systems.sound import Sound
-    from systems.hud import HeadUpDisplay
+    from game.systems.sound import Sound
+    from game.systems.hud import HeadUpDisplay
 
 
 class Map():
@@ -550,7 +550,7 @@ class Map():
         """
         Change the map with deleting entities and drawing entites.
         """
-        from entities.mario import Mario
+        from game.entities.mario import Mario
 
         map_idx, xidx = next_mapdata[:2]
         self.__map_idx = map_idx
