@@ -88,7 +88,8 @@ perf-summarize --label "Mac • Before" logs/perf_before_mac*.csv --format md
 perf-summarize --label "Mac • After" logs/perf_after_mac*.csv --format md
 
 # Compare the results between before and after
-perf-summarize --compare "Win・Before:logs/perf_<label>*.csv" --compare "Win・After:logs/perf_<label>*.csv" --format md
+perf-summarize --compare "Win・Before:logs/perf_before_win*.csv" --compare "Win・After:logs/perf_after_win*.csv" --format md
+perf-summarize --compare "Mac・Before:logs/perf_before_mac*.csv" --compare "Mac・After:logs/perf_after_mac*.csv" --format md
 
 # Example labels: before_win, before_mac, after_win, after_mac
 ```
