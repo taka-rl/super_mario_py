@@ -1,11 +1,16 @@
 
 # Measurement Results
 
-## Measurement Conditions
+## Overview of the results
+- Init got a bit slower on both Windows and Mac (small absolute cost) — expected because more work happens once at startup (class-level images() + cache warmup).
+- Game over/reset paths are much faster on both OSes (big win), especially **gameover_ms (−64% Win, −48% Mac)**.
+  > The cache shifts work from resets/death to startup—higher `init_ms` but much faster `gameover_ms` and stable/lower RSS during play.
+- Steady-state memory (RSS) improved on both OSes (modest but consistent drops in median and max).
+- Steady-state CPU: essentially flat on **Windows (3.0 → 3.1%** median; I’d treat as noise), meaningfully lower on **Mac (median −9%, p95 −14%)**.
 
+## Measurement Conditions
 ### Scenarios for the measurements
 Please refer to [this document](https://www.xxxx/docs/performance/measurement_scenarios.md)
-
 
 ### Environments
 | Conditions | Windows 10  | Macbook Air M2 |
@@ -13,7 +18,6 @@ Please refer to [this document](https://www.xxxx/docs/performance/measurement_sc
 | Power state | plugged in | plugged in |
 | Background | only VS code and Pygame window | only VS code and Pygame window |
 | FPS | 30 | 30 |
-
 
 ### Libraries
 | Libraries | Version  |
@@ -105,36 +109,35 @@ how bad things get during the worst 1% of time. It’s much more robust than the
 The 95th percentile is often used to represent spikes, since higher values are worse for these metrics.
 p95 tells you how high the CPU% gets during the worst 5% of the time. 
 
-- Each result contains medium and IQR (Inter-Quartile range) including Q1–Q3 of the 5 run values.
+- Each result contains median and IQR (Inter-Quartile range) including Q1–Q3 of the 5 run values.
  
 ### Steady-state (play phase only)
 | Metrics | Before updates on Windows | After updates on Windows | Δ(abs/%) | Before updates on Mac | After updates on Mac | Δ(abs/%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| FPS (median) | 29.830 [29.825–29.850] |  29.841 [29.821–29.855] | +0.010 (+0.0%) | 29.426 |
-| FPS (p1 — worst 1%) | 27.187 [26.790–27.751] | 26.949 [26.520–27.030] | -0.238 (-0.9%) | 24.179 | 
-| CPU% (median) | 3.000 [3.000–3.100] | 3.100 [3.000–3.100] | +0.100 (+3.3%) | 12.200 | 
-| CPU% (p95) | 6.200 [6.200–6.200] | 6.200 [6.200–6.200] | +0.000 (+0.0%) | 14.100 |  
-| RSS MB (median) | 58.622 [58.548–58.651] | 58.376 [58.360–58.438] | -0.246 (-0.4%) | 163.545 |
-| RSS MB (max) | 60.555 [60.535–60.559] | 60.178 [60.170–60.285] | -0.377 (-0.6%) | 166.068 |
+| FPS (median) | 29.830 [29.825–29.850] |  29.841 [29.821–29.855] | +0.010 (+0.0%) | 29.407 [29.407–29.424] | 29.431 [29.409–29.449] | +0.023 (+0.1%) |
+| FPS (p1 — worst 1%) | 27.187 [26.790–27.751] | 26.949 [26.520–27.030] | -0.238 (-0.9%) | 24.992 [24.642–25.056] | 24.601 [24.527–24.943] | -0.391 (-1.6%) | 
+| CPU% (median) | 3.000 [3.000–3.100] | 3.100 [3.000–3.100] | +0.100 (+3.3%) | 13.200 [12.100–13.700] | 12.000 [11.650–12.100] | -1.200 (-9.1%) |
+| CPU% (p95) | 6.200 [6.200–6.200] | 6.200 [6.200–6.200] | +0.000 (+0.0%) |15.500 [13.700–15.500] | 13.300 [13.200–13.800] | -2.200 (-14.2%) |  
+| RSS MB (median) | 58.622 [58.548–58.651] | 58.376 [58.360–58.438] | -0.246 (-0.4%) | 161.841 [161.645–162.111] | 161.202 [156.828–161.513] | -0.639 (-0.4%) |
+| RSS MB (max) | 60.555 [60.535–60.559] | 60.178 [60.170–60.285] | -0.377 (-0.6%) | 164.282 [163.676–164.413] | 163.414 [160.104–163.594] | -0.868 (-0.5%) |
  
 
 ### Phase timings
 | Metrics | Before updates on Windows | After updates on Windows | Δ(abs/%) | Before updates on Mac | After updates on Mac | Δ(abs/%) |
 | --- | --- | --- | --- | --- | --- | --- |
-| init_ms | 43.350 [43.163–45.285] | 50.120 [49.657–52.977] | +6.769 (+15.6%) | 33.574 |
-| reset_ms (S1) |0.101 [0.097–0.105] | 0.113 [0.101–0.119] | +0.005 (+5.3%) | 0.273 |
-| reset_ms (S2) | 0.099 [0.064–0.099] | 0.101 [0.098–0.102] | -0.001 (-0.8%) | 0.154 |
-| gameover_ms (S3) | 26.618 [23.976–26.653] | 9.616 [9.205–10.364] | -17.001 (-63.9%) | 17.369 |
+| init_ms | 43.350 [43.163–45.285] | 50.120 [49.657–52.977] | +6.769 (+15.6%) | 20.188 [19.258–20.571] | 22.095 [21.899–22.172] | +1.907 (+9.4%) |
+| reset_ms (S1) |0.101 [0.097–0.105] | 0.113 [0.101–0.119] | +0.012 (~+11.5%) | 0.204 [0.196–0.225] | 0.157 [0.148–0.161] | -0.046 (-22.8%) |
+| reset_ms (S2) | 0.099 [0.064–0.099] | 0.101 [0.098–0.102] | +0.003 (~+2.6%) | 0.162 [0.149–0.164] | 0.096 [0.092–0.115] | -0.066 (-40.6%) |
+| gameover_ms (S3) | 26.618 [23.976–26.653] | 9.616 [9.205–10.364] | -17.001 (-63.9%) | 21.676 [20.865–23.141] | 11.252 [10.220–11.304] | -10.423 (-48.1%) |
 
 
 ### Asset cache
-| Metrics | Windows 10 Cache count | Windows 10 Cache MB |
-| --- | --- | --- |
-| after_init | 35.000 [35.000–35.000] | 0.051 [0.051–0.051] |
-| after_S1_reset | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] | 
-| after_S2_reset | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] | 
-| after_S3_gameover | 49.000 [48.000–49.000] | 0.065 [0.065–0.065] |
+| Metrics | Windows 10 Cache count | Windows 10 Cache MB | Mac Cache count | Mac Cache MB |
+| --- | --- | --- | --- | --- | 
+| after_init | 35.000 [35.000–35.000] | 0.051 [0.051–0.051] | 35.000 [35.000–35.000] | 0.051 [0.051–0.051] |
+| after_S1_reset | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] |
+| after_S2_reset | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] | 41.000 [41.000–41.000] | 0.058 [0.058–0.058] |
+| after_S3_gameover | 49.000 [48.000–49.000] | 0.065 [0.065–0.065] | 48.000 [48.000–49.000] | 0.065 [0.065–0.065] |
 
 > **Note:** Some metrics exist only in one condition:
 > - Only in **Win・After**, **Mac・After**: cache.after_S1_reset.cache_mb, cache.after_S2_reset.cache_mb, cache.after_S3_gameover.cache_mb
-
